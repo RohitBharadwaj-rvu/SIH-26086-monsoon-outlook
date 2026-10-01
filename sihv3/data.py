@@ -81,7 +81,7 @@ class Normalizer:
 class V3Data:
     """Holds the whole (normalised) dataset in memory; `batches()` yields cropped tensors."""
 
-    def __init__(self, history_len: int = 14, context: int = 16):
+    def __init__(self, history_len: int = 14, context: int = 16, val_year: int | None = None):
         import zarr
 
         assert 1 <= history_len <= 14 and 16 <= context <= 40 and context % 2 == 0
@@ -107,6 +107,10 @@ class V3Data:
         self.static = np.concatenate([terr, self.land[None]], 0)       # [6,80,80]
         self.dates = np.asarray(g["dates"][:]).astype(str)[rows]
         self.splits = splits_all[rows]
+        if val_year is not None:  # alternative validation season: that year -> val, 2022 -> train, 2023 stays test
+            years = np.array([int(d[:4]) for d in self.dates])
+            assert val_year not in (2023,) and (years == val_year).any(), val_year
+            self.splits = np.where(years == val_year, "val", np.where(self.splits == "test", "test", "train"))
         self.idx = {s: np.where(self.splits == s)[0] for s in ("train", "val", "test")}
 
     def batches(self, split: str, batch_size: int, shuffle: bool, device, rng=None):

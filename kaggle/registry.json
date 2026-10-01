@@ -449,5 +449,24 @@
   "launched_utc": 1790877153.657403,
   "status": "queued",
   "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-b-s6-diff"
+ },
+ {
+  "name": "c-s9-moe-e4k1f50",
+  "account": "a3",
+  "user": "rohithphegde",
+  "slug": "sih26074-v3-c-s9-moe-e4k1f50",
+  "sprint": "S9",
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 4 --moe_topk 1 --moe_frac 0.5 --seed 0 --tag s9_moe_e4k1f50_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 4 --moe_topk 1 --moe_frac 0.5 --seed 1 --tag s9_moe_e4k1f50_s1"
+   ]
+  ],
+  "expected_min": 110.0,
+  "launched_utc": 1790878196.2544415,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohithphegde/sih26074-v3-c-s9-moe-e4k1f50"
  }
 ]

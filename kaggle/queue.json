@@ -347,7 +347,7 @@
     "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 3 --N 20 --precip_lin_w 1.0 --seed 1 --tag s45_confirm_h3_n20_s1"
    ]
   ],
-  "state": "launched"
+  "state": "done"
  },
  {
   "name": "c-confirm-h3-n40",
@@ -383,7 +383,7 @@
  },
  {
   "name": "c-s9-moe-e4k1f50",
-  "account": null,
+  "account": "a3",
   "sprint": "S9",
   "expected_min": 110,
   "needs": [],
@@ -394,7 +394,8 @@
    [
     "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 4 --moe_topk 1 --moe_frac 0.5 --seed 1 --tag s9_moe_e4k1f50_s1"
    ]
-  ]
+  ],
+  "state": "launched"
  },
  {
   "name": "c-s9-moe-e8k1f50",
@@ -498,6 +499,66 @@
    ],
    [
     "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 8 --moe_topk 1 --moe_frac 1.0 --seed 1 --tag s9_moe_e8k1f100_s1"
+   ]
+  ]
+ },
+ {
+  "name": "f-v21-h3-n16",
+  "account": null,
+  "sprint": "S4/5 val2021",
+  "expected_min": 140,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 3 --N 16 --precip_lin_w 1.0 --val_year 2021 --seed 0 --tag s45v21_h3_n16_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 3 --N 16 --precip_lin_w 1.0 --val_year 2021 --seed 1 --tag s45v21_h3_n16_s1"
+   ]
+  ]
+ },
+ {
+  "name": "f-v21-h14-n16",
+  "account": null,
+  "sprint": "S4/5 val2021",
+  "expected_min": 140,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 14 --N 16 --precip_lin_w 1.0 --val_year 2021 --seed 0 --tag s45v21_h14_n16_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 14 --N 16 --precip_lin_w 1.0 --val_year 2021 --seed 1 --tag s45v21_h14_n16_s1"
+   ]
+  ]
+ },
+ {
+  "name": "f-v21-h3-n20",
+  "account": null,
+  "sprint": "S4/5 val2021",
+  "expected_min": 140,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 3 --N 20 --precip_lin_w 1.0 --val_year 2021 --seed 0 --tag s45v21_h3_n20_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 3 --N 20 --precip_lin_w 1.0 --val_year 2021 --seed 1 --tag s45v21_h3_n20_s1"
+   ]
+  ]
+ },
+ {
+  "name": "f-v21-h3-n40",
+  "account": null,
+  "sprint": "S4/5 val2021",
+  "expected_min": 140,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 3 --N 40 --precip_lin_w 1.0 --val_year 2021 --seed 0 --tag s45v21_h3_n40_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 3 --N 40 --precip_lin_w 1.0 --val_year 2021 --seed 1 --tag s45v21_h3_n40_s1"
    ]
   ]
  },

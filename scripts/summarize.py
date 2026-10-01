@@ -87,6 +87,7 @@ def main():
                 ("Sprint 4 — history length (N=16)", "s4_", lambda r: r["H"]),
                 ("Sprint 5 — spatial context (H=7; N=16 row shared with Sprint 4)", ("s5_", "s4_h7_n16"), lambda r: r["N"]),
                 ("Sprint 4/5 confirmation — 100-epoch schedule (H, N)", ("s45_confirm", "s9_dense_S"), lambda r: (r["H"], r["N"])),
+                ("Sprint 4/5 second validation season (2021 held out, 2022 in training) — 100 epochs", "s45v21_", lambda r: (r["H"], r["N"])),
                 ("Sprint 6 — deterministic vs diffusion", ("s6_", "s9_dense_S"), lambda r: (r["mode"] == "diff", r["params"])),
                 ("Sprint 9 — capacity and MoE", "s9_", lambda r: (r["active"], r["params"]))]
     winners, rankings = {}, {}

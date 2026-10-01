@@ -52,6 +52,7 @@ def parse():
     p.add_argument("--det_ckpt", default=None, help="frozen deterministic model for --mode diff")
     p.add_argument("--eval_members", type=int, default=8)
     p.add_argument("--eval_steps", type=int, default=16)
+    p.add_argument("--val_year", type=int, default=None, help="alternative validation season (default 2022)")
     p.add_argument("--tag", default="run")
     p.add_argument("--out", default=os.environ.get("SIH_OUT", "/kaggle/working/out" if Path("/kaggle").exists() else "out"))
     p.add_argument("--max_batches", type=int, default=0, help="smoke test: limit batches per epoch")
@@ -213,7 +214,7 @@ def main():
     t_start = time.time()
     print(f"[{args.tag}] device={dev} gpus={torch.cuda.device_count()} args={vars(args)}", flush=True)
 
-    data = V3Data(history_len=args.H, context=args.N)
+    data = V3Data(history_len=args.H, context=args.N, val_year=args.val_year)
     print(f"[{args.tag}] data: train {len(data.idx['train'])} val {len(data.idx['val'])} test {len(data.idx['test'])}"
           f" | load {time.time() - t_start:.0f}s", flush=True)
 
