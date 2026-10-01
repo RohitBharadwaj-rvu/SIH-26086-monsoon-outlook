@@ -262,7 +262,7 @@
     "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --seed 1 --tag s9_dense_S_s1"
    ]
   ],
-  "state": "launched"
+  "state": "done"
  },
  {
   "name": "b-s6-diff",
@@ -282,7 +282,8 @@
    [
     "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 110 --H 3 --N 16 --precip_lin_w 1.0 --det_ckpt **/s9_dense_S_s0/best.pt --seed 1 --tag s6_diff_s1"
    ]
-  ]
+  ],
+  "state": "launched"
  },
  {
   "name": "c-s9-M",
@@ -330,7 +331,7 @@
     "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 14 --N 16 --precip_lin_w 1.0 --seed 1 --tag s45_confirm_h14_n16_s1"
    ]
   ],
-  "state": "launched"
+  "state": "done"
  },
  {
   "name": "c-confirm-h3-n20",
@@ -366,7 +367,7 @@
  },
  {
   "name": "c-confirm-h14-n40",
-  "account": null,
+  "account": "a3",
   "sprint": "S4/5 confirm",
   "expected_min": 140,
   "needs": [],
@@ -377,7 +378,8 @@
    [
     "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 14 --N 40 --precip_lin_w 1.0 --seed 1 --tag s45_confirm_h14_n40_s1"
    ]
-  ]
+  ],
+  "state": "launched"
  },
  {
   "name": "c-s9-moe-e4k1f50",
