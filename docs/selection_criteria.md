@@ -58,3 +58,7 @@ Probabilistic CSS (pCSS) replaces the MAE components with the matching CRPS comp
    those configs; it is applied from Sprint 6/9 on, where calibrated outputs are reported.
 5. **No single-variable regressions**: a winner must not be worse than the runner-up by more than 5 % on any
    CSS component; otherwise the decision is flagged in the decision log for review.
+6. **Scaling sanity check (standing rule, from the project lead)**: history length, context ratio, denoising
+   steps, ensemble size, capacity and MoE sparsity should improve results up to an optimum. When more of one of
+   them does *not* help, first look for a bug (ablate whether the extra input/compute is actually used) before
+   accepting it as a finding; record the check in the decision log.
