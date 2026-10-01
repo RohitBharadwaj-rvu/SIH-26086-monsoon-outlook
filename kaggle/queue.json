@@ -207,11 +207,11 @@
     "@eval_det --ckpts **/s4_h14_n16_s1/best.pt --tag qm3_h14_s1"
    ]
   ],
-  "state": "launched"
+  "state": "done"
  },
  {
   "name": "a3-seed2-2",
-  "account": null,
+  "account": "a1",
   "sprint": "S4/5 seed2",
   "expected_min": 120,
   "needs": [],
@@ -223,6 +223,27 @@
    [
     "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 40 --seed 2 --tag s5_h7_n40_s2",
     "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 16 --seed 2 --precip_lin_w 1.0 --tag lin_h7_n16_s2"
+   ]
+  ],
+  "state": "launched"
+ },
+ {
+  "name": "b0-diff-pilot",
+  "account": "a2",
+  "sprint": "S6 pilot",
+  "expected_min": 95,
+  "needs": [
+   "a-s4h7-s5n24"
+  ],
+  "kernel_sources": [
+   "sih26074-v3-a-s4h7-s5n24"
+  ],
+  "lanes": [
+   [
+    "--mode diff --size S --epochs 40 --patience 8 --time_budget_min 60 --H 7 --N 16 --det_ckpt **/s4_h7_n16_s0/best.pt --eval_members 8 --eval_steps 16 --seed 0 --tag s6pilot_diff_s0"
+   ],
+   [
+    "--mode diff --size S --epochs 40 --patience 8 --time_budget_min 60 --H 7 --N 16 --det_ckpt **/s4_h7_n16_s0/best.pt --eval_members 8 --eval_steps 16 --seed 1 --tag s6pilot_diff_s1"
    ]
   ]
  },

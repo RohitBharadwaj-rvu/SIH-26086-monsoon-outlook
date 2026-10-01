@@ -16,3 +16,6 @@
 2026-10-01 21:13:47 scheduler started
 2026-10-01 21:19:38 DONE a-s4-h1h3
 2026-10-01 21:19:50 LAUNCH e-qm-check3 on a1 -> ok
+2026-10-01 21:22:27 DONE e-qm-check3
+2026-10-01 21:22:37 LAUNCH a3-seed2-2 on a1 -> ok
+2026-10-01 21:25:21 scheduler started
