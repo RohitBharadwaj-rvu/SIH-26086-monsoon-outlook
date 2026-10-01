@@ -225,7 +225,7 @@
     "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 16 --seed 2 --precip_lin_w 1.0 --tag lin_h7_n16_s2"
    ]
   ],
-  "state": "launched"
+  "state": "done"
  },
  {
   "name": "b0-diff-pilot",
@@ -350,7 +350,7 @@
  },
  {
   "name": "c-confirm-h3-n40",
-  "account": null,
+  "account": "a1",
   "sprint": "S4/5 confirm",
   "expected_min": 140,
   "needs": [],
@@ -361,7 +361,8 @@
    [
     "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 3 --N 40 --precip_lin_w 1.0 --seed 1 --tag s45_confirm_h3_n40_s1"
    ]
-  ]
+  ],
+  "state": "launched"
  },
  {
   "name": "c-confirm-h14-n40",

@@ -5,11 +5,11 @@
 
 | config | seeds | val CSS (mean ± sd) | val CSS +precipQM | test CSS | precip_wet_mae | precip_csi15 | precip_csi30 | precip_fss15 | precip_bias_ratio | tmax_mae | tmin_mae | rh_mae | wind_vec_rmse |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| **lin_h7_n16** | 2 | 0.2254 ± 0.0068 | nan | 0.2156 | 17.676 | 0.282 | 0.209 | 0.619 | 0.541 | 0.932 | 0.422 | 3.064 | 0.784 |
+| **lin_h7_n16** | 3 | 0.2224 ± 0.0070 | nan | 0.2137 | 17.780 | 0.276 | 0.203 | 0.610 | 0.527 | 0.930 | 0.420 | 3.042 | 0.781 |
 | s4_h7_n16 | 3 | 0.2203 ± 0.0012 | nan | 0.2304 | 17.785 | 0.258 | 0.183 | 0.588 | 0.502 | 0.934 | 0.402 | 2.965 | 0.761 |
 | GFS-bilinear (reference) | | 0 | | 0 | 17.826 | 0.278 | 0.174 | 0.624 | 0.807 | 1.501 | 0.687 | 6.412 | 1.863 |
 
-Noise floor 0.0050; configs within it of the best: lin_h7_n16. **Selected: lin_h7_n16** (cheapest within the floor).
+Noise floor 0.0050; configs within it of the best: lin_h7_n16, s4_h7_n16. **Selected: lin_h7_n16** (cheapest within the floor).
 
 
 ## Sprint 4 — history length (N=16)
@@ -31,15 +31,15 @@ Noise floor 0.0076; configs within it of the best: s4_h14_n16, s4_h3_n16, s4_h7_
 
 | config | seeds | val CSS (mean ± sd) | val CSS +precipQM | test CSS | precip_wet_mae | precip_csi15 | precip_csi30 | precip_fss15 | precip_bias_ratio | tmax_mae | tmin_mae | rh_mae | wind_vec_rmse |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| s5_h7_n40 | 3 | 0.2254 ± 0.0139 | nan | 0.2383 | 17.768 | 0.260 | 0.187 | 0.592 | 0.524 | 0.896 | 0.395 | 2.982 | 0.757 |
 | s5_h7_n20 | 3 | 0.2250 ± 0.0181 | 0.2518 | 0.2380 | 17.663 | 0.265 | 0.191 | 0.597 | 0.513 | 0.923 | 0.402 | 2.969 | 0.757 |
-| s5_h7_n28 | 2 | 0.2235 ± 0.0131 | 0.2479 | 0.2385 | 17.808 | 0.266 | 0.199 | 0.601 | 0.514 | 0.936 | 0.391 | 3.079 | 0.752 |
+| s5_h7_n28 | 3 | 0.2215 ± 0.0099 | 0.2489 | 0.2363 | 17.828 | 0.261 | 0.193 | 0.594 | 0.510 | 0.931 | 0.392 | 3.061 | 0.755 |
 | **s4_h7_n16** | 3 | 0.2203 ± 0.0012 | nan | 0.2304 | 17.785 | 0.258 | 0.183 | 0.588 | 0.502 | 0.934 | 0.402 | 2.965 | 0.761 |
-| s5_h7_n40 | 2 | 0.2176 ± 0.0036 | nan | 0.2401 | 17.889 | 0.249 | 0.182 | 0.570 | 0.519 | 0.909 | 0.398 | 2.989 | 0.760 |
 | s5_h7_n24 | 3 | 0.2162 ± 0.0026 | nan | 0.2341 | 17.855 | 0.253 | 0.182 | 0.578 | 0.500 | 0.925 | 0.396 | 3.063 | 0.757 |
-| s5_h7_n32 | 2 | 0.2154 ± 0.0053 | nan | 0.2408 | 17.980 | 0.253 | 0.182 | 0.578 | 0.507 | 0.928 | 0.397 | 3.039 | 0.753 |
+| s5_h7_n32 | 3 | 0.2131 ± 0.0055 | nan | 0.2368 | 18.063 | 0.248 | 0.177 | 0.571 | 0.495 | 0.918 | 0.396 | 3.016 | 0.758 |
 | GFS-bilinear (reference) | | 0 | | 0 | 17.826 | 0.278 | 0.174 | 0.624 | 0.807 | 1.501 | 0.687 | 6.412 | 1.863 |
 
-Noise floor 0.0086; configs within it of the best: s5_h7_n20, s5_h7_n28, s4_h7_n16, s5_h7_n40. **Selected: s4_h7_n16** (cheapest within the floor).
+Noise floor 0.0085; configs within it of the best: s5_h7_n40, s5_h7_n20, s5_h7_n28, s4_h7_n16. **Selected: s4_h7_n16** (cheapest within the floor).
 
 
 ## Sprint 4/5 confirmation — 100-epoch schedule (H, N)

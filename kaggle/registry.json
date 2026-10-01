@@ -392,5 +392,24 @@
   "launched_utc": 1790873987.0209618,
   "status": "queued",
   "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohithphegde/sih26074-v3-c-confirm-h3-n20"
+ },
+ {
+  "name": "c-confirm-h3-n40",
+  "account": "a1",
+  "user": "rohitajitbharadwaj",
+  "slug": "sih26074-v3-c-confirm-h3-n40",
+  "sprint": "S4/5 confirm",
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 3 --N 40 --precip_lin_w 1.0 --seed 0 --tag s45_confirm_h3_n40_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 3 --N 40 --precip_lin_w 1.0 --seed 1 --tag s45_confirm_h3_n40_s1"
+   ]
+  ],
+  "expected_min": 140.0,
+  "launched_utc": 1790875329.0516338,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-c-confirm-h3-n40"
  }
 ]
