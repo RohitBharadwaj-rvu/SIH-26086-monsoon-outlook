@@ -51,7 +51,10 @@ Probabilistic CSS (pCSS) replaces the MAE components with the matching CRPS comp
    2 seeds declared configs 0.036 apart "tied"; corrected 21:22.)
 3. **Ties go to the cheaper option** (shorter history, smaller context, fewer parameters, fewer
    sampling steps/members), because cost is real at inference time.
-4. **Physical gates**: a config is rejected if Tmax < Tmin on more than 1 % of pixels, or if its precipitation
-   bias ratio is worse than GFS-bilinear's.
+4. **Physical gates**: a config is rejected if Tmax < Tmin on more than 1 % of pixels, or if the precipitation
+   bias ratio of its *delivered* output (after the train-fitted precipitation quantile mapping for deterministic
+   models; raw for diffusion ensembles) is worse than GFS-bilinear's. Note: every Phase A (Sprint 3-5) raw
+   deterministic model under-predicts rain by ~50 % (log-space loss), so the gate does not discriminate between
+   those configs; it is applied from Sprint 6/9 on, where calibrated outputs are reported.
 5. **No single-variable regressions**: a winner must not be worse than the runner-up by more than 5 % on any
    CSS component; otherwise the decision is flagged in the decision log for review.
