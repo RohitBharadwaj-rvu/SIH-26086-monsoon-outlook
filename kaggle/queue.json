@@ -65,7 +65,7 @@
    ]
   ],
   "needs": [],
-  "state": "launched"
+  "state": "done"
  },
  {
   "name": "a-s5-n40",
@@ -155,7 +155,7 @@
  },
  {
   "name": "a3-seed2-0",
-  "account": null,
+  "account": "a2",
   "sprint": "S4/5 seed2",
   "expected_min": 120,
   "needs": [],
@@ -168,7 +168,8 @@
     "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 5 --N 16 --seed 2 --tag s4_h5_n16_s2",
     "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 16 --seed 2 --tag s4_h7_n16_s2"
    ]
-  ]
+  ],
+  "state": "launched"
  },
  {
   "name": "a3-seed2-1",

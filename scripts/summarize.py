@@ -64,6 +64,7 @@ def table(runs, prefix, cost_key):
     body += "| GFS-bilinear (reference) | | 0 | | 0 | " + " | ".join(f"{ref[c]:.3f}" for c in COLS) + " |\n"
     note = (f"\nNoise floor {floor:.4f}; configs within it of the best: {', '.join(r['cfg'] for r in tied)}. "
             f"**Selected: {winner['cfg']}** (cheapest within the floor).\n")
+    winner["ranking"] = [r["cfg"] for r in rows]
     return hdr + body + note, winner
 
 
@@ -75,14 +76,17 @@ def main():
                 ("Sprint 5 — spatial context (H=7; N=16 row shared with Sprint 4)", ("s5_", "s4_h7_n16"), lambda r: r["N"]),
                 ("Sprint 6 — deterministic vs diffusion", "s6_", lambda r: (r["mode"] == "diff", r["params"])),
                 ("Sprint 9 — capacity and MoE", "s9_", lambda r: (r["active"], r["params"]))]
-    winners = {}
+    winners, rankings = {}, {}
     for title, prefix, cost in sections:
         md, w = table(runs, prefix, cost)
         out += [f"\n## {title}\n", md]
         winners[title.split(" —")[0]] = w["cfg"] if w else None
+        if w:
+            rankings[title.split(" —")[0]] = w["ranking"]
     (REPO / "docs" / "results.md").write_text("\n".join(out), encoding="utf-8")
     print("\n".join(out))
     print("WINNERS", winners)
+    print("RANKINGS", rankings)
 
 
 if __name__ == "__main__":

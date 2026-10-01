@@ -91,7 +91,10 @@ def summarize():
     r = subprocess.run([sys.executable, str(REPO / "scripts" / "summarize.py")], capture_output=True, text=True,
                        cwd=REPO, env={**__import__("os").environ, "PYTHONIOENCODING": "utf-8"})
     m = re.search(r"WINNERS (\{.*\})", r.stdout)
-    return eval(m.group(1)) if m else {}
+    k = re.search(r"RANKINGS (\{.*\})", r.stdout)
+    w = eval(m.group(1)) if m else {}
+    w["_rankings"] = eval(k.group(1)) if k else {}
+    return w
 
 
 # ------------------------------------------------------------------------------- planners
@@ -123,6 +126,25 @@ def plan_phase_bc(q, reg, st):
               "lanes": [[f"{M} --seed 0 --tag s9_dense_M_s0"], [f"{M} --seed 1 --tag s9_dense_M_s1"]]})
     q.append({"name": "c-s9-L", "account": None, "sprint": "S9", "expected_min": 175, "needs": [],
               "lanes": [[f"{L_} --seed 0 --tag s9_dense_L_s0"], [f"{L_} --seed 1 --tag s9_dense_L_s1"]]})
+    # Confirmation: runner-up H (at N*) and runner-up N (at H*) on the same long schedule, so the Phase A
+    # choice (50 epochs, all runs still improving) is checked under converged training.
+    rk = w.get("_rankings", {})
+    alt = []
+    h2 = next((c for c in rk.get("Sprint 4", []) if c != h_cfg), None)
+    n2 = next((c for c in rk.get("Sprint 5", []) if c != n_cfg), None)
+    if h2:
+        alt.append(("H", int(re.search(r"_h(\d+)", h2).group(1)), N))
+    if n2:
+        alt.append(("N", H, int(re.search(r"_n(\d+)", n2).group(1))))
+    for kind, hh, nn in alt:
+        if (hh, nn) == (H, N):
+            continue
+        cb = f"--H {hh} --N {nn}{extra}"
+        tg = f"s45_confirm_h{hh}_n{nn}"
+        q.append({"name": f"c-confirm-h{hh}-n{nn}", "account": None, "sprint": "S4/5 confirm", "expected_min": 110, "needs": [],
+                  "lanes": [[f"--mode det --size S {LONG} --time_budget_min 95 {cb} --seed 0 --tag {tg}_s0"],
+                            [f"--mode det --size S {LONG} --time_budget_min 95 {cb} --seed 1 --tag {tg}_s1"]]})
+        decide(f"Long-schedule confirmation run for runner-up {kind}: H={hh}, N={nn}", "Phase A runs were capped at 50 epochs while still improving")
     moe = [(4, 1, 0.5), (8, 1, 0.5), (16, 1, 0.5), (4, 2, 0.5), (8, 2, 0.5), (16, 2, 0.5), (8, 1, 0.25), (8, 1, 1.0)]
     for e, k, fr in moe:
         tag = f"s9_moe_e{e}k{k}f{int(fr * 100)}"
