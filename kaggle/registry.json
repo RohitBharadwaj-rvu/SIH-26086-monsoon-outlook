@@ -1,0 +1,21 @@
+[
+ {
+  "name": "timing",
+  "account": "a1",
+  "user": "rohitajitbharadwaj",
+  "slug": "sih26074-v3-timing",
+  "sprint": "timing",
+  "lanes": [
+   [
+    "--mode det --size S --H 14 --N 40 --epochs 2 --tag t_S_n40_h14"
+   ],
+   [
+    "--mode det --size L --H 7 --N 24 --epochs 2 --bs 8 --tag t_L_n24_h7"
+   ]
+  ],
+  "expected_min": 25.0,
+  "launched_utc": 1790865074.5468502,
+  "status": "queued",
+  "push_msg": "Kernel version 2 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-timing"
+ }
+]
