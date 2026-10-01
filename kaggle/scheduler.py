@@ -30,6 +30,8 @@ QUEUE = REPO / "kaggle" / "queue.json"
 LOG = REPO / "kaggle" / "scheduler.log"
 DLOG = REPO / "docs" / "decision_log.md"
 STATE = REPO / "kaggle" / "scheduler_state.json"
+INBOX = REPO / "kaggle" / "inbox.json"
+HEART = REPO / "kaggle" / "scheduler_heartbeat.json"
 MAX_PER_ACCOUNT = 2
 IST = timezone(timedelta(hours=5, minutes=30))
 S_ARGS = "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10"
@@ -187,9 +189,22 @@ def main():
     log("scheduler started")
     while True:
         try:
+            HEART.write_text(json.dumps({"phase": "working", "t": time.time()}))
             refresh(status, quota)
             reg = load(REGISTRY, [])
             q = load(QUEUE, [])
+            # queue edits arrive via kaggle/inbox.json so the scheduler never has to be stopped for them
+            if INBOX.exists():
+                for op in load(INBOX, []):
+                    if "append" in op and not any(j.get("name") == op["append"]["name"] for j in q):
+                        q.insert(len([j for j in q if not j.get("planner")]), op["append"])
+                        log(f"INBOX append {op['append']['name']}")
+                    elif "update" in op:
+                        for j in q:
+                            if j.get("name") == op["update"] and j.get("state", "pending") == "pending":
+                                j.update(op["fields"])
+                                log(f"INBOX update {op['update']} {list(op['fields'])}")
+                INBOX.unlink()
             done = {j["name"] for j in q if j.get("name") and "complete" in (job_state(j["name"], status, reg)[0] or "")}
             # retries + bookkeeping
             for j in q:
@@ -250,6 +265,7 @@ def main():
             sys.stdout.flush()
         except Exception:
             log("ERROR " + traceback.format_exc()[-800:])
+        HEART.write_text(json.dumps({"phase": "sleeping", "t": time.time(), "until": time.time() + 120}))
         time.sleep(120)
 
 
