@@ -39,7 +39,7 @@ def check(f):
         flags.append(f"precip bias ratio {br:.2f} worse than GFS-bilinear")
     pts = ", ".join(f"{e['epoch']}:{e.get(key, float('nan')):.3f}" for e in h[:: max(1, len(h) // 8)])
     print(f"{tag:22s} {a['mode']} {a['size']} H{a['H']} N{a['N']} | {len(h)} ep, best {r['best_epoch']} ({stopped}), "
-          f"{r['train_minutes']:.0f} min | val CSS {v['css']:+.4f} (QM {QM_VAL:+.3f}) test {t['css']:+.4f} | "
+          f"{r['train_minutes']:.0f} min | val CSS {v['css']:+.4f} (+precipQM {v.get('precip_qm', {}).get('css', float('nan')):+.4f}; GFS-QM {QM_VAL:+.3f}) test {t['css']:+.4f} | "
           f"wetMAE {v['aggregate']['precip_wet_mae']:.2f} csi15 {v['aggregate']['precip_csi15']:.3f} "
           f"csi30 {v['aggregate']['precip_csi30']:.3f} bias {br:.2f} Tmax {v['aggregate']['tmax_mae']:.2f} "
           f"RH {v['aggregate']['rh_mae']:.2f} wind {v['aggregate']['wind_vec_rmse']:.2f}")

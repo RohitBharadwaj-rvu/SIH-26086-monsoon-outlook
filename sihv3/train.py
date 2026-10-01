@@ -133,13 +133,35 @@ def sample(model, batch, y_det, sigma, steps=16, members=1, sampler="ddim", eta=
     return torch.stack(outs)
 
 
-def evaluate(data, split, predict_fn, device, members=1, hook=None):
+def fit_precip_qm(data, predict_fn, device, nq=200):
+    """Per-lead quantile map predicted -> observed precipitation (mm), pooled over land pixels, train split."""
+    qs = np.concatenate([np.linspace(0, 0.99, nq - 20), np.linspace(0.99, 0.9999, 20)])
+    pr, ob = [[] for _ in range(7)], [[] for _ in range(7)]
+    for b in data.batches("train", 8, False, device):
+        p = data.norm.inv(predict_fn(b)[0], axis=2)[:, :, 0].cpu().numpy()
+        t = data.norm.inv(b["target"], axis=2)[:, :, 0].cpu().numpy()
+        m = b["mask"][:, :, 0].cpu().numpy().astype(bool)
+        for l in range(7):
+            pr[l].append(p[:, l][m[:, l]]); ob[l].append(t[:, l][m[:, l]])
+    return [(np.quantile(np.concatenate(pr[l]), qs), np.quantile(np.concatenate(ob[l]), qs)) for l in range(7)]
+
+
+def apply_precip_qm(P, qm):
+    """P physical [K,B,7,6,80,80] -> precipitation channel quantile-mapped in place."""
+    for l, (pq, oq) in enumerate(qm):
+        P[:, :, l, 0] = np.interp(P[:, :, l, 0], pq, oq)
+    return P
+
+
+def evaluate(data, split, predict_fn, device, members=1, hook=None, post=None):
     """predict_fn(batch) -> [K,B,7,6,80,80] normalised. Returns metrics dict incl. reference + CSS."""
     preds, refs, targs, masks = [], [], [], []
     for b in data.batches(split, 8, False, device):
         p = predict_fn(b)
         n = data.norm
         preds.append(n.inv(p, axis=3).cpu().numpy())
+        if post is not None:
+            preds[-1] = post(preds[-1])
         lo = (b["forecast"].shape[-1] - 16) // 2
         up = F.interpolate(b["forecast"][:, :, :, lo:lo + 16, lo:lo + 16].flatten(0, 1), size=(80, 80),
                            mode="bilinear", align_corners=False).view(-1, 7, 6, 80, 80)
@@ -305,6 +327,14 @@ def main():
                     return det_predict(ema, b)[None].float()
             r = evaluate(data, split, pf, dev)
         r["latency_sec_per_sample"] = (time.time() - t0) / len(data.idx[split])
+        if not diff:  # post-hoc precipitation quantile mapping fitted on train (fixes log-loss dry bias)
+            if split == "val":
+                qm = fit_precip_qm(data, pf, dev)
+            rq = evaluate(data, split, pf, dev, post=lambda P: apply_precip_qm(P, qm))
+            r["precip_qm"] = {"css": rq["css"], "aggregate": rq["aggregate"]}
+            print(f"[{args.tag}] FINAL {split} +precipQM: CSS {rq['css']:.4f} | bias {rq['aggregate']['precip_bias_ratio']:.2f} "
+                  f"csi15 {rq['aggregate']['precip_csi15']:.3f} csi30 {rq['aggregate']['precip_csi30']:.3f} "
+                  f"wetMAE {rq['aggregate']['precip_wet_mae']:.2f}", flush=True)
         result[split] = r
         print(f"[{args.tag}] FINAL {split}: CSS {r['css']:.4f} | " + " ".join(
             f"{k} {r['aggregate'][k]:.3f}" for k in ("precip_wet_mae", "precip_csi15", "precip_csi30", "precip_fss15",

@@ -29,6 +29,7 @@ def load_runs():
                      "H": a["H"], "N": a["N"], "moe": (a["moe_experts"], a["moe_topk"], a["moe_frac"]),
                      "params": r["params_total"], "active": r["params_active"], "val_css": r["val"]["css"],
                      "test_css": r["test"]["css"], "val": r["val"]["aggregate"], "test": r["test"]["aggregate"],
+                     "val_css_qm": r["val"].get("precip_qm", {}).get("css", float("nan")),
                      "ref": r["val"]["reference_gfs_bilinear"]["aggregate"], "minutes": r["train_minutes"],
                      "latency": r["val"].get("latency_sec_per_sample"), "vram": r.get("peak_vram_gb"),
                      "best_epoch": r["best_epoch"]})
@@ -47,6 +48,7 @@ def table(runs, prefix, cost_key):
         css = np.array([r["val_css"] for r in rs])
         rows.append({"cfg": cfg, "n": len(rs), "css": css.mean(), "sd": css.std(ddof=1) if len(rs) > 1 else np.nan,
                      "test": np.mean([r["test_css"] for r in rs]), "cost": cost_key(rs[0]), "rs": rs,
+                     "css_qm": np.mean([r["val_css_qm"] for r in rs]),
                      **{c: np.mean([r["val"][c] for r in rs]) for c in COLS}})
     rows.sort(key=lambda x: -x["css"])
     sds = [r["sd"] for r in rows if np.isfinite(r["sd"])]
@@ -57,9 +59,9 @@ def table(runs, prefix, cost_key):
     ref = rows[0]["rs"][0]["ref"]
     hdr = "| config | seeds | val CSS (mean ± sd) | test CSS | " + " | ".join(COLS) + " |\n|" + "---|" * (4 + len(COLS)) + "\n"
     body = "".join(
-        f"| {'**' + r['cfg'] + '**' if r is winner else r['cfg']} | {r['n']} | {r['css']:.4f} ± {r['sd']:.4f} | {r['test']:.4f} | "
+        f"| {'**' + r['cfg'] + '**' if r is winner else r['cfg']} | {r['n']} | {r['css']:.4f} ± {r['sd']:.4f} | {r['css_qm']:.4f} | {r['test']:.4f} | "
         + " | ".join(f"{r[c]:.3f}" for c in COLS) + " |\n" for r in rows)
-    body += "| GFS-bilinear (reference) | | 0 | 0 | " + " | ".join(f"{ref[c]:.3f}" for c in COLS) + " |\n"
+    body += "| GFS-bilinear (reference) | | 0 | | 0 | " + " | ".join(f"{ref[c]:.3f}" for c in COLS) + " |\n"
     note = (f"\nNoise floor {floor:.4f}; configs within it of the best: {', '.join(r['cfg'] for r in tied)}. "
             f"**Selected: {winner['cfg']}** (cheapest within the floor).\n")
     return hdr + body + note, winner
