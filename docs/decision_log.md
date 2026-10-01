@@ -12,3 +12,5 @@
 | 20:09 | Added `--precip_lin_w` (precip L1 in mm) variant | after 2 epochs CSI@15 collapsed (log-space Huber -> median bias); tested as `lin_*` alongside S3-5 |
 | 20:10 | Phase A launched: 16 runs (S4 H in {1,3,7,14}, S5 N in {24,32,40} at H=7, loss variant), 2 seeds each | |
 | 20:12 | Kaggle allows >= 2 concurrent GPU sessions per account -> 6 sessions / 12 GPUs | quota 81.7 h / 13.8 h ~ 5.9 sessions: keep ~6 running |
+| 20:40 | Sprint 3 non-learned baselines: GFS-QM (per-lead, per-pixel quantile mapping, train 2015-21) CSS 0.22 val / 0.19 test vs GFS-bilinear | `scripts/baselines_s3.py`; learned models must beat 0.22 |
+| 20:40 | CORRECTION: GFS is ~15-18 % too dry over land, not 1.4-2.2x too wet | earlier figure compared against coarse CHIRPS incl. 0-filled sea pixels; mass-conservation loss stays removed (GFS biased either way) |

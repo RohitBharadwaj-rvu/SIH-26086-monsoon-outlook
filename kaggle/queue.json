@@ -134,6 +134,57 @@
   ]
  },
  {
+  "name": "a3-seed2-0",
+  "account": null,
+  "sprint": "S4/5 seed2",
+  "expected_min": 120,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 1 --N 16 --seed 2 --tag s4_h1_n16_s2",
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 3 --N 16 --seed 2 --tag s4_h3_n16_s2"
+   ],
+   [
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 5 --N 16 --seed 2 --tag s4_h5_n16_s2",
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 16 --seed 2 --tag s4_h7_n16_s2"
+   ]
+  ]
+ },
+ {
+  "name": "a3-seed2-1",
+  "account": null,
+  "sprint": "S4/5 seed2",
+  "expected_min": 120,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 10 --N 16 --seed 2 --tag s4_h10_n16_s2",
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 14 --N 16 --seed 2 --tag s4_h14_n16_s2"
+   ],
+   [
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 20 --seed 2 --tag s5_h7_n20_s2",
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 24 --seed 2 --tag s5_h7_n24_s2"
+   ]
+  ]
+ },
+ {
+  "name": "a3-seed2-2",
+  "account": null,
+  "sprint": "S4/5 seed2",
+  "expected_min": 120,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 28 --seed 2 --tag s5_h7_n28_s2",
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 32 --seed 2 --tag s5_h7_n32_s2"
+   ],
+   [
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 40 --seed 2 --tag s5_h7_n40_s2",
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 16 --seed 2 --precip_lin_w 1.0 --tag lin_h7_n16_s2"
+   ]
+  ]
+ },
+ {
   "planner": "phase_bc",
   "needs": [
    "a-s4-h1h3",
