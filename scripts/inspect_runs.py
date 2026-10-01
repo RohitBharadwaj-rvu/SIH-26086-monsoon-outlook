@@ -1,0 +1,68 @@
+"""
+Health check of finished runs: learning curve, stop reason, red flags, and comparison with the
+Sprint 3 non-learned baselines.   python scripts/inspect_runs.py [job_name ...]
+"""
+from __future__ import annotations
+
+import glob
+import json
+import sys
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[1]
+base = json.load(open(REPO / "results" / "baselines_s3.json"))
+QM_VAL = base["val"]["gfs_qm_css"]
+
+
+def check(f):
+    r = json.load(open(f))
+    a, h = r["args"], r["history"]
+    tag = a["tag"]
+    flags = []
+    key = "val_css" if a["mode"] == "det" else "val_vloss"
+    curve = [e.get(key) for e in h]
+    if any(c is None or c != c for c in curve):
+        flags.append("NaN in validation curve")
+    if r["best_epoch"] <= 3 and len(h) > 6:
+        flags.append(f"best epoch {r['best_epoch']} of {len(h)} (early peak -> overfitting/instability?)")
+    stopped = "time budget" if len(h) < a["epochs"] and len(h) - r["best_epoch"] < a["patience"] else (
+        "patience" if len(h) < a["epochs"] else "max epochs")
+    if stopped == "time budget" and r["best_epoch"] >= len(h) - 1:
+        flags.append("still improving when the time budget stopped it (undertrained)")
+    v, t = r["val"], r["test"]
+    if v["aggregate"].get("tmax_lt_tmin_rate", 0) > 0.01:
+        flags.append(f"Tmax<Tmin on {v['aggregate']['tmax_lt_tmin_rate']:.1%} of pixels")
+    if abs(v["css"] - t["css"]) > 0.15:
+        flags.append(f"val/test CSS gap {v['css'] - t['css']:+.3f}")
+    br = v["aggregate"]["precip_bias_ratio"]
+    if abs(br - 1) > abs(v["reference_gfs_bilinear"]["aggregate"]["precip_bias_ratio"] - 1):
+        flags.append(f"precip bias ratio {br:.2f} worse than GFS-bilinear")
+    pts = ", ".join(f"{e['epoch']}:{e.get(key, float('nan')):.3f}" for e in h[:: max(1, len(h) // 8)])
+    print(f"{tag:22s} {a['mode']} {a['size']} H{a['H']} N{a['N']} | {len(h)} ep, best {r['best_epoch']} ({stopped}), "
+          f"{r['train_minutes']:.0f} min | val CSS {v['css']:+.4f} (QM {QM_VAL:+.3f}) test {t['css']:+.4f} | "
+          f"wetMAE {v['aggregate']['precip_wet_mae']:.2f} csi15 {v['aggregate']['precip_csi15']:.3f} "
+          f"csi30 {v['aggregate']['precip_csi30']:.3f} bias {br:.2f} Tmax {v['aggregate']['tmax_mae']:.2f} "
+          f"RH {v['aggregate']['rh_mae']:.2f} wind {v['aggregate']['wind_vec_rmse']:.2f}")
+    print(f"{'':22s} curve {key}: {pts}")
+    for fl in flags:
+        print(f"{'':22s} !! {fl}")
+
+
+def main():
+    jobs = sys.argv[1:] or [p.name for p in (REPO / "results").iterdir() if p.is_dir()]
+    for j in sorted(jobs):
+        files = sorted(glob.glob(str(REPO / "results" / j / "out" / "*" / "result.json")))
+        st = REPO / "results" / j / "out" / "job_status.json"
+        if st.exists():
+            print(f"== {j}: {json.load(open(st))}")
+        for f in files:
+            check(f)
+        logs = glob.glob(str(REPO / "results" / j / "out" / "*.log"))
+        for lg in logs:
+            txt = Path(lg).read_text(errors="ignore")
+            if "Traceback" in txt:
+                print(f"   !! Traceback in {Path(lg).name}:\n" + "\n".join(txt.splitlines()[-6:]))
+
+
+if __name__ == "__main__":
+    main()
