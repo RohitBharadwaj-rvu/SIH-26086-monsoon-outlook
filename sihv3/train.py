@@ -133,23 +133,45 @@ def sample(model, batch, y_det, sigma, steps=16, members=1, sampler="ddim", eta=
     return torch.stack(outs)
 
 
-def fit_precip_qm(data, predict_fn, device, nq=200):
-    """Per-lead quantile map predicted -> observed precipitation (mm), pooled over land pixels, train split."""
-    qs = np.concatenate([np.linspace(0, 0.99, nq - 20), np.linspace(0.99, 0.9999, 20)])
-    pr, ob = [[] for _ in range(7)], [[] for _ in range(7)]
+def fit_precip_qm(data, predict_fn, device, nq=100, block=5):
+    """Quantile map predicted -> observed precipitation (mm) per lead and per coarse block (block x block fine
+    pixels, land only), fitted on the train split. Returns (pq, oq) arrays of shape [7, nb, nb, nq]."""
+    qs = np.concatenate([np.linspace(0, 0.98, nq - 10), np.linspace(0.985, 0.9995, 10)])
+    P, T, M = [], [], []
     for b in data.batches("train", 8, False, device):
-        p = data.norm.inv(predict_fn(b)[0], axis=2)[:, :, 0].cpu().numpy()
-        t = data.norm.inv(b["target"], axis=2)[:, :, 0].cpu().numpy()
-        m = b["mask"][:, :, 0].cpu().numpy().astype(bool)
-        for l in range(7):
-            pr[l].append(p[:, l][m[:, l]]); ob[l].append(t[:, l][m[:, l]])
-    return [(np.quantile(np.concatenate(pr[l]), qs), np.quantile(np.concatenate(ob[l]), qs)) for l in range(7)]
+        P.append(data.norm.inv(predict_fn(b)[0], axis=2)[:, :, 0].cpu().numpy())
+        T.append(data.norm.inv(b["target"], axis=2)[:, :, 0].cpu().numpy())
+        M.append(b["mask"][:, :, 0].cpu().numpy().astype(bool))
+    P, T, M = np.concatenate(P), np.concatenate(T), np.concatenate(M)  # [n,7,80,80]
+    nb = 80 // block
+    pq = np.zeros((7, nb, nb, nq), np.float32)
+    oq = np.zeros_like(pq)
+    for l in range(7):
+        for i in range(nb):
+            for j in range(nb):
+                sl = (slice(None), l, slice(i * block, (i + 1) * block), slice(j * block, (j + 1) * block))
+                m = M[sl]
+                if m.sum() < 50:  # (almost) all sea: identity map
+                    pq[l, i, j] = oq[l, i, j] = qs * 100
+                    continue
+                pq[l, i, j] = np.quantile(P[sl][m], qs)
+                oq[l, i, j] = np.quantile(T[sl][m], qs)
+    return pq, oq
 
 
-def apply_precip_qm(P, qm):
-    """P physical [K,B,7,6,80,80] -> precipitation channel quantile-mapped in place."""
-    for l, (pq, oq) in enumerate(qm):
-        P[:, :, l, 0] = np.interp(P[:, :, l, 0], pq, oq)
+def apply_precip_qm(P, qm, block=5):
+    """P physical [K,B,7,6,80,80] -> precipitation channel quantile-mapped (per lead, per block) in place."""
+    pq, oq = qm
+    nb = pq.shape[1]
+    for l in range(7):
+        for i in range(nb):
+            for j in range(nb):
+                sl = (slice(None), slice(None), l, 0, slice(i * block, (i + 1) * block), slice(j * block, (j + 1) * block))
+                x = P[sl]
+                y = np.interp(x, pq[l, i, j], oq[l, i, j])
+                top = x > pq[l, i, j, -1]  # beyond the fitted range: keep the top-quantile ratio
+                y[top] = x[top] * oq[l, i, j, -1] / max(pq[l, i, j, -1], 1e-3)
+                P[sl] = y
     return P
 
 

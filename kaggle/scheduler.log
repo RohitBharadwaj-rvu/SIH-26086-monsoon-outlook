@@ -9,3 +9,7 @@
 2026-10-01 20:59:41 DONE a-s5-n32
 2026-10-01 20:59:51 LAUNCH a3-seed2-0 on a2 -> ok
 2026-10-01 21:02:32 scheduler started
+2026-10-01 21:05:44 DONE a-s5-n40
+2026-10-01 21:05:53 LAUNCH e-qm-check2 on a3 -> ok
+2026-10-01 21:10:51 DONE e-qm-check2
+2026-10-01 21:11:01 LAUNCH a3-seed2-1 on a3 -> ok
