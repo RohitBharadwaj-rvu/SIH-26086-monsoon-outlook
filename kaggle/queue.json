@@ -15,7 +15,7 @@
    ]
   ],
   "needs": [],
-  "state": "launched"
+  "state": "done"
  },
  {
   "name": "a-s4-h14",
@@ -206,7 +206,8 @@
    [
     "@eval_det --ckpts **/s4_h14_n16_s1/best.pt --tag qm3_h14_s1"
    ]
-  ]
+  ],
+  "state": "launched"
  },
  {
   "name": "a3-seed2-2",

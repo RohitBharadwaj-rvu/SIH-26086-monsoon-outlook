@@ -52,12 +52,14 @@ def table(runs, prefix, cost_key):
                      **{c: np.mean([r["val"][c] for r in rs]) for c in COLS}})
     rows.sort(key=lambda x: -x["css"])
     sds = [r["sd"] for r in rows if np.isfinite(r["sd"])]
-    floor = max(0.005, 2 * float(np.sqrt(np.mean(np.square(sds))))) if sds else 0.005
+    # tie threshold = 1 standard error of the difference of two seed means: pooled_sd * sqrt(2 / n_seeds)
+    n_med = float(np.median([r["n"] for r in rows]))
+    floor = max(0.005, float(np.sqrt(np.mean(np.square(sds)))) * np.sqrt(2 / max(n_med, 1))) if sds else 0.005
     top = rows[0]
     tied = [r for r in rows if top["css"] - r["css"] < floor]
     winner = min(tied, key=lambda r: r["cost"])
     ref = rows[0]["rs"][0]["ref"]
-    hdr = "| config | seeds | val CSS (mean ± sd) | test CSS | " + " | ".join(COLS) + " |\n|" + "---|" * (4 + len(COLS)) + "\n"
+    hdr = "| config | seeds | val CSS (mean ± sd) | val CSS +precipQM | test CSS | " + " | ".join(COLS) + " |\n|" + "---|" * (5 + len(COLS)) + "\n"
     body = "".join(
         f"| {'**' + r['cfg'] + '**' if r is winner else r['cfg']} | {r['n']} | {r['css']:.4f} ± {r['sd']:.4f} | {r['css_qm']:.4f} | {r['test']:.4f} | "
         + " | ".join(f"{r[c]:.3f}" for c in COLS) + " |\n" for r in rows)

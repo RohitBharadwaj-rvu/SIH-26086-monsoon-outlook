@@ -238,5 +238,24 @@
   "launched_utc": 1790869261.3521357,
   "status": "queued",
   "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohithphegde/sih26074-v3-a3-seed2-1"
+ },
+ {
+  "name": "e-qm-check3",
+  "account": "a1",
+  "user": "rohitajitbharadwaj",
+  "slug": "sih26074-v3-e-qm-check3",
+  "sprint": "S3",
+  "lanes": [
+   [
+    "@eval_det --ckpts **/s4_h14_n16_s0/best.pt --tag qm3_h14_s0"
+   ],
+   [
+    "@eval_det --ckpts **/s4_h14_n16_s1/best.pt --tag qm3_h14_s1"
+   ]
+  ],
+  "expected_min": 20.0,
+  "launched_utc": 1790869790.9194973,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-e-qm-check3"
  }
 ]

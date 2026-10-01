@@ -46,8 +46,9 @@ Probabilistic CSS (pCSS) replaces the MAE components with the matching CRPS comp
 ## 4. Decision rules (robustness)
 
 1. Every configuration is trained with **2 seeds**; decisions use the **seed mean**.
-2. **Noise floor**: two configs are "tied" if their CSS difference is smaller than
-   `max(0.005, 2 x pooled seed standard deviation)`.
+2. **Noise floor**: two configs are "tied" if their seed-mean CSS difference is smaller than one standard error of
+   that difference, `max(0.005, pooled_seed_sd x sqrt(2 / n_seeds))`. (An earlier draft used 2 x pooled sd, which with
+   2 seeds declared configs 0.036 apart "tied"; corrected 21:22.)
 3. **Ties go to the cheaper option** (shorter history, smaller context, fewer parameters, fewer
    sampling steps/members), because cost is real at inference time.
 4. **Physical gates**: a config is rejected if Tmax < Tmin on more than 1 % of pixels, or if its precipitation
