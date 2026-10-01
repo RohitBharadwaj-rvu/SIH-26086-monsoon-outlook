@@ -31,7 +31,7 @@
    ]
   ],
   "needs": [],
-  "state": "launched"
+  "state": "done"
  },
  {
   "name": "a-s4h7-s5n24",
@@ -97,11 +97,11 @@
    ]
   ],
   "needs": [],
-  "state": "launched"
+  "state": "done"
  },
  {
   "name": "a2-s4-h5h10",
-  "account": null,
+  "account": "a1",
   "sprint": "S4",
   "expected_min": 115,
   "needs": [],
@@ -114,11 +114,12 @@
     "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 5 --N 16 --seed 1 --tag s4_h5_n16_s1",
     "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 10 --N 16 --seed 1 --tag s4_h10_n16_s1"
    ]
-  ]
+  ],
+  "state": "launched"
  },
  {
   "name": "a2-s5-n20n28",
-  "account": null,
+  "account": "a3",
   "sprint": "S5",
   "expected_min": 115,
   "needs": [],
@@ -130,6 +131,25 @@
    [
     "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 20 --seed 1 --tag s5_h7_n20_s1",
     "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 28 --seed 1 --tag s5_h7_n28_s1"
+   ]
+  ],
+  "state": "launched"
+ },
+ {
+  "name": "e-qm-check2",
+  "account": "a3",
+  "sprint": "S3",
+  "expected_min": 20,
+  "needs": [],
+  "kernel_sources": [
+   "sih26074-v3-a-lossvar"
+  ],
+  "lanes": [
+   [
+    "@eval_det --ckpts **/lin_h7_n16_s0/best.pt --tag qm_lin_s0"
+   ],
+   [
+    "@eval_det --ckpts **/lin_h7_n16_s1/best.pt --tag qm_lin_s1"
    ]
   ]
  },

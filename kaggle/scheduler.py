@@ -106,35 +106,28 @@ def plan_phase_bc(q, reg, st):
            f"Sprint 4 winner {h_cfg}, Sprint 5 winner {n_cfg}, Sprint 3 winner {l_cfg} (seed-mean val CSS, ties to cheaper)")
     st.update(H=H, N=N, lin=lin)
     base = f"--H {H} --N {N}{extra}"
-    # Sprint 6: deterministic at (H*,N*) -- reuse a Phase A run if one matches exactly, else train it.
-    cand = f"s4_h{H}_n16" if N == 16 else (f"s5_h7_n{N}" if H == 7 else None)
-    if lin:
-        cand = None
-    own0 = tag_owner(f"{cand}_s0", reg) if cand else (None, None)
-    if cand and own0[0]:
-        det_tag, det_acct, det_job = f"{cand}_s0", own0[0], None
-        decide(f"S6 deterministic = existing {cand}_s0", "already trained at (H*, N*)")
-    else:
-        det_tag, det_acct, det_job = "s6_det_s0", "a1", "b-s6-det"
-        q.append({"name": det_job, "account": det_acct, "sprint": "S6", "expected_min": 65, "needs": [],
-                  "lanes": [[f"{S_ARGS} {base} --seed 0 --tag s6_det_s0"], [f"{S_ARGS} {base} --seed 1 --tag s6_det_s1"]]})
-    det_src = [tag_owner(det_tag, reg)[1]] if det_job is None else ["sih26074-v3-" + det_job]
-    D = f"--mode diff --size S --epochs 40 --time_budget_min 80 --patience 8 {base} --det_ckpt **/{det_tag}/best.pt"
-    q.append({"name": "b-s6-diff", "account": det_acct, "sprint": "S6", "expected_min": 120,
-              "needs": [det_job] if det_job else [], "kernel_sources": det_src,
+    # Sprint 6 + Sprint 9 "S" rung: fresh deterministic S at (H*, N*) on the long schedule (Phase A runs were
+    # 50 epochs and still improving), seeds 0/1; the diffusion stage builds on seed 0 (same account).
+    LONG = "--epochs 100 --patience 15"
+    det_tag, det_acct, det_job = "s9_dense_S_s0", "a1", "b-s9-S"
+    q.append({"name": det_job, "account": det_acct, "sprint": "S6/S9", "expected_min": 110, "needs": [],
+              "lanes": [[f"--mode det --size S {LONG} --time_budget_min 95 {base} --seed 0 --tag s9_dense_S_s0"],
+                        [f"--mode det --size S {LONG} --time_budget_min 95 {base} --seed 1 --tag s9_dense_S_s1"]]})
+    D = f"--mode diff --size S --epochs 60 --patience 10 --time_budget_min 110 {base} --det_ckpt **/{det_tag}/best.pt"
+    q.append({"name": "b-s6-diff", "account": det_acct, "sprint": "S6", "expected_min": 150, "needs": [det_job],
+              "kernel_sources": ["sih26074-v3-" + det_job],
               "lanes": [[f"{D} --seed 0 --tag s6_diff_s0"], [f"{D} --seed 1 --tag s6_diff_s1"]]})
-    # Sprint 9: capacity ladder + MoE at (H*, N*)  (S rows come from Sprint 6 det / Phase A)
-    M = f"--mode det --size M --epochs 50 --time_budget_min 85 --patience 10 {base}"
-    L_ = f"--mode det --size L --epochs 50 --time_budget_min 115 --patience 10 {base}"
-    q.append({"name": "c-s9-M", "account": None, "sprint": "S9", "expected_min": 95, "needs": [],
+    M = f"--mode det --size M {LONG} --time_budget_min 115 {base}"
+    L_ = f"--mode det --size L {LONG} --time_budget_min 160 {base}"
+    q.append({"name": "c-s9-M", "account": None, "sprint": "S9", "expected_min": 130, "needs": [],
               "lanes": [[f"{M} --seed 0 --tag s9_dense_M_s0"], [f"{M} --seed 1 --tag s9_dense_M_s1"]]})
-    q.append({"name": "c-s9-L", "account": None, "sprint": "S9", "expected_min": 125, "needs": [],
+    q.append({"name": "c-s9-L", "account": None, "sprint": "S9", "expected_min": 175, "needs": [],
               "lanes": [[f"{L_} --seed 0 --tag s9_dense_L_s0"], [f"{L_} --seed 1 --tag s9_dense_L_s1"]]})
     moe = [(4, 1, 0.5), (8, 1, 0.5), (16, 1, 0.5), (4, 2, 0.5), (8, 2, 0.5), (16, 2, 0.5), (8, 1, 0.25), (8, 1, 1.0)]
     for e, k, fr in moe:
         tag = f"s9_moe_e{e}k{k}f{int(fr * 100)}"
-        A = f"{S_ARGS.replace('--time_budget_min 55', '--time_budget_min 70')} {base} --moe_experts {e} --moe_topk {k} --moe_frac {fr}"
-        q.append({"name": f"c-{tag.replace('_', '-')}", "account": None, "sprint": "S9", "expected_min": 80, "needs": [],
+        A = f"--mode det --size S {LONG} --time_budget_min 95 {base} --moe_experts {e} --moe_topk {k} --moe_frac {fr}"
+        q.append({"name": f"c-{tag.replace('_', '-')}", "account": None, "sprint": "S9", "expected_min": 110, "needs": [],
                   "lanes": [[f"{A} --seed 0 --tag {tag}_s0"], [f"{A} --seed 1 --tag {tag}_s1"]]})
     q.append({"planner": "phase_d", "needs": ["b-s6-diff"]})
     log(f"PLANNED Phase B/C: {sum(1 for j in q if j.get('name', '').startswith(('b-', 'c-')))} jobs")
@@ -142,8 +135,8 @@ def plan_phase_bc(q, reg, st):
 
 def plan_phase_d(q, reg, st):
     acct = next(j["account"] for j in q if j.get("name") == "b-s6-diff")
-    det_tag = next(c for j in q if j.get("name") == "b-s6-diff" for c in j["lanes"][0]).split("**/")[1].split("/")[0]
-    srcs = sorted({tag_owner(det_tag, reg)[1], tag_owner("s6_diff_s0", reg)[1]})
+    det_tag = "s9_dense_S_s0"
+    srcs = ["sih26074-v3-b-s9-S", "sih26074-v3-b-s6-diff"]
     E = f"--diff_ckpt **/s6_diff_s0/best.pt --det_ckpt **/{det_tag}/best.pt"
     for study, parts, exp in (("s7", 4, 110), ("s8", 2, 110)):
         for p in range(0, parts, 2):

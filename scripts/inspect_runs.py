@@ -27,8 +27,8 @@ def check(f):
         flags.append(f"best epoch {r['best_epoch']} of {len(h)} (early peak -> overfitting/instability?)")
     stopped = "time budget" if len(h) < a["epochs"] and len(h) - r["best_epoch"] < a["patience"] else (
         "patience" if len(h) < a["epochs"] else "max epochs")
-    if stopped == "time budget" and r["best_epoch"] >= len(h) - 1:
-        flags.append("still improving when the time budget stopped it (undertrained)")
+    if stopped in ("time budget", "max epochs") and r["best_epoch"] >= len(h) - 2:
+        flags.append(f"still improving when {stopped} stopped it (undertrained)")
     v, t = r["val"], r["test"]
     if v["aggregate"].get("tmax_lt_tmin_rate", 0) > 0.01:
         flags.append(f"Tmax<Tmin on {v['aggregate']['tmax_lt_tmin_rate']:.1%} of pixels")

@@ -14,3 +14,4 @@
 | 20:12 | Kaggle allows >= 2 concurrent GPU sessions per account -> 6 sessions / 12 GPUs | quota 81.7 h / 13.8 h ~ 5.9 sessions: keep ~6 running |
 | 20:40 | Sprint 3 non-learned baselines: GFS-QM (per-lead, per-pixel quantile mapping, train 2015-21) CSS 0.22 val / 0.19 test vs GFS-bilinear | `scripts/baselines_s3.py`; learned models must beat 0.22 |
 | 20:40 | CORRECTION: GFS is ~15-18 % too dry over land, not 1.4-2.2x too wet | earlier figure compared against coarse CHIRPS incl. 0-filled sea pixels; mass-conservation loss stays removed (GFS biased either way) |
+| 20:42 | Every deterministic run from Phase B/C on also reports CSS after post-hoc precip quantile mapping (train-fitted, per lead) | timing runs predicted only 35-43 % of observed rain (log-loss median bias); calibration is cheap and needs no retraining. Selection still uses raw CSS so Phase A stays comparable |
