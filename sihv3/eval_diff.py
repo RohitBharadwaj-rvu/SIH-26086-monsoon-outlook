@@ -18,7 +18,7 @@ import torch
 
 from sihv3.data import V3Data
 from sihv3.metrics import fair_crps
-from sihv3.train import build, det_predict, evaluate, sample
+from sihv3.train import build, det_predict, evaluate, resolve, sample
 
 BINS = [(0, 1), (1, 15), (15, 30), (30, 64.5), (64.5, 1e9)]
 
@@ -29,7 +29,7 @@ S8_GRID = [(1, 32), (2, 16), (4, 8), (8, 4), (16, 2),          # 32 NFE
 
 
 def load(path, dev, args_over=None):
-    ck = torch.load(path, map_location=dev, weights_only=False)
+    ck = torch.load(resolve(path), map_location=dev, weights_only=False)
     a = argparse.Namespace(**{**ck["args"], **(args_over or {})})
     m = build(a, diffusion=a.mode == "diff", size=a.size).to(dev)
     m.load_state_dict(ck["ema"])

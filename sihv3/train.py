@@ -59,6 +59,18 @@ def parse():
 
 
 # ------------------------------------------------------------------------------- utilities
+def resolve(path: str) -> str:
+    """Allow glob patterns (e.g. '**/s4_h7_n16_s0/best.pt') searched under /kaggle/input and cwd."""
+    if "*" not in path:
+        return path
+    import glob
+    for root in ("/kaggle/input", "/kaggle/working", "."):
+        hits = sorted(glob.glob(os.path.join(root, path), recursive=True))
+        if hits:
+            return hits[0]
+    raise FileNotFoundError(path)
+
+
 def masked_huber(pred, targ, mask, ch_w=None):
     l = F.smooth_l1_loss(pred.float(), targ.float(), reduction="none", beta=1.0) * mask
     per_ch = l.sum((0, 1, 3, 4)) / mask.sum((0, 1, 3, 4)).clamp_min(1)
@@ -168,7 +180,7 @@ def main():
 
     det_model, sigma = None, None
     if diff:
-        ck = torch.load(args.det_ckpt, map_location=dev, weights_only=False)
+        ck = torch.load(resolve(args.det_ckpt), map_location=dev, weights_only=False)
         a2 = argparse.Namespace(**{**vars(args), **{k: ck["args"][k] for k in ("moe_experts", "moe_topk", "moe_frac")}})
         det_model = build(a2, diffusion=False, size=ck["args"]["size"]).to(dev)
         det_model.load_state_dict(ck["ema"])

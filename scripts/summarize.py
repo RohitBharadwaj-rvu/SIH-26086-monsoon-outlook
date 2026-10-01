@@ -36,7 +36,7 @@ def load_runs():
 
 
 def table(runs, prefix, cost_key):
-    sel = [r for r in runs if r["cfg"].startswith(prefix)]
+    sel = [r for r in runs if r["cfg"].startswith(prefix if isinstance(prefix, tuple) else (prefix,))]
     if not sel:
         return f"_no results yet for {prefix}_\n", None
     g = defaultdict(list)
@@ -68,16 +68,17 @@ def table(runs, prefix, cost_key):
 def main():
     runs = load_runs()
     out = ["# Results (validation 2022; test 2023 shown for reference only)\n"]
-    sections = [("Sprint 4 — history length (N=16)", "s4_", lambda r: r["H"]),
-                ("Sprint 5 — spatial context (H=7)", "s5_", lambda r: r["N"]),
+    sections = [("Sprint 3 — deterministic baseline + loss variant (H=7, N=16)", ("s4_h7_n16", "lin_"), lambda r: 0),
+                ("Sprint 4 — history length (N=16)", "s4_", lambda r: r["H"]),
+                ("Sprint 5 — spatial context (H=7; N=16 row shared with Sprint 4)", ("s5_", "s4_h7_n16"), lambda r: r["N"]),
                 ("Sprint 6 — deterministic vs diffusion", "s6_", lambda r: (r["mode"] == "diff", r["params"])),
                 ("Sprint 9 — capacity and MoE", "s9_", lambda r: (r["active"], r["params"]))]
     winners = {}
     for title, prefix, cost in sections:
         md, w = table(runs, prefix, cost)
         out += [f"\n## {title}\n", md]
-        winners[prefix] = w["cfg"] if w else None
-    (REPO / "docs" / "results.md").write_text("\n".join(out))
+        winners[title.split(" —")[0]] = w["cfg"] if w else None
+    (REPO / "docs" / "results.md").write_text("\n".join(out), encoding="utf-8")
     print("\n".join(out))
     print("WINNERS", winners)
 

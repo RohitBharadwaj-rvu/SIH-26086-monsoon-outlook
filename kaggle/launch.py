@@ -70,7 +70,8 @@ def lane(i, cmds):
         tag = c.split("--tag")[-1].split()[0]
         env = dict(os.environ, CUDA_VISIBLE_DEVICES=str(i % ngpu), PYTHONPATH="/kaggle/working/code")
         with open(f"/kaggle/working/out/{tag}.log", "w") as log:
-            p = subprocess.Popen([sys.executable, "-u", "-m", "sihv3.train"] + c.split(), env=env,
+            mod, args = ("sihv3." + c.split()[0][1:], c.split()[1:]) if c.startswith("@") else ("sihv3.train", c.split())
+            p = subprocess.Popen([sys.executable, "-u", "-m", mod] + args, env=env,
                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
             for line in p.stdout:
                 log.write(line); log.flush(); print(f"[gpu{i}] " + line, end="", flush=True)
