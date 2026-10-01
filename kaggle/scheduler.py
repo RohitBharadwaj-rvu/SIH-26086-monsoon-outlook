@@ -136,9 +136,13 @@ def plan_phase_bc(q, reg, st):
         alt.append(("H", int(re.search(r"_h(\d+)", h2).group(1)), N))
     if n2:
         alt.append(("N", H, int(re.search(r"_n(\d+)", n2).group(1))))
+    # always give the long-history / wide-context hypotheses a fair (converged) test as well
+    alt += [("Hmax", 14, N), ("Nmax", H, 40), ("Hmax+Nmax", 14, 40)]
+    seen = {(H, N)}
     for kind, hh, nn in alt:
-        if (hh, nn) == (H, N):
+        if (hh, nn) in seen:
             continue
+        seen.add((hh, nn))
         cb = f"--H {hh} --N {nn}{extra}"
         tg = f"s45_confirm_h{hh}_n{nn}"
         q.append({"name": f"c-confirm-h{hh}-n{nn}", "account": None, "sprint": "S4/5 confirm", "expected_min": 110, "needs": [],

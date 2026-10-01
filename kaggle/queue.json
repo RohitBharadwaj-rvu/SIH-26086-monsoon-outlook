@@ -115,7 +115,7 @@
     "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 10 --N 16 --seed 1 --tag s4_h10_n16_s1"
    ]
   ],
-  "state": "launched"
+  "state": "done"
  },
  {
   "name": "a2-s5-n20n28",
