@@ -85,7 +85,7 @@ def sample(model, batch, y_det, sigma, steps=16, members=1, sampler="ddim", eta=
     outs = []
     for _ in range(members):
         z = torch.randn(y_det.shape, device=y_det.device, generator=gen)
-        ts = torch.linspace(1.0, 0.0, steps + 1, device=y_det.device)
+        ts = torch.linspace(0.999, 0.0, steps + 1, device=y_det.device)  # training uses t in [1e-3, 0.999]
         x0_prev = None
         for i in range(steps):
             t, tn = ts[i], ts[i + 1]
@@ -119,7 +119,7 @@ def sample(model, batch, y_det, sigma, steps=16, members=1, sampler="ddim", eta=
     return torch.stack(outs)
 
 
-def evaluate(data, split, predict_fn, device, members=1):
+def evaluate(data, split, predict_fn, device, members=1, hook=None):
     """predict_fn(batch) -> [K,B,7,6,80,80] normalised. Returns metrics dict incl. reference + CSS."""
     preds, refs, targs, masks = [], [], [], []
     for b in data.batches(split, 8, False, device):
@@ -132,6 +132,8 @@ def evaluate(data, split, predict_fn, device, members=1):
         refs.append(n.inv(up, axis=2).cpu().numpy())
         targs.append(n.inv(b["target"], axis=2).cpu().numpy())
         masks.append(b["mask"].cpu().numpy())
+        if hook is not None:
+            hook(preds[-1], targs[-1], masks[-1])
     P = np.concatenate(preds, 1)  # [K, n, ...]
     R, T, M = np.concatenate(refs), np.concatenate(targs), np.concatenate(masks)
     ref = det_metrics(R, T, M)

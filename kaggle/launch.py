@@ -56,8 +56,7 @@ except Exception:
 with open("/kaggle/working/out/input_tree.txt", "w") as f:
     for root, dirs, files in os.walk("/kaggle/input"):
         if root.count(os.sep) <= 6:
-            f.write(root + "  dirs=" + str(dirs[:8]) + " files=" + str(files[:8]) + "
-")
+            f.write(root + "  dirs=" + str(dirs[:8]) + " files=" + str(files[:8]) + chr(10))
 print(open("/kaggle/working/out/input_tree.txt").read()[:3000], flush=True)
 if not [z for z in glob.glob("/kaggle/input/**/zarr.json", recursive=True) if os.path.isdir(os.path.join(os.path.dirname(z), "future_forecast"))]:
     for z in glob.glob("/kaggle/input/**/*.zip", recursive=True):
