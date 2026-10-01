@@ -116,6 +116,10 @@ def main():
             "dataset_sources": [f"{user}/sih26074-v3-realgfs"], "competition_sources": [],
             "kernel_sources": [f"{user}/{s}" if "/" not in s else s for s in a.kernel_sources]}
     (d / "kernel-metadata.json").write_text(json.dumps(meta, indent=1))
+    live = kg(a.account, "kernels", "status", f"{user}/{slug}")
+    if any(w in live for w in ("RUNNING", "QUEUED")):  # never overwrite a job that is still running
+        print(f"REFUSED: {user}/{slug} is still active ({live[-80:]})")
+        raise SystemExit(3)
     out = kg(a.account, "kernels", "push", "-p", str(d))
     print(out)
     ok = "successfully pushed" in out
