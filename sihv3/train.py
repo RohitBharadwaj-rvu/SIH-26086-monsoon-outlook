@@ -47,6 +47,8 @@ def parse():
     p.add_argument("--moe_topk", type=int, default=1)
     p.add_argument("--moe_frac", type=float, default=0.0)
     p.add_argument("--moe_aux", type=float, default=0.01)
+    p.add_argument("--precip_lin_w", type=float, default=0.0,
+                   help="extra weight on a precipitation L1 term in mm/10 (counters log-space median bias)")
     p.add_argument("--det_ckpt", default=None, help="frozen deterministic model for --mode diff")
     p.add_argument("--eval_members", type=int, default=8)
     p.add_argument("--eval_steps", type=int, default=16)
@@ -189,12 +191,20 @@ def main():
     sched = torch.optim.lr_scheduler.LambdaLR(opt, lambda s: min(1, (s + 1) / warm) * 0.5 * (1 + math.cos(math.pi * min(1, s / total_steps))))
     scaler = torch.amp.GradScaler("cuda", enabled=dev.type == "cuda")
     ch_w = torch.tensor([1.5, 1, 1, 1, 1, 1], device=dev)  # precipitation is the primary advisory variable
+    pmean, pstd = float(data.norm.mean[0]), float(data.norm.std[0])
 
     def loss_fn(net, b):
         with torch.autocast(dev.type, dtype=torch.float16, enabled=dev.type == "cuda"):
             if not diff:
                 y, up, aux = net(b["history"], b["forecast"], b["static"])
-                return masked_huber(y + up, b["target"], b["mask"], ch_w) + args.moe_aux * aux.mean()
+                yhat = y + up
+                loss = masked_huber(yhat, b["target"], b["mask"], ch_w) + args.moe_aux * aux.mean()
+                if args.precip_lin_w > 0:
+                    pm = b["mask"][:, :, 0]
+                    pp = torch.expm1((yhat.float()[:, :, 0] * pstd + pmean).clamp(max=7.0)).clamp_min(0)
+                    pt = torch.expm1((b["target"][:, :, 0] * pstd + pmean).clamp(max=7.0)).clamp_min(0)
+                    loss = loss + args.precip_lin_w * ((pp - pt).abs() * pm).sum() / pm.sum().clamp_min(1) / 10.0
+                return loss
             with torch.no_grad():
                 y_det = det_predict(det_model, b).float()
             r0 = (b["target"] - y_det) / sigma * b["mask"]

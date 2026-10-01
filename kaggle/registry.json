@@ -17,5 +17,123 @@
   "launched_utc": 1790865158.9864912,
   "status": "queued",
   "push_msg": "Kernel version 3 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-timing"
+ },
+ {
+  "name": "a-s4-h1h3",
+  "account": "a1",
+  "user": "rohitajitbharadwaj",
+  "slug": "sih26074-v3-a-s4-h1h3",
+  "sprint": "S4",
+  "lanes": [
+   [
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 1 --N 16 --seed 0 --tag s4_h1_n16_s0",
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 3 --N 16 --seed 0 --tag s4_h3_n16_s0"
+   ],
+   [
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 1 --N 16 --seed 1 --tag s4_h1_n16_s1",
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 3 --N 16 --seed 1 --tag s4_h3_n16_s1"
+   ]
+  ],
+  "expected_min": 115.0,
+  "launched_utc": 1790865621.2132723,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-a-s4-h1h3"
+ },
+ {
+  "name": "a-s4-h14",
+  "account": "a1",
+  "user": "rohitajitbharadwaj",
+  "slug": "sih26074-v3-a-s4-h14",
+  "sprint": "S4",
+  "lanes": [
+   [
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 14 --N 16 --seed 0 --tag s4_h14_n16_s0"
+   ],
+   [
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 14 --N 16 --seed 1 --tag s4_h14_n16_s1"
+   ]
+  ],
+  "expected_min": 60.0,
+  "launched_utc": 1790865628.7560003,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-a-s4-h14"
+ },
+ {
+  "name": "a-s4h7-s5n24",
+  "account": "a2",
+  "user": "ssachithananthan",
+  "slug": "sih26074-v3-a-s4h7-s5n24",
+  "sprint": "S3/4/5",
+  "lanes": [
+   [
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 16 --seed 0 --tag s4_h7_n16_s0",
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 24 --seed 0 --tag s5_h7_n24_s0"
+   ],
+   [
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 16 --seed 1 --tag s4_h7_n16_s1",
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 24 --seed 1 --tag s5_h7_n24_s1"
+   ]
+  ],
+  "expected_min": 115.0,
+  "launched_utc": 1790865634.8979948,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/ssachithananthan/sih26074-v3-a-s4h7-s5n24"
+ },
+ {
+  "name": "a-s5-n32",
+  "account": "a2",
+  "user": "ssachithananthan",
+  "slug": "sih26074-v3-a-s5-n32",
+  "sprint": "S5",
+  "lanes": [
+   [
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 32 --seed 0 --tag s5_h7_n32_s0"
+   ],
+   [
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 32 --seed 1 --tag s5_h7_n32_s1"
+   ]
+  ],
+  "expected_min": 60.0,
+  "launched_utc": 1790865641.990369,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/ssachithananthan/sih26074-v3-a-s5-n32"
+ },
+ {
+  "name": "a-s5-n40",
+  "account": "a3",
+  "user": "rohithphegde",
+  "slug": "sih26074-v3-a-s5-n40",
+  "sprint": "S5",
+  "lanes": [
+   [
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 40 --seed 0 --tag s5_h7_n40_s0"
+   ],
+   [
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 40 --seed 1 --tag s5_h7_n40_s1"
+   ]
+  ],
+  "expected_min": 60.0,
+  "launched_utc": 1790865646.7256474,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohithphegde/sih26074-v3-a-s5-n40"
+ },
+ {
+  "name": "a-lossvar",
+  "account": "a3",
+  "user": "rohithphegde",
+  "slug": "sih26074-v3-a-lossvar",
+  "sprint": "S3",
+  "lanes": [
+   [
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 16 --seed 0 --precip_lin_w 1.0 --tag lin_h7_n16_s0"
+   ],
+   [
+    "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 16 --seed 1 --precip_lin_w 1.0 --tag lin_h7_n16_s1"
+   ]
+  ],
+  "expected_min": 60.0,
+  "launched_utc": 1790865651.3480365,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohithphegde/sih26074-v3-a-lossvar"
  }
 ]
