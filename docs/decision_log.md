@@ -23,3 +23,11 @@
 | 22:00 | **Metric fix**: CSS bias component changed from ratio skill `1 - lb/lb_ref` to bounded `exp(-lb) - exp(-lb_ref)`; all CSS recomputed from stored aggregates (summarizer now recomputes, so planner uses the fixed metric) | at D+5/D+6 GFS is nearly unbiased (log-bias 0.10) so the ratio gave skill -7.7 on that one term, swamping CSS (made every model look worse than GFS at long leads) and inflating seed noise |
 | 22:00 | Re-scored with the fixed metric: GFS-QM 0.187 val / 0.179 test; raw transformer 0.208-0.228 val (all leads positive), i.e. beats GFS-QM before any calibration | |
 | 22:03 | Confirmation runs (100 ep, 2 seeds) always include H=14, N=40 and H=14+N=40 besides the runner-ups | 50-epoch Phase A may under-rate long history / wide context (they converge slower and still improving); user's prior that they should help deserves a converged test |
+| 22:14 | H* = 3, N* = 16 (N/M = 1.00), precip mm-loss = True | Sprint 4 winner s4_h3_n16, Sprint 5 winner s4_h7_n16, Sprint 3 winner lin_h7_n16 (seed-mean val CSS, ties to cheaper) |
+| 22:14 | Long-schedule confirmation run for runner-up H: H=14, N=16 | Phase A runs were capped at 50 epochs while still improving |
+| 22:14 | Long-schedule confirmation run for runner-up N: H=3, N=20 | Phase A runs were capped at 50 epochs while still improving |
+| 22:14 | Long-schedule confirmation run for runner-up Nmax: H=3, N=40 | Phase A runs were capped at 50 epochs while still improving |
+| 22:14 | Long-schedule confirmation run for runner-up Hmax+Nmax: H=14, N=40 | Phase A runs were capped at 50 epochs while still improving |
+| 22:15 | precip mm-loss (`--precip_lin_w 1.0`) fixed ON for all Phase B/C runs | Sprint 3: lin 0.225 vs plain 0.220 CSS (> 0.005 floor), CSI@30 0.209 vs 0.180, bias 0.54 vs 0.50 |
+| 22:15 | Confirmation runs H=14/N=16 and H=14/N=40 started early (independent of the H*/N* decision) on idle slots; confirmation budget 130 min so N=40 also reaches 100 epochs | equal-epoch, not equal-wall-time, comparison avoids penalising slower wide-context configs |
+| 22:15 | Sprint 4 with H=5/10 and seed 2: H=1 0.212 < H=5 0.219 ~ H=7 0.220 ~ H=10 0.221 ~ H=3 0.223 < H=14 0.228 (floor 0.0077) | rule picks H=3; H=14 tested at 100 epochs |

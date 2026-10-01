@@ -23,3 +23,16 @@
 2026-10-01 21:31:18 LAUNCH b0-diff-pilot on a2 -> ok
 2026-10-01 22:01:14 DONE a2-s4-h5h10
 2026-10-01 22:01:19 scheduler started
+2026-10-01 22:11:35 DONE a3-seed2-0
+2026-10-01 22:14:42 DONE a2-s5-n20n28
+2026-10-01 22:14:42 DONE b0-diff-pilot
+2026-10-01 22:14:42 DECISION H* = 3, N* = 16 (N/M = 1.00), precip mm-loss = True -- Sprint 4 winner s4_h3_n16, Sprint 5 winner s4_h7_n16, Sprint 3 winner lin_h7_n16 (seed-mean val CSS, ties to cheaper)
+2026-10-01 22:14:42 DECISION Long-schedule confirmation run for runner-up H: H=14, N=16 -- Phase A runs were capped at 50 epochs while still improving
+2026-10-01 22:14:42 DECISION Long-schedule confirmation run for runner-up N: H=3, N=20 -- Phase A runs were capped at 50 epochs while still improving
+2026-10-01 22:14:42 DECISION Long-schedule confirmation run for runner-up Nmax: H=3, N=40 -- Phase A runs were capped at 50 epochs while still improving
+2026-10-01 22:14:42 DECISION Long-schedule confirmation run for runner-up Hmax+Nmax: H=14, N=40 -- Phase A runs were capped at 50 epochs while still improving
+2026-10-01 22:14:42 PLANNED Phase B/C: 16 jobs
+2026-10-01 22:14:54 LAUNCH b-s9-S on a1 -> ok
+2026-10-01 22:15:04 LAUNCH c-s9-M on a2 -> ok
+2026-10-01 22:15:15 LAUNCH c-s9-L on a2 -> ok
+2026-10-01 22:15:23 LAUNCH c-confirm-h14-n16 on a3 -> ok

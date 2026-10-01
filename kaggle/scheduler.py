@@ -103,7 +103,7 @@ def plan_phase_bc(q, reg, st):
     h_cfg, n_cfg, l_cfg = w.get("Sprint 4"), w.get("Sprint 5"), w.get("Sprint 3")
     H = int(re.search(r"_h(\d+)", h_cfg).group(1)) if h_cfg else 7
     N = int(re.search(r"_n(\d+)", n_cfg).group(1)) if n_cfg else 16
-    lin = bool(l_cfg and l_cfg.startswith("lin_"))
+    lin = True  # fixed at 22:15 (see decision log): mm-loss beat plain loss on CSS (+0.005) and CSI@30 (+0.03)
     extra = " --precip_lin_w 1.0" if lin else ""
     decide(f"H* = {H}, N* = {N} (N/M = {N / 16:.2f}), precip mm-loss = {lin}",
            f"Sprint 4 winner {h_cfg}, Sprint 5 winner {n_cfg}, Sprint 3 winner {l_cfg} (seed-mean val CSS, ties to cheaper)")
@@ -145,9 +145,11 @@ def plan_phase_bc(q, reg, st):
         seen.add((hh, nn))
         cb = f"--H {hh} --N {nn}{extra}"
         tg = f"s45_confirm_h{hh}_n{nn}"
-        q.append({"name": f"c-confirm-h{hh}-n{nn}", "account": None, "sprint": "S4/5 confirm", "expected_min": 110, "needs": [],
-                  "lanes": [[f"--mode det --size S {LONG} --time_budget_min 95 {cb} --seed 0 --tag {tg}_s0"],
-                            [f"--mode det --size S {LONG} --time_budget_min 95 {cb} --seed 1 --tag {tg}_s1"]]})
+        if any(j.get("name") == f"c-confirm-h{hh}-n{nn}" for j in q):  # pre-queued already
+            continue
+        q.append({"name": f"c-confirm-h{hh}-n{nn}", "account": None, "sprint": "S4/5 confirm", "expected_min": 140, "needs": [],
+                  "lanes": [[f"--mode det --size S {LONG} --time_budget_min 130 {cb} --seed 0 --tag {tg}_s0"],
+                            [f"--mode det --size S {LONG} --time_budget_min 130 {cb} --seed 1 --tag {tg}_s1"]]})
         decide(f"Long-schedule confirmation run for runner-up {kind}: H={hh}, N={nn}", "Phase A runs were capped at 50 epochs while still improving")
     moe = [(4, 1, 0.5), (8, 1, 0.5), (16, 1, 0.5), (4, 2, 0.5), (8, 2, 0.5), (16, 2, 0.5), (8, 1, 0.25), (8, 1, 1.0)]
     for e, k, fr in moe:

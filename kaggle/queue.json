@@ -133,7 +133,7 @@
     "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 28 --seed 1 --tag s5_h7_n28_s1"
    ]
   ],
-  "state": "launched"
+  "state": "done"
  },
  {
   "name": "e-qm-check2",
@@ -170,7 +170,7 @@
     "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 16 --seed 2 --tag s4_h7_n16_s2"
    ]
   ],
-  "state": "launched"
+  "state": "done"
  },
  {
   "name": "a3-seed2-1",
@@ -246,7 +246,286 @@
     "--mode diff --size S --epochs 40 --patience 8 --time_budget_min 60 --H 7 --N 16 --det_ckpt **/s4_h7_n16_s0/best.pt --eval_members 8 --eval_steps 16 --seed 1 --tag s6pilot_diff_s1"
    ]
   ],
+  "state": "done"
+ },
+ {
+  "name": "b-s9-S",
+  "account": "a1",
+  "sprint": "S6/S9",
+  "expected_min": 110,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --seed 0 --tag s9_dense_S_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --seed 1 --tag s9_dense_S_s1"
+   ]
+  ],
   "state": "launched"
+ },
+ {
+  "name": "b-s6-diff",
+  "account": "a1",
+  "sprint": "S6",
+  "expected_min": 150,
+  "needs": [
+   "b-s9-S"
+  ],
+  "kernel_sources": [
+   "sih26074-v3-b-s9-S"
+  ],
+  "lanes": [
+   [
+    "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 110 --H 3 --N 16 --precip_lin_w 1.0 --det_ckpt **/s9_dense_S_s0/best.pt --seed 0 --tag s6_diff_s0"
+   ],
+   [
+    "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 110 --H 3 --N 16 --precip_lin_w 1.0 --det_ckpt **/s9_dense_S_s0/best.pt --seed 1 --tag s6_diff_s1"
+   ]
+  ]
+ },
+ {
+  "name": "c-s9-M",
+  "account": "a2",
+  "sprint": "S9",
+  "expected_min": 130,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size M --epochs 100 --patience 15 --time_budget_min 115 --H 3 --N 16 --precip_lin_w 1.0 --seed 0 --tag s9_dense_M_s0"
+   ],
+   [
+    "--mode det --size M --epochs 100 --patience 15 --time_budget_min 115 --H 3 --N 16 --precip_lin_w 1.0 --seed 1 --tag s9_dense_M_s1"
+   ]
+  ],
+  "state": "launched"
+ },
+ {
+  "name": "c-s9-L",
+  "account": "a2",
+  "sprint": "S9",
+  "expected_min": 175,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size L --epochs 100 --patience 15 --time_budget_min 160 --H 3 --N 16 --precip_lin_w 1.0 --seed 0 --tag s9_dense_L_s0"
+   ],
+   [
+    "--mode det --size L --epochs 100 --patience 15 --time_budget_min 160 --H 3 --N 16 --precip_lin_w 1.0 --seed 1 --tag s9_dense_L_s1"
+   ]
+  ],
+  "state": "launched"
+ },
+ {
+  "name": "c-confirm-h14-n16",
+  "account": "a3",
+  "sprint": "S4/5 confirm",
+  "expected_min": 110,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 14 --N 16 --precip_lin_w 1.0 --seed 0 --tag s45_confirm_h14_n16_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 14 --N 16 --precip_lin_w 1.0 --seed 1 --tag s45_confirm_h14_n16_s1"
+   ]
+  ],
+  "state": "launched"
+ },
+ {
+  "name": "c-confirm-h3-n20",
+  "account": null,
+  "sprint": "S4/5 confirm",
+  "expected_min": 110,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 20 --precip_lin_w 1.0 --seed 0 --tag s45_confirm_h3_n20_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 20 --precip_lin_w 1.0 --seed 1 --tag s45_confirm_h3_n20_s1"
+   ]
+  ]
+ },
+ {
+  "name": "c-confirm-h3-n40",
+  "account": null,
+  "sprint": "S4/5 confirm",
+  "expected_min": 110,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 40 --precip_lin_w 1.0 --seed 0 --tag s45_confirm_h3_n40_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 40 --precip_lin_w 1.0 --seed 1 --tag s45_confirm_h3_n40_s1"
+   ]
+  ]
+ },
+ {
+  "name": "c-confirm-h14-n40",
+  "account": null,
+  "sprint": "S4/5 confirm",
+  "expected_min": 110,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 14 --N 40 --precip_lin_w 1.0 --seed 0 --tag s45_confirm_h14_n40_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 14 --N 40 --precip_lin_w 1.0 --seed 1 --tag s45_confirm_h14_n40_s1"
+   ]
+  ]
+ },
+ {
+  "name": "c-s9-moe-e4k1f50",
+  "account": null,
+  "sprint": "S9",
+  "expected_min": 110,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 4 --moe_topk 1 --moe_frac 0.5 --seed 0 --tag s9_moe_e4k1f50_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 4 --moe_topk 1 --moe_frac 0.5 --seed 1 --tag s9_moe_e4k1f50_s1"
+   ]
+  ]
+ },
+ {
+  "name": "c-s9-moe-e8k1f50",
+  "account": null,
+  "sprint": "S9",
+  "expected_min": 110,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 8 --moe_topk 1 --moe_frac 0.5 --seed 0 --tag s9_moe_e8k1f50_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 8 --moe_topk 1 --moe_frac 0.5 --seed 1 --tag s9_moe_e8k1f50_s1"
+   ]
+  ]
+ },
+ {
+  "name": "c-s9-moe-e16k1f50",
+  "account": null,
+  "sprint": "S9",
+  "expected_min": 110,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 16 --moe_topk 1 --moe_frac 0.5 --seed 0 --tag s9_moe_e16k1f50_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 16 --moe_topk 1 --moe_frac 0.5 --seed 1 --tag s9_moe_e16k1f50_s1"
+   ]
+  ]
+ },
+ {
+  "name": "c-s9-moe-e4k2f50",
+  "account": null,
+  "sprint": "S9",
+  "expected_min": 110,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 4 --moe_topk 2 --moe_frac 0.5 --seed 0 --tag s9_moe_e4k2f50_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 4 --moe_topk 2 --moe_frac 0.5 --seed 1 --tag s9_moe_e4k2f50_s1"
+   ]
+  ]
+ },
+ {
+  "name": "c-s9-moe-e8k2f50",
+  "account": null,
+  "sprint": "S9",
+  "expected_min": 110,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --seed 0 --tag s9_moe_e8k2f50_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --seed 1 --tag s9_moe_e8k2f50_s1"
+   ]
+  ]
+ },
+ {
+  "name": "c-s9-moe-e16k2f50",
+  "account": null,
+  "sprint": "S9",
+  "expected_min": 110,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 16 --moe_topk 2 --moe_frac 0.5 --seed 0 --tag s9_moe_e16k2f50_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 16 --moe_topk 2 --moe_frac 0.5 --seed 1 --tag s9_moe_e16k2f50_s1"
+   ]
+  ]
+ },
+ {
+  "name": "c-s9-moe-e8k1f25",
+  "account": null,
+  "sprint": "S9",
+  "expected_min": 110,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 8 --moe_topk 1 --moe_frac 0.25 --seed 0 --tag s9_moe_e8k1f25_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 8 --moe_topk 1 --moe_frac 0.25 --seed 1 --tag s9_moe_e8k1f25_s1"
+   ]
+  ]
+ },
+ {
+  "name": "c-s9-moe-e8k1f100",
+  "account": null,
+  "sprint": "S9",
+  "expected_min": 110,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 8 --moe_topk 1 --moe_frac 1.0 --seed 0 --tag s9_moe_e8k1f100_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 8 --moe_topk 1 --moe_frac 1.0 --seed 1 --tag s9_moe_e8k1f100_s1"
+   ]
+  ]
+ },
+ {
+  "name": "c-confirm-h14-n16",
+  "account": null,
+  "sprint": "S4/5 confirm",
+  "expected_min": 140,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 14 --N 16 --precip_lin_w 1.0 --seed 0 --tag s45_confirm_h14_n16_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 14 --N 16 --precip_lin_w 1.0 --seed 1 --tag s45_confirm_h14_n16_s1"
+   ]
+  ]
+ },
+ {
+  "name": "c-confirm-h14-n40",
+  "account": null,
+  "sprint": "S4/5 confirm",
+  "expected_min": 140,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 14 --N 40 --precip_lin_w 1.0 --seed 0 --tag s45_confirm_h14_n40_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 14 --N 40 --precip_lin_w 1.0 --seed 1 --tag s45_confirm_h14_n40_s1"
+   ]
+  ]
  },
  {
   "planner": "phase_bc",
@@ -259,6 +538,13 @@
    "a-lossvar",
    "a2-s4-h5h10",
    "a2-s5-n20n28"
+  ],
+  "planned": true
+ },
+ {
+  "planner": "phase_d",
+  "needs": [
+   "b-s6-diff"
   ]
  }
 ]
