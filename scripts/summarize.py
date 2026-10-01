@@ -13,6 +13,10 @@ from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from sihv3.metrics import composite_skill  # noqa: E402  (recompute CSS with the current metric definition)
 
 REPO = Path(__file__).resolve().parents[1]
 COLS = ["precip_wet_mae", "precip_csi15", "precip_csi30", "precip_fss15", "precip_bias_ratio",
@@ -25,6 +29,12 @@ def load_runs():
         r = json.load(open(f))
         a = r["args"]
         cfg = re.sub(r"_s\d+$", "", a["tag"])
+        refv = r["val"]["reference_gfs_bilinear"]["aggregate"]
+        reft = r["test"]["reference_gfs_bilinear"]["aggregate"]
+        r["val"]["css"] = composite_skill(r["val"]["aggregate"], refv)
+        r["test"]["css"] = composite_skill(r["test"]["aggregate"], reft)
+        if "precip_qm" in r["val"]:
+            r["val"]["precip_qm"]["css"] = composite_skill(r["val"]["precip_qm"]["aggregate"], refv)
         runs.append({"tag": a["tag"], "cfg": cfg, "seed": a["seed"], "mode": a["mode"], "size": a["size"],
                      "H": a["H"], "N": a["N"], "moe": (a["moe_experts"], a["moe_topk"], a["moe_frac"]),
                      "params": r["params_total"], "active": r["params_active"], "val_css": r["val"]["css"],

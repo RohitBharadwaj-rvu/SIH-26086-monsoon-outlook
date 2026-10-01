@@ -118,6 +118,10 @@ def skill(model: dict, ref: dict) -> dict:
     out = {}
     for k in CSS_WEIGHTS:
         a, b = model.get(k, np.nan), ref.get(k, np.nan)
+        if k == "precip_logbias":
+            # bounded: exp(-|log bias|) in (0,1], skill = difference (a ratio explodes when GFS is nearly unbiased)
+            out[k] = float(np.exp(-a) - np.exp(-b)) if np.isfinite(a) and np.isfinite(b) else np.nan
+            continue
         if k in LOWER_BETTER:
             out[k] = 1 - a / b if b and np.isfinite(b) and b > 0 else np.nan
         else:

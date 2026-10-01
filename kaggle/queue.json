@@ -49,7 +49,7 @@
    ]
   ],
   "needs": [],
-  "state": "launched"
+  "state": "done"
  },
  {
   "name": "a-s5-n32",
@@ -245,7 +245,8 @@
    [
     "--mode diff --size S --epochs 40 --patience 8 --time_budget_min 60 --H 7 --N 16 --det_ckpt **/s4_h7_n16_s0/best.pt --eval_members 8 --eval_steps 16 --seed 1 --tag s6pilot_diff_s1"
    ]
-  ]
+  ],
+  "state": "launched"
  },
  {
   "planner": "phase_bc",

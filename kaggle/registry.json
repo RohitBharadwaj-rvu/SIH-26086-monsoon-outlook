@@ -278,5 +278,24 @@
   "launched_utc": 1790869957.9566698,
   "status": "queued",
   "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-a3-seed2-2"
+ },
+ {
+  "name": "b0-diff-pilot",
+  "account": "a2",
+  "user": "ssachithananthan",
+  "slug": "sih26074-v3-b0-diff-pilot",
+  "sprint": "S6 pilot",
+  "lanes": [
+   [
+    "--mode diff --size S --epochs 40 --patience 8 --time_budget_min 60 --H 7 --N 16 --det_ckpt **/s4_h7_n16_s0/best.pt --eval_members 8 --eval_steps 16 --seed 0 --tag s6pilot_diff_s0"
+   ],
+   [
+    "--mode diff --size S --epochs 40 --patience 8 --time_budget_min 60 --H 7 --N 16 --det_ckpt **/s4_h7_n16_s0/best.pt --eval_members 8 --eval_steps 16 --seed 1 --tag s6pilot_diff_s1"
+   ]
+  ],
+  "expected_min": 95.0,
+  "launched_utc": 1790870478.2881627,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/ssachithananthan/sih26074-v3-b0-diff-pilot"
  }
 ]
