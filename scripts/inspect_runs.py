@@ -10,12 +10,19 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO))
+from sihv3.metrics import composite_skill  # noqa: E402
 base = json.load(open(REPO / "results" / "baselines_s3.json"))
 QM_VAL = base["val"]["gfs_qm_css_vs_trainer_ref"]  # GFS-QM scored against the same reference as the models
 
 
 def check(f):
     r = json.load(open(f))
+    for sp in ("val", "test"):  # recompute with the current CSS definition (stored values may predate fixes)
+        ref = r[sp]["reference_gfs_bilinear"]["aggregate"]
+        r[sp]["css"] = composite_skill(r[sp]["aggregate"], ref)
+        if "precip_qm" in r[sp]:
+            r[sp]["precip_qm"]["css"] = composite_skill(r[sp]["precip_qm"]["aggregate"], ref)
     a, h = r["args"], r["history"]
     tag = a["tag"]
     flags = []

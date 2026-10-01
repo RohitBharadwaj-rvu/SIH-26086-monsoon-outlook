@@ -188,7 +188,7 @@
     "--mode det --size S --epochs 50 --time_budget_min 55 --patience 10 --H 7 --N 24 --seed 2 --tag s5_h7_n24_s2"
    ]
   ],
-  "state": "launched"
+  "state": "done"
  },
  {
   "name": "e-qm-check3",
@@ -334,7 +334,7 @@
  },
  {
   "name": "c-confirm-h3-n20",
-  "account": null,
+  "account": "a3",
   "sprint": "S4/5 confirm",
   "expected_min": 140,
   "needs": [],
@@ -345,7 +345,8 @@
    [
     "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 3 --N 20 --precip_lin_w 1.0 --seed 1 --tag s45_confirm_h3_n20_s1"
    ]
-  ]
+  ],
+  "state": "launched"
  },
  {
   "name": "c-confirm-h3-n40",
