@@ -520,7 +520,8 @@
     "tmax_lt_tmin_rate": 0.0
    }
   },
-  "gfs_qm_css": 0.18681315720129477
+  "gfs_qm_css": 0.18681315720129477,
+  "gfs_qm_css_vs_trainer_ref": 0.18859619898147506
  },
  "test": {
   "gfs_bilinear": {
@@ -1043,6 +1044,7 @@
     "tmax_lt_tmin_rate": 0.0
    }
   },
-  "gfs_qm_css": 0.17853477400500173
+  "gfs_qm_css": 0.17853477400500173,
+  "gfs_qm_css_vs_trainer_ref": 0.1804883396920845
  }
 }

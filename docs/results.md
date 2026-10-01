@@ -17,12 +17,14 @@ Noise floor 0.0050; configs within it of the best: lin_h7_n16. **Selected: lin_h
 | config | seeds | val CSS (mean ± sd) | val CSS +precipQM | test CSS | precip_wet_mae | precip_csi15 | precip_csi30 | precip_fss15 | precip_bias_ratio | tmax_mae | tmin_mae | rh_mae | wind_vec_rmse |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | s4_h14_n16 | 2 | 0.2276 ± 0.0102 | nan | 0.2325 | 17.828 | 0.265 | 0.185 | 0.604 | 0.510 | 0.926 | 0.386 | 2.918 | 0.757 |
+| s4_h5_n16 | 2 | 0.2221 ± 0.0153 | 0.2473 | 0.2386 | 17.842 | 0.265 | 0.186 | 0.598 | 0.510 | 0.938 | 0.396 | 2.992 | 0.765 |
 | **s4_h3_n16** | 2 | 0.2218 ± 0.0075 | nan | 0.2320 | 17.858 | 0.259 | 0.187 | 0.591 | 0.500 | 0.930 | 0.393 | 2.944 | 0.768 |
+| s4_h10_n16 | 2 | 0.2209 ± 0.0054 | 0.2465 | 0.2337 | 17.806 | 0.259 | 0.181 | 0.591 | 0.515 | 0.940 | 0.394 | 2.973 | 0.770 |
 | s4_h7_n16 | 2 | 0.2198 ± 0.0013 | nan | 0.2326 | 17.756 | 0.262 | 0.177 | 0.597 | 0.499 | 0.945 | 0.406 | 2.985 | 0.759 |
 | s4_h1_n16 | 2 | 0.2077 ± 0.0187 | nan | 0.2128 | 18.196 | 0.245 | 0.172 | 0.562 | 0.470 | 0.950 | 0.392 | 2.975 | 0.762 |
 | GFS-bilinear (reference) | | 0 | | 0 | 17.826 | 0.278 | 0.174 | 0.624 | 0.807 | 1.501 | 0.687 | 6.412 | 1.863 |
 
-Noise floor 0.0113; configs within it of the best: s4_h14_n16, s4_h3_n16, s4_h7_n16. **Selected: s4_h3_n16** (cheapest within the floor).
+Noise floor 0.0114; configs within it of the best: s4_h14_n16, s4_h5_n16, s4_h3_n16, s4_h10_n16, s4_h7_n16. **Selected: s4_h3_n16** (cheapest within the floor).
 
 
 ## Sprint 5 — spatial context (H=7; N=16 row shared with Sprint 4)
@@ -38,9 +40,14 @@ Noise floor 0.0113; configs within it of the best: s4_h14_n16, s4_h3_n16, s4_h7_
 Noise floor 0.0050; configs within it of the best: s4_h7_n16, s5_h7_n40, s5_h7_n24, s5_h7_n32. **Selected: s4_h7_n16** (cheapest within the floor).
 
 
+## Sprint 4/5 confirmation — 100-epoch schedule (H, N)
+
+_no results yet for ('s45_confirm', 's9_dense_S')_
+
+
 ## Sprint 6 — deterministic vs diffusion
 
-_no results yet for s6__
+_no results yet for ('s6_', 's9_dense_S')_
 
 
 ## Sprint 9 — capacity and MoE

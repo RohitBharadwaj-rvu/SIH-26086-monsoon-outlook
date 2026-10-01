@@ -23,12 +23,13 @@ def fmt(r):
     bins = r.get("precip_by_intensity", {})
     heavy = bins.get("30-64.5", {}).get("crps")
     return (f"{r['css_ensmean']:.4f} | {a.get('precip_crps', float('nan')):.3f} | {a.get('precip_ssr', float('nan')):.2f} | "
-            f"{a.get('precip_cov90', float('nan')):.2f} | {a.get('brier30', float('nan')):.4f} | "
+            f"{a.get('precip_cov90', float('nan')):.2f} (ideal {0.9 * (r['members'] - 1) / (r['members'] + 1):.2f}) | "
+            f"{a.get('brier30', float('nan')):.4f} | "
             f"{heavy if heavy is None else round(heavy, 2)} | {a.get('tmax_crps', float('nan')):.3f} | "
             f"{r['sec_per_sample']:.2f} | {r['peak_vram_gb'] or float('nan'):.1f}")
 
 
-HDR = ("ens-mean CSS | precip CRPS | precip SSR | precip cov90 | Brier>30 | CRPS obs 30-64.5 mm | Tmax CRPS | "
+HDR = ("ens-mean CSS | precip CRPS | precip SSR | precip cov90 (ideal for K members) | Brier>30 | CRPS obs 30-64.5 mm | Tmax CRPS | "
        "s/sample | VRAM GB")
 
 

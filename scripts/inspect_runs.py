@@ -11,7 +11,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 base = json.load(open(REPO / "results" / "baselines_s3.json"))
-QM_VAL = base["val"]["gfs_qm_css"]
+QM_VAL = base["val"]["gfs_qm_css_vs_trainer_ref"]  # GFS-QM scored against the same reference as the models
 
 
 def check(f):

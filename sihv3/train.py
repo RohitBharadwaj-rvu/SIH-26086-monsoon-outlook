@@ -122,7 +122,7 @@ def sample(model, batch, y_det, sigma, steps=16, members=1, sampler="ddim", eta=
                 z = (sn / s) * z - an * torch.expm1(-h) * d
             else:  # DDIM (eta=0 deterministic, eta>0 stochastic)
                 if tn > 0:
-                    c = eta * torch.sqrt((sn ** 2 / s ** 2) * (1 - (a ** 2 * sn ** 2) / (an ** 2 * s ** 2)).clamp_min(0)) if eta > 0 else 0.0
+                    c = eta * torch.sqrt((sn ** 2 / s ** 2) * (1 - a ** 2 / an ** 2).clamp_min(0)) if eta > 0 else 0.0
                     dir_ = torch.sqrt((sn ** 2 - c ** 2).clamp_min(0)) if eta > 0 else sn
                     noise = torch.randn(z.shape, device=z.device, generator=gen) if eta > 0 else 0.0
                     z = an * x0 + dir_ * eps + c * noise
