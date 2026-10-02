@@ -113,8 +113,10 @@ def main():
     meta = {"id": f"{user}/{slug}", "title": slug, "code_file": "job.py", "language": "python",
             "kernel_type": "script", "is_private": True, "enable_gpu": True, "enable_tpu": False,
             "enable_internet": True, "machine_shape": "NvidiaTeslaT4",
-            "dataset_sources": [f"{user}/sih26074-v3-realgfs"], "competition_sources": [],
-            "kernel_sources": [f"{user}/{s}" if "/" not in s else s for s in a.kernel_sources]}
+            # "dataset:<slug>" entries in --kernel_sources mount an extra private dataset of the same account
+            "dataset_sources": [f"{user}/sih26074-v3-realgfs"] + [f"{user}/{s[8:]}" for s in a.kernel_sources if s.startswith("dataset:")],
+            "competition_sources": [],
+            "kernel_sources": [f"{user}/{s}" if "/" not in s else s for s in a.kernel_sources if not s.startswith("dataset:")]}
     (d / "kernel-metadata.json").write_text(json.dumps(meta, indent=1))
     live = kg(a.account, "kernels", "status", f"{user}/{slug}")
     if any(w in live for w in ("RUNNING", "QUEUED")):  # never overwrite a job that is still running
