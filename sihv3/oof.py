@@ -73,6 +73,25 @@ def main():
     out = Path(a.out) / a.tag
     out.mkdir(parents=True, exist_ok=True)
     np.savez(out / "ydet.npz", ydet=ydet, dates=data.dates, kind=np.array(a.mode))
+    if a.mode == "oof":  # out-of-fold skill on the training seasons = clean multi-season model-selection score
+        import json
+        import torch.nn.functional as F
+        from sihv3.metrics import composite_skill, det_metrics
+        res = {}
+        for name, yrs in [("all_oof", sorted(set(years) - {2023}))] + [(str(y), [y]) for y in sorted(set(years) - {2023})]:
+            rows = np.where(np.isin(years, yrs))[0]
+            P = data.norm.inv(ydet[rows].astype(np.float32), axis=2)
+            T = data.norm.inv(data.targ[rows], axis=2)
+            M = data.mask[rows].astype(np.float32)
+            lo = (data.N - 16) // 2
+            up = F.interpolate(torch.from_numpy(data.fcst[rows][:, :, :, lo:lo + 16, lo:lo + 16]).flatten(0, 1),
+                               size=(80, 80), mode="bilinear", align_corners=False).view(-1, 7, 6, 80, 80).numpy()
+            R = data.norm.inv(up, axis=2)
+            ma, ra = det_metrics(P, T, M)["aggregate"], det_metrics(R, T, M)["aggregate"]
+            res[name] = {"css": composite_skill(ma, ra), "aggregate": ma}
+        json.dump(res, open(out / "oof_metrics.json", "w"), indent=1, default=float)
+        print(f"[{a.tag}] OOF CSS all seasons {res['all_oof']['css']:.4f} | per season "
+              + " ".join(f"{k}:{v['css']:.3f}" for k, v in res.items() if k != "all_oof"), flush=True)
     by = {int(y): ("base" if owner[int(np.where(years == y)[0][0])] is base else "fold") for y in sorted(set(years))}
     print(f"[{a.tag}] wrote ydet {ydet.shape} mode={a.mode} source by year: {by}", flush=True)
 

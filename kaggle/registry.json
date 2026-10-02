@@ -997,5 +997,170 @@
   "launched_utc": 1790933219.8903143,
   "status": "queued",
   "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-s10f-det-b"
+ },
+ {
+  "name": "s10f-oof",
+  "account": "a1",
+  "user": "rohitajitbharadwaj",
+  "slug": "sih26074-v3-s10f-oof",
+  "sprint": "S10 final recipe",
+  "lanes": [
+   [
+    "@oof --mode oof --base **/s10f_fin_det_s0/best.pt --folds **/s10f_cf_f0_s0/best.pt=2015-2017 **/s10f_cf_f1_s0/best.pt=2018-2020 **/s10f_cf_f2_s0/best.pt=2021-2022 --tag oof"
+   ],
+   [
+    "@oof --mode insample --base **/s10f_fin_det_s0/best.pt --tag ins"
+   ]
+  ],
+  "expected_min": 20.0,
+  "launched_utc": 1790936776.9392872,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-s10f-oof"
+ },
+ {
+  "name": "s10f-diff",
+  "account": "a1",
+  "user": "rohitajitbharadwaj",
+  "slug": "sih26074-v3-s10f-diff",
+  "sprint": "S10 final recipe",
+  "lanes": [
+   [
+    "--mode diff --size S --epochs 80 --patience 10 --time_budget_min 120 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 24 --eval_members 8 --train_years 2015-2022 --det_pred_file **/oof/ydet.npz --seed 0 --tag s10f_diff_oof_S_s0"
+   ],
+   [
+    "--mode diff --size S --epochs 80 --patience 10 --time_budget_min 120 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 24 --eval_members 8 --train_years 2015-2022 --det_pred_file **/ins/ydet.npz --seed 0 --tag s10f_diff_ins_S_s0"
+   ]
+  ],
+  "expected_min": 100.0,
+  "launched_utc": 1790937064.3675451,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-s10f-diff"
+ },
+ {
+  "name": "s10s1-det-a",
+  "account": "a2",
+  "user": "ssachithananthan",
+  "slug": "sih26074-v3-s10s1-det-a",
+  "sprint": "S10 seed",
+  "lanes": [
+   [
+    "--mode det --size S --epochs 50 --patience 15 --time_budget_min 90 --H 3 --N 40 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2018-2022 --seed 1 --tag s10f_cf_f0_s1"
+   ],
+   [
+    "--mode det --size S --epochs 50 --patience 15 --time_budget_min 90 --H 3 --N 40 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2015-2017,2021,2022 --seed 1 --tag s10f_cf_f1_s1"
+   ]
+  ],
+  "expected_min": 65.0,
+  "launched_utc": 1790938867.1967485,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/ssachithananthan/sih26074-v3-s10s1-det-a"
+ },
+ {
+  "name": "s10s1-det-b",
+  "account": "a2",
+  "user": "ssachithananthan",
+  "slug": "sih26074-v3-s10s1-det-b",
+  "sprint": "S10 seed",
+  "lanes": [
+   [
+    "--mode det --size S --epochs 50 --patience 15 --time_budget_min 90 --H 3 --N 40 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2015-2020 --seed 1 --tag s10f_cf_f2_s1"
+   ],
+   [
+    "--mode det --size S --epochs 50 --patience 15 --time_budget_min 90 --H 3 --N 40 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2015-2022 --seed 1 --tag s10f_fin_det_s1"
+   ]
+  ],
+  "expected_min": 65.0,
+  "launched_utc": 1790938878.8312936,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/ssachithananthan/sih26074-v3-s10s1-det-b"
+ },
+ {
+  "name": "s10s2-det-a",
+  "account": "a3",
+  "user": "rohithphegde",
+  "slug": "sih26074-v3-s10s2-det-a",
+  "sprint": "S10 seed",
+  "lanes": [
+   [
+    "--mode det --size S --epochs 50 --patience 15 --time_budget_min 90 --H 3 --N 40 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2018-2022 --seed 2 --tag s10f_cf_f0_s2"
+   ],
+   [
+    "--mode det --size S --epochs 50 --patience 15 --time_budget_min 90 --H 3 --N 40 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2015-2017,2021,2022 --seed 2 --tag s10f_cf_f1_s2"
+   ]
+  ],
+  "expected_min": 65.0,
+  "launched_utc": 1790938886.474836,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohithphegde/sih26074-v3-s10s2-det-a"
+ },
+ {
+  "name": "s10s2-det-b",
+  "account": "a3",
+  "user": "rohithphegde",
+  "slug": "sih26074-v3-s10s2-det-b",
+  "sprint": "S10 seed",
+  "lanes": [
+   [
+    "--mode det --size S --epochs 50 --patience 15 --time_budget_min 90 --H 3 --N 40 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2015-2020 --seed 2 --tag s10f_cf_f2_s2"
+   ],
+   [
+    "--mode det --size S --epochs 50 --patience 15 --time_budget_min 90 --H 3 --N 40 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2015-2022 --seed 2 --tag s10f_fin_det_s2"
+   ]
+  ],
+  "expected_min": 65.0,
+  "launched_utc": 1790938894.1535575,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohithphegde/sih26074-v3-s10s2-det-b"
+ },
+ {
+  "name": "s10-calmodel",
+  "account": "a1",
+  "user": "rohitajitbharadwaj",
+  "slug": "sih26074-v3-s10-calmodel",
+  "sprint": "S10 calib",
+  "lanes": [
+   [
+    "--mode diff --size S --epochs 80 --patience 10 --time_budget_min 120 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 24 --eval_members 8 --train_years 2015-2021 --val_years 2022 --det_pred_file **/oof/ydet.npz --seed 0 --tag s10f_diff_oof_S_cal_s0"
+   ]
+  ],
+  "expected_min": 100.0,
+  "launched_utc": 1790938905.15032,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-s10-calmodel"
+ },
+ {
+  "name": "s10cap-SM",
+  "account": "a4",
+  "user": "saketmeda",
+  "slug": "sih26074-v3-s10cap-SM",
+  "sprint": "S10 capacity",
+  "lanes": [
+   [
+    "--mode det --size S --epochs 50 --patience 15 --time_budget_min 90 --H 3 --N 40 --train_years 2015-2022 --seed 0 --tag s10cap_S_s0"
+   ],
+   [
+    "--mode det --size M --epochs 50 --patience 15 --time_budget_min 110 --H 3 --N 40 --train_years 2015-2022 --seed 0 --tag s10cap_M_s0"
+   ]
+  ],
+  "expected_min": 90.0,
+  "launched_utc": 1790938916.0638294,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/saketmeda/sih26074-v3-s10cap-sm"
+ },
+ {
+  "name": "s10cap-L",
+  "account": "a4",
+  "user": "saketmeda",
+  "slug": "sih26074-v3-s10cap-L",
+  "sprint": "S10 capacity",
+  "lanes": [
+   [
+    "--mode det --size L --epochs 50 --patience 15 --time_budget_min 150 --H 3 --N 40 --train_years 2015-2022 --seed 0 --tag s10cap_L_s0"
+   ]
+  ],
+  "expected_min": 130.0,
+  "launched_utc": 1790938927.4465823,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/saketmeda/sih26074-v3-s10cap-l"
  }
 ]

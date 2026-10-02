@@ -138,3 +138,26 @@ launch.py: error: argument --lane: expected at least one argument
 2026-10-02 15:28:48 DONE s10-cal
 2026-10-02 15:33:20 DONE s10f-det-a
 2026-10-02 15:47:11 scheduler started
+2026-10-02 15:56:06 DONE s10f-det-b
+2026-10-02 15:56:16 LAUNCH s10f-oof on a1 -> ok
+2026-10-02 16:00:52 DONE s10f-oof
+2026-10-02 16:01:04 LAUNCH s10f-diff on a1 -> ok
+2026-10-02 16:30:55 INBOX append s10s1-det-a
+2026-10-02 16:30:55 INBOX append s10s1-det-b
+2026-10-02 16:30:55 INBOX append s10s1-oof
+2026-10-02 16:30:55 INBOX append s10s1-diff
+2026-10-02 16:30:55 INBOX append s10s2-det-a
+2026-10-02 16:30:55 INBOX append s10s2-det-b
+2026-10-02 16:30:55 INBOX append s10s2-oof
+2026-10-02 16:30:55 INBOX append s10s2-diff
+2026-10-02 16:30:55 INBOX append s10-calmodel
+2026-10-02 16:30:55 INBOX append s10s0-oofm
+2026-10-02 16:30:55 INBOX append s10cap-SM
+2026-10-02 16:30:55 INBOX append s10cap-L
+2026-10-02 16:31:07 LAUNCH s10s1-det-a on a2 -> ok
+2026-10-02 16:31:18 LAUNCH s10s1-det-b on a2 -> ok
+2026-10-02 16:31:26 LAUNCH s10s2-det-a on a3 -> ok
+2026-10-02 16:31:34 LAUNCH s10s2-det-b on a3 -> ok
+2026-10-02 16:31:45 LAUNCH s10-calmodel on a1 -> ok
+2026-10-02 16:31:56 LAUNCH s10cap-SM on a4 -> ok
+2026-10-02 16:32:07 LAUNCH s10cap-L on a4 -> ok

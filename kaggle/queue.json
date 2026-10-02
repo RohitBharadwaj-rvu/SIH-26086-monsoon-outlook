@@ -871,7 +871,7 @@
     "--mode det --size S --epochs 50 --patience 15 --time_budget_min 90 --H 3 --N 40 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2015-2022 --seed 0 --tag s10f_fin_det_s0"
    ]
   ],
-  "state": "launched"
+  "state": "done"
  },
  {
   "name": "s10f-oof",
@@ -893,7 +893,8 @@
    [
     "@oof --mode insample --base **/s10f_fin_det_s0/best.pt --tag ins"
    ]
-  ]
+  ],
+  "state": "done"
  },
  {
   "name": "s10f-diff",
@@ -913,7 +914,205 @@
    [
     "--mode diff --size S --epochs 80 --patience 10 --time_budget_min 120 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 24 --eval_members 8 --train_years 2015-2022 --det_pred_file **/ins/ydet.npz --seed 0 --tag s10f_diff_ins_S_s0"
    ]
+  ],
+  "state": "launched"
+ },
+ {
+  "name": "s10s1-det-a",
+  "account": "a2",
+  "sprint": "S10 seed",
+  "expected_min": 65,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 50 --patience 15 --time_budget_min 90 --H 3 --N 40 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2018-2022 --seed 1 --tag s10f_cf_f0_s1"
+   ],
+   [
+    "--mode det --size S --epochs 50 --patience 15 --time_budget_min 90 --H 3 --N 40 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2015-2017,2021,2022 --seed 1 --tag s10f_cf_f1_s1"
+   ]
+  ],
+  "state": "launched"
+ },
+ {
+  "name": "s10s1-det-b",
+  "account": "a2",
+  "sprint": "S10 seed",
+  "expected_min": 65,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 50 --patience 15 --time_budget_min 90 --H 3 --N 40 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2015-2020 --seed 1 --tag s10f_cf_f2_s1"
+   ],
+   [
+    "--mode det --size S --epochs 50 --patience 15 --time_budget_min 90 --H 3 --N 40 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2015-2022 --seed 1 --tag s10f_fin_det_s1"
+   ]
+  ],
+  "state": "launched"
+ },
+ {
+  "name": "s10s1-oof",
+  "account": "a2",
+  "sprint": "S10 seed",
+  "expected_min": 20,
+  "needs": [
+   "s10s1-det-a",
+   "s10s1-det-b"
+  ],
+  "kernel_sources": [
+   "sih26074-v3-s10s1-det-a",
+   "sih26074-v3-s10s1-det-b"
+  ],
+  "lanes": [
+   [
+    "@oof --mode oof --base **/s10f_fin_det_s1/best.pt --folds **/s10f_cf_f0_s1/best.pt=2015-2017 **/s10f_cf_f1_s1/best.pt=2018-2020 **/s10f_cf_f2_s1/best.pt=2021-2022 --tag oof"
+   ]
   ]
+ },
+ {
+  "name": "s10s1-diff",
+  "account": "a2",
+  "sprint": "S10 seed",
+  "expected_min": 100,
+  "needs": [
+   "s10s1-oof"
+  ],
+  "kernel_sources": [
+   "sih26074-v3-s10s1-oof"
+  ],
+  "lanes": [
+   [
+    "--mode diff --size S --epochs 80 --patience 10 --time_budget_min 120 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 24 --eval_members 8 --train_years 2015-2022 --det_pred_file **/oof/ydet.npz --seed 1 --tag s10f_diff_oof_S_s1"
+   ]
+  ]
+ },
+ {
+  "name": "s10s2-det-a",
+  "account": "a3",
+  "sprint": "S10 seed",
+  "expected_min": 65,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 50 --patience 15 --time_budget_min 90 --H 3 --N 40 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2018-2022 --seed 2 --tag s10f_cf_f0_s2"
+   ],
+   [
+    "--mode det --size S --epochs 50 --patience 15 --time_budget_min 90 --H 3 --N 40 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2015-2017,2021,2022 --seed 2 --tag s10f_cf_f1_s2"
+   ]
+  ],
+  "state": "launched"
+ },
+ {
+  "name": "s10s2-det-b",
+  "account": "a3",
+  "sprint": "S10 seed",
+  "expected_min": 65,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 50 --patience 15 --time_budget_min 90 --H 3 --N 40 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2015-2020 --seed 2 --tag s10f_cf_f2_s2"
+   ],
+   [
+    "--mode det --size S --epochs 50 --patience 15 --time_budget_min 90 --H 3 --N 40 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2015-2022 --seed 2 --tag s10f_fin_det_s2"
+   ]
+  ],
+  "state": "launched"
+ },
+ {
+  "name": "s10s2-oof",
+  "account": "a3",
+  "sprint": "S10 seed",
+  "expected_min": 20,
+  "needs": [
+   "s10s2-det-a",
+   "s10s2-det-b"
+  ],
+  "kernel_sources": [
+   "sih26074-v3-s10s2-det-a",
+   "sih26074-v3-s10s2-det-b"
+  ],
+  "lanes": [
+   [
+    "@oof --mode oof --base **/s10f_fin_det_s2/best.pt --folds **/s10f_cf_f0_s2/best.pt=2015-2017 **/s10f_cf_f1_s2/best.pt=2018-2020 **/s10f_cf_f2_s2/best.pt=2021-2022 --tag oof"
+   ]
+  ]
+ },
+ {
+  "name": "s10s2-diff",
+  "account": "a3",
+  "sprint": "S10 seed",
+  "expected_min": 100,
+  "needs": [
+   "s10s2-oof"
+  ],
+  "kernel_sources": [
+   "sih26074-v3-s10s2-oof"
+  ],
+  "lanes": [
+   [
+    "--mode diff --size S --epochs 80 --patience 10 --time_budget_min 120 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 24 --eval_members 8 --train_years 2015-2022 --det_pred_file **/oof/ydet.npz --seed 2 --tag s10f_diff_oof_S_s2"
+   ]
+  ]
+ },
+ {
+  "name": "s10-calmodel",
+  "account": "a1",
+  "sprint": "S10 calib",
+  "expected_min": 100,
+  "needs": [],
+  "kernel_sources": [
+   "sih26074-v3-s10f-oof"
+  ],
+  "lanes": [
+   [
+    "--mode diff --size S --epochs 80 --patience 10 --time_budget_min 120 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 24 --eval_members 8 --train_years 2015-2021 --val_years 2022 --det_pred_file **/oof/ydet.npz --seed 0 --tag s10f_diff_oof_S_cal_s0"
+   ]
+  ],
+  "state": "launched"
+ },
+ {
+  "name": "s10s0-oofm",
+  "account": "a1",
+  "sprint": "S10 seed",
+  "expected_min": 15,
+  "needs": [],
+  "kernel_sources": [
+   "sih26074-v3-s10f-det-a",
+   "sih26074-v3-s10f-det-b"
+  ],
+  "lanes": [
+   [
+    "@oof --mode oof --base **/s10f_fin_det_s0/best.pt --folds **/s10f_cf_f0_s0/best.pt=2015-2017 **/s10f_cf_f1_s0/best.pt=2018-2020 **/s10f_cf_f2_s0/best.pt=2021-2022 --tag oofm"
+   ]
+  ]
+ },
+ {
+  "name": "s10cap-SM",
+  "account": "a4",
+  "sprint": "S10 capacity",
+  "expected_min": 90,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 50 --patience 15 --time_budget_min 90 --H 3 --N 40 --train_years 2015-2022 --seed 0 --tag s10cap_S_s0"
+   ],
+   [
+    "--mode det --size M --epochs 50 --patience 15 --time_budget_min 110 --H 3 --N 40 --train_years 2015-2022 --seed 0 --tag s10cap_M_s0"
+   ]
+  ],
+  "state": "launched"
+ },
+ {
+  "name": "s10cap-L",
+  "account": "a4",
+  "sprint": "S10 capacity",
+  "expected_min": 130,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size L --epochs 50 --patience 15 --time_budget_min 150 --H 3 --N 40 --train_years 2015-2022 --seed 0 --tag s10cap_L_s0"
+   ]
+  ],
+  "state": "launched"
  },
  {
   "name": "d-s7-p2",
