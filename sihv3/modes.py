@@ -93,7 +93,7 @@ def main():
     det, _, da = load(a.det_ckpt, dev, False)
     diff, sigma, fa = load(a.diff_ckpt, dev, True)
     assert (da.H, da.N) == (fa.H, fa.N)
-    data = V3Data(history_len=da.H, context=da.N)
+    data = V3Data(history_len=da.H, context=da.N, fc_history=getattr(da, "fc_history", False))
     z = np.load(resolve(a.oof_file))
     assert list(z["dates"].astype(str)) == list(data.dates) and str(z["kind"]) == "oof"
     ydet_all = z["ydet"]

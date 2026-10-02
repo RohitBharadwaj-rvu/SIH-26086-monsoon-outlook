@@ -41,7 +41,7 @@ def main():
     a = p.parse_args()
     dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     base, ba = load(a.base, dev)
-    data = V3Data(history_len=ba.H, context=ba.N)
+    data = V3Data(history_len=ba.H, context=ba.N, fc_history=getattr(ba, "fc_history", False))
     years = np.array([int(d[:4]) for d in data.dates])
     owner = {}  # sample row -> model
     if a.mode == "oof":

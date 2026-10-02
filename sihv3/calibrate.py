@@ -136,7 +136,7 @@ def main():
     fy, ey = parse_years(a.fit_years), parse_years(a.eval_years)
     assert not set(fy) & set(ey), "fit and eval seasons must differ"
     assert not set(fy) & set(parse_years(ma.train_years) or []), "calibration FIT season was in the diffusion training set"
-    data = V3Data(history_len=ma.H, context=ma.N)
+    data = V3Data(history_len=ma.H, context=ma.N, fc_history=getattr(ma, "fc_history", False))
     z = np.load(resolve(a.det_pred_file))
     assert list(z["dates"].astype(str)) == list(data.dates)
     ydet = torch.from_numpy(z["ydet"].astype(np.float32))

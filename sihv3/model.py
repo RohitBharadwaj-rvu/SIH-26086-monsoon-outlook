@@ -49,6 +49,7 @@ class STTConfig:
     moe_topk: int = 1
     moe_frac: float = 0.0     # fraction of decoder blocks (the last ones) whose FFN is MoE
     dropout: float = 0.0
+    hist_fc: bool = False     # history carries 12 channels: observed + the GFS forecast that was valid on each day
 
     def to_dict(self):
         return asdict(self)
@@ -211,7 +212,7 @@ class SpatiotemporalTransformer(nn.Module):
         self.cfg = cfg
         d, pc, pf = cfg.dim, cfg.patch_coarse, cfg.patch_fine
         self.coarse_in = nn.Conv2d(N_VAR, d, pc, pc)
-        self.hist_in = nn.Conv2d(N_VAR, d, pc, pc)
+        self.hist_in = nn.Conv2d(N_VAR * (2 if cfg.hist_fc else 1), d, pc, pc)
         self.day_emb = nn.Embedding(14 + N_LEAD, d)  # 0..13 = D-14..D-1, 14..20 = D..D+6
         self.hist_blocks = nn.ModuleList([AxialBlock(d, cfg.heads, cfg.mlp_ratio, False, cfg.dropout)
                                           for _ in range(cfg.depth_hist)])

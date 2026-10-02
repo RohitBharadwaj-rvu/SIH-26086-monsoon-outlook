@@ -32,7 +32,7 @@ def main():
     dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     det, _, da = load(a.det_ckpt, dev, False)
     diff, sigma, _ = load(a.diff_ckpt, dev, True)
-    data = V3Data(history_len=da.H, context=da.N)
+    data = V3Data(history_len=da.H, context=da.N, fc_history=getattr(da, "fc_history", False))
     years = np.array([int(d[:4]) for d in data.dates])
     data.idx["_one"] = np.where(years == 2023)[0][:a.n + 1]
     bs = list(data.batches("_one", 1, False, dev))

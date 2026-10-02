@@ -46,6 +46,7 @@ def parse():
     p.add_argument("--moe_experts", type=int, default=0)
     p.add_argument("--moe_topk", type=int, default=1)
     p.add_argument("--moe_frac", type=float, default=0.0)
+    p.add_argument("--fc_history", action="store_true", help="add the forecast history (GFS valid on each history day) as input")
     p.add_argument("--moe_aux", type=float, default=0.01)
     p.add_argument("--precip_lin_w", type=float, default=0.0,
                    help="extra weight on a precipitation L1 term in mm/10 (counters log-space median bias)")
@@ -95,7 +96,8 @@ def masked_huber(pred, targ, mask, ch_w=None):
 
 def build(args, diffusion: bool, size=None) -> SpatiotemporalTransformer:
     cfg = STTConfig(**{**PRESETS[size or args.size], "diffusion": diffusion, "moe_experts": args.moe_experts,
-                       "moe_topk": args.moe_topk, "moe_frac": args.moe_frac})
+                       "moe_topk": args.moe_topk, "moe_frac": args.moe_frac,
+                       "hist_fc": getattr(args, "fc_history", False)})
     return SpatiotemporalTransformer(cfg)
 
 
@@ -244,7 +246,8 @@ def main():
     print(f"[{args.tag}] device={dev} gpus={torch.cuda.device_count()} args={vars(args)}", flush=True)
 
     data = V3Data(history_len=args.H, context=args.N, val_year=args.val_year,
-                  train_years=parse_years(args.train_years), val_years=parse_years(args.val_years) or [])
+                  train_years=parse_years(args.train_years), val_years=parse_years(args.val_years) or [],
+                  fc_history=args.fc_history)
     has_val = len(data.idx["val"]) > 0
     print(f"[{args.tag}] data: train {len(data.idx['train'])} val {len(data.idx['val'])} test {len(data.idx['test'])}"
           f" | load {time.time() - t_start:.0f}s", flush=True)

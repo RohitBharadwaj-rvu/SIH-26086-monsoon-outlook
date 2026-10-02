@@ -82,7 +82,7 @@ class V3Data:
     """Holds the whole (normalised) dataset in memory; `batches()` yields cropped tensors."""
 
     def __init__(self, history_len: int = 14, context: int = 16, val_year: int | None = None,
-                 train_years: list | None = None, val_years: list | None = None):
+                 train_years: list | None = None, val_years: list | None = None, fc_history: bool = False):
         import zarr
 
         assert 1 <= history_len <= 14 and 16 <= context <= 40 and context % 2 == 0
@@ -108,6 +108,29 @@ class V3Data:
         self.static = np.concatenate([terr, self.land[None]], 0)       # [6,80,80]
         self.dates = np.asarray(g["dates"][:]).astype(str)[rows]
         self.splits = splits_all[rows]
+        self.fc_history = fc_history
+        if fc_history:
+            # Forecast history: for each history day t (D-H .. D-1), the GFS forecast valid on t from the 00Z run issued
+            # on t itself (lead 0 = day t; that run exists before the new forecast at 00Z D). Paired with the observed
+            # history it shows how wrong GFS has been over the last H days. Days whose run is not in the store (the
+            # first days of each June) fall back to the observation, i.e. zero apparent error.
+            from datetime import date, timedelta
+            all_dates = np.asarray(g["dates"][:]).astype(str)
+            pos = {d: i for i, d in enumerate(all_dates)}
+            lead0 = self.norm.fwd(np.asarray(g["future_forecast"].get_orthogonal_selection(
+                (slice(None), slice(0, 1), slice(None), sl, sl)))[:, 0], axis=1)  # [all,6,N,N]
+            self.hist_fc = self.hist.copy()
+            hit = 0
+            for r, d in enumerate(self.dates):
+                d0 = date.fromisoformat(str(d))
+                for j in range(history_len):  # hist[:, j] is day D-(H-j)
+                    t = (d0 - timedelta(days=history_len - j)).isoformat()
+                    if t in pos:
+                        assert t < str(d)
+                        self.hist_fc[r, j] = lead0[pos[t]]
+                        hit += 1
+            self.fc_history_coverage = hit / max(1, len(self.dates) * history_len)
+            del lead0
         if val_year is not None:  # alternative validation season: that year -> val, 2022 -> train, 2023 stays test
             years = np.array([int(d[:4]) for d in self.dates])
             assert val_year not in (2023,) and (years == val_year).any(), val_year
@@ -128,8 +151,9 @@ class V3Data:
         st = torch.from_numpy(self.static).to(device)
         for i in range(0, len(ids), batch_size):
             b = np.sort(ids[i:i + batch_size])
+            h = np.concatenate([self.hist[b], self.hist_fc[b]], 2) if self.fc_history else self.hist[b]  # [B,H,6|12,N,N]
             yield {
-                "history": torch.from_numpy(self.hist[b]).to(device, non_blocking=True),
+                "history": torch.from_numpy(h).to(device, non_blocking=True),
                 "forecast": torch.from_numpy(self.fcst[b]).to(device, non_blocking=True),
                 "static": st[None].expand(len(b), -1, -1, -1),
                 "target": torch.from_numpy(self.targ[b]).to(device, non_blocking=True),
