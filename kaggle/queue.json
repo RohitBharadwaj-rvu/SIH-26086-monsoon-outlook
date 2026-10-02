@@ -733,7 +733,7 @@
     "@calibrate --diff_ckpt **/s10_diff_oof_S_cal_s0/best.pt --det_pred_file **/oof/ydet.npz --fit_years 2022 --eval_years 2023 --apply_ckpt **/s10_diff_oof_MoE_s0/best.pt --tag cal_MoE"
    ]
   ],
-  "state": "launched"
+  "state": "done"
  },
  {
   "name": "s10r-det-a",
