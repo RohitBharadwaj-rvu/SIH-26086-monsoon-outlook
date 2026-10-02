@@ -52,3 +52,39 @@
 2026-10-01 23:42:33 INBOX append f-v21-h14-n16
 2026-10-01 23:42:33 INBOX append f-v21-h3-n20
 2026-10-01 23:42:33 INBOX append f-v21-h3-n40
+2026-10-02 00:07:20 DONE c-s9-M
+2026-10-02 00:07:32 LAUNCH c-s9-moe-e8k1f50 on a2 -> ok
+2026-10-02 00:15:13 DONE c-confirm-h3-n40
+2026-10-02 00:15:26 LAUNCH c-s9-moe-e16k1f50 on a1 -> ok
+2026-10-02 00:23:22 DONE b-s6-diff
+2026-10-02 00:23:22 DECISION Sprint 7/8 evaluation on s6_diff_s0 (det s9_dense_S_s0) -- diffusion seed 0 trained; seed 1 kept for training-noise check
+2026-10-02 00:23:22 PLANNED Phase D
+2026-10-02 00:23:34 LAUNCH c-s9-moe-e4k2f50 on a1 -> ok
+2026-10-02 00:46:34 DONE c-s9-moe-e4k1f50
+2026-10-02 00:46:42 LAUNCH c-s9-moe-e8k2f50 on a3 -> ok
+2026-10-02 00:59:37 DONE c-s9-L
+2026-10-02 00:59:51 LAUNCH c-s9-moe-e16k2f50 on a2 -> ok
+2026-10-02 01:02:48 DONE c-confirm-h14-n40
+2026-10-02 01:02:58 LAUNCH c-s9-moe-e8k1f25 on a3 -> ok
+2026-10-02 01:20:44 DONE c-s9-moe-e8k1f50
+2026-10-02 01:20:56 LAUNCH c-s9-moe-e8k1f100 on a2 -> ok
+2026-10-02 01:39:14 DONE c-s9-moe-e16k1f50
+2026-10-02 01:39:14 DONE c-s9-moe-e4k2f50
+2026-10-02 01:39:26 LAUNCH f-v21-h3-n16 on a1 -> ok
+2026-10-02 01:39:37 LAUNCH f-v21-h14-n16 on a1 -> ok
+2026-10-02 02:05:01 DONE c-s9-moe-e8k2f50
+2026-10-02 02:05:10 LAUNCH f-v21-h3-n20 on a3 -> ok
+2026-10-02 02:13:04 DONE c-s9-moe-e8k1f25
+2026-10-02 02:13:13 LAUNCH f-v21-h3-n40 on a3 -> ok
+2026-10-02 02:23:38 DONE c-s9-moe-e16k2f50
+2026-10-02 02:36:06 DONE c-s9-moe-e8k1f100
+2026-10-02 02:41:00 DONE f-v21-h3-n16
+2026-10-02 02:41:12 LAUNCH d-s7-p0 on a1 -> ok
+2026-10-02 02:48:40 DONE f-v21-h14-n16
+2026-10-02 02:48:52 LAUNCH d-s7-p2 on a1 -> ok
+2026-10-02 02:58:18 DONE f-v21-h3-n20
+2026-10-02 03:05:25 DONE d-s7-p0
+2026-10-02 03:05:37 LAUNCH d-s8-p0 on a1 -> ok
+2026-10-02 03:08:04 DONE d-s7-p2
+2026-10-02 03:23:48 DONE d-s8-p0
+2026-10-02 03:45:10 DONE f-v21-h3-n40

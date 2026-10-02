@@ -468,5 +468,271 @@
   "launched_utc": 1790878196.2544415,
   "status": "queued",
   "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohithphegde/sih26074-v3-c-s9-moe-e4k1f50"
+ },
+ {
+  "name": "c-s9-moe-e8k1f50",
+  "account": "a2",
+  "user": "ssachithananthan",
+  "slug": "sih26074-v3-c-s9-moe-e8k1f50",
+  "sprint": "S9",
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 8 --moe_topk 1 --moe_frac 0.5 --seed 0 --tag s9_moe_e8k1f50_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 8 --moe_topk 1 --moe_frac 0.5 --seed 1 --tag s9_moe_e8k1f50_s1"
+   ]
+  ],
+  "expected_min": 110.0,
+  "launched_utc": 1790879852.0851269,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/ssachithananthan/sih26074-v3-c-s9-moe-e8k1f50"
+ },
+ {
+  "name": "c-s9-moe-e16k1f50",
+  "account": "a1",
+  "user": "rohitajitbharadwaj",
+  "slug": "sih26074-v3-c-s9-moe-e16k1f50",
+  "sprint": "S9",
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 16 --moe_topk 1 --moe_frac 0.5 --seed 0 --tag s9_moe_e16k1f50_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 16 --moe_topk 1 --moe_frac 0.5 --seed 1 --tag s9_moe_e16k1f50_s1"
+   ]
+  ],
+  "expected_min": 110.0,
+  "launched_utc": 1790880326.0258641,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-c-s9-moe-e16k1f50"
+ },
+ {
+  "name": "c-s9-moe-e4k2f50",
+  "account": "a1",
+  "user": "rohitajitbharadwaj",
+  "slug": "sih26074-v3-c-s9-moe-e4k2f50",
+  "sprint": "S9",
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 4 --moe_topk 2 --moe_frac 0.5 --seed 0 --tag s9_moe_e4k2f50_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 4 --moe_topk 2 --moe_frac 0.5 --seed 1 --tag s9_moe_e4k2f50_s1"
+   ]
+  ],
+  "expected_min": 110.0,
+  "launched_utc": 1790880814.750914,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-c-s9-moe-e4k2f50"
+ },
+ {
+  "name": "c-s9-moe-e8k2f50",
+  "account": "a3",
+  "user": "rohithphegde",
+  "slug": "sih26074-v3-c-s9-moe-e8k2f50",
+  "sprint": "S9",
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --seed 0 --tag s9_moe_e8k2f50_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --seed 1 --tag s9_moe_e8k2f50_s1"
+   ]
+  ],
+  "expected_min": 110.0,
+  "launched_utc": 1790882202.679186,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohithphegde/sih26074-v3-c-s9-moe-e8k2f50"
+ },
+ {
+  "name": "c-s9-moe-e16k2f50",
+  "account": "a2",
+  "user": "ssachithananthan",
+  "slug": "sih26074-v3-c-s9-moe-e16k2f50",
+  "sprint": "S9",
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 16 --moe_topk 2 --moe_frac 0.5 --seed 0 --tag s9_moe_e16k2f50_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 16 --moe_topk 2 --moe_frac 0.5 --seed 1 --tag s9_moe_e16k2f50_s1"
+   ]
+  ],
+  "expected_min": 110.0,
+  "launched_utc": 1790882991.9423795,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/ssachithananthan/sih26074-v3-c-s9-moe-e16k2f50"
+ },
+ {
+  "name": "c-s9-moe-e8k1f25",
+  "account": "a3",
+  "user": "rohithphegde",
+  "slug": "sih26074-v3-c-s9-moe-e8k1f25",
+  "sprint": "S9",
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 8 --moe_topk 1 --moe_frac 0.25 --seed 0 --tag s9_moe_e8k1f25_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 8 --moe_topk 1 --moe_frac 0.25 --seed 1 --tag s9_moe_e8k1f25_s1"
+   ]
+  ],
+  "expected_min": 110.0,
+  "launched_utc": 1790883178.4410555,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohithphegde/sih26074-v3-c-s9-moe-e8k1f25"
+ },
+ {
+  "name": "c-s9-moe-e8k1f100",
+  "account": "a2",
+  "user": "ssachithananthan",
+  "slug": "sih26074-v3-c-s9-moe-e8k1f100",
+  "sprint": "S9",
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 8 --moe_topk 1 --moe_frac 1.0 --seed 0 --tag s9_moe_e8k1f100_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 95 --H 3 --N 16 --precip_lin_w 1.0 --moe_experts 8 --moe_topk 1 --moe_frac 1.0 --seed 1 --tag s9_moe_e8k1f100_s1"
+   ]
+  ],
+  "expected_min": 110.0,
+  "launched_utc": 1790884256.6779785,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/ssachithananthan/sih26074-v3-c-s9-moe-e8k1f100"
+ },
+ {
+  "name": "f-v21-h3-n16",
+  "account": "a1",
+  "user": "rohitajitbharadwaj",
+  "slug": "sih26074-v3-f-v21-h3-n16",
+  "sprint": "S4/5 val2021",
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 3 --N 16 --precip_lin_w 1.0 --val_year 2021 --seed 0 --tag s45v21_h3_n16_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 3 --N 16 --precip_lin_w 1.0 --val_year 2021 --seed 1 --tag s45v21_h3_n16_s1"
+   ]
+  ],
+  "expected_min": 140.0,
+  "launched_utc": 1790885366.7532084,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-f-v21-h3-n16"
+ },
+ {
+  "name": "f-v21-h14-n16",
+  "account": "a1",
+  "user": "rohitajitbharadwaj",
+  "slug": "sih26074-v3-f-v21-h14-n16",
+  "sprint": "S4/5 val2021",
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 14 --N 16 --precip_lin_w 1.0 --val_year 2021 --seed 0 --tag s45v21_h14_n16_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 14 --N 16 --precip_lin_w 1.0 --val_year 2021 --seed 1 --tag s45v21_h14_n16_s1"
+   ]
+  ],
+  "expected_min": 140.0,
+  "launched_utc": 1790885377.6490731,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-f-v21-h14-n16"
+ },
+ {
+  "name": "f-v21-h3-n20",
+  "account": "a3",
+  "user": "rohithphegde",
+  "slug": "sih26074-v3-f-v21-h3-n20",
+  "sprint": "S4/5 val2021",
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 3 --N 20 --precip_lin_w 1.0 --val_year 2021 --seed 0 --tag s45v21_h3_n20_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 3 --N 20 --precip_lin_w 1.0 --val_year 2021 --seed 1 --tag s45v21_h3_n20_s1"
+   ]
+  ],
+  "expected_min": 140.0,
+  "launched_utc": 1790886910.9330645,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohithphegde/sih26074-v3-f-v21-h3-n20"
+ },
+ {
+  "name": "f-v21-h3-n40",
+  "account": "a3",
+  "user": "rohithphegde",
+  "slug": "sih26074-v3-f-v21-h3-n40",
+  "sprint": "S4/5 val2021",
+  "lanes": [
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 3 --N 40 --precip_lin_w 1.0 --val_year 2021 --seed 0 --tag s45v21_h3_n40_s0"
+   ],
+   [
+    "--mode det --size S --epochs 100 --patience 15 --time_budget_min 130 --H 3 --N 40 --precip_lin_w 1.0 --val_year 2021 --seed 1 --tag s45v21_h3_n40_s1"
+   ]
+  ],
+  "expected_min": 140.0,
+  "launched_utc": 1790887393.4130554,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohithphegde/sih26074-v3-f-v21-h3-n40"
+ },
+ {
+  "name": "d-s7-p0",
+  "account": "a1",
+  "user": "rohitajitbharadwaj",
+  "slug": "sih26074-v3-d-s7-p0",
+  "sprint": "S7",
+  "lanes": [
+   [
+    "@eval_diff --diff_ckpt **/s6_diff_s0/best.pt --det_ckpt **/s9_dense_S_s0/best.pt --study s7 --part 0 --nparts 4 --tag s7_p0"
+   ],
+   [
+    "@eval_diff --diff_ckpt **/s6_diff_s0/best.pt --det_ckpt **/s9_dense_S_s0/best.pt --study s7 --part 1 --nparts 4 --tag s7_p1"
+   ]
+  ],
+  "expected_min": 110.0,
+  "launched_utc": 1790889072.8053598,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-d-s7-p0"
+ },
+ {
+  "name": "d-s7-p2",
+  "account": "a1",
+  "user": "rohitajitbharadwaj",
+  "slug": "sih26074-v3-d-s7-p2",
+  "sprint": "S7",
+  "lanes": [
+   [
+    "@eval_diff --diff_ckpt **/s6_diff_s0/best.pt --det_ckpt **/s9_dense_S_s0/best.pt --study s7 --part 2 --nparts 4 --tag s7_p2"
+   ],
+   [
+    "@eval_diff --diff_ckpt **/s6_diff_s0/best.pt --det_ckpt **/s9_dense_S_s0/best.pt --study s7 --part 3 --nparts 4 --tag s7_p3"
+   ]
+  ],
+  "expected_min": 110.0,
+  "launched_utc": 1790889532.7748325,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-d-s7-p2"
+ },
+ {
+  "name": "d-s8-p0",
+  "account": "a1",
+  "user": "rohitajitbharadwaj",
+  "slug": "sih26074-v3-d-s8-p0",
+  "sprint": "S8",
+  "lanes": [
+   [
+    "@eval_diff --diff_ckpt **/s6_diff_s0/best.pt --det_ckpt **/s9_dense_S_s0/best.pt --study s8 --part 0 --nparts 2 --tag s8_p0"
+   ],
+   [
+    "@eval_diff --diff_ckpt **/s6_diff_s0/best.pt --det_ckpt **/s9_dense_S_s0/best.pt --study s8 --part 1 --nparts 2 --tag s8_p1"
+   ]
+  ],
+  "expected_min": 110.0,
+  "launched_utc": 1790890537.615733,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-d-s8-p0"
  }
 ]
