@@ -99,6 +99,24 @@ def main():
            "of ≈ 0.027: the MoE and the larger dense models fit the 8 training seasons *better* than dense S, but test skill",
            "is flat within the seed spread (±0.014). Capacity is data-limited at this training-set size, not broken."]
 
+    # 4a. diffusion-denoiser capacity
+    md += ["\n## 4a. Diffusion-denoiser capacity (cross-fitted residuals, 80 ep, DPM-Solver++ 24 × 8)\n",
+           "Selection evidence = 2022 validation (trained 2015–21, seed 1); 2023 test pairs share the OOF file and seed.\n",
+           "| denoiser | params | 2022 val CSS | 2022 val rain CRPS | 2023 test CSS (s1 / s2) | 2023 rain CRPS (s1 / s2) | rain SSR (s1 / s2) |",
+           "|---|---|---|---|---|---|---|"]
+    for sz, tags in (("S", ["s10f_diff_oof_S_s1", "s10f_diff_oof_S_s2"]), ("M", ["s10dcap_M_s1", "s10dcap_M_s2"]),
+                     ("L", ["s10dcap_L_s1", "s10dcap_L_s2"])):
+        v = res(f"s10dcap_{sz}_val_s1")
+        va = (v or {}).get("val", {}) if v else {}
+        vcss = composite_skill(va["aggregate"], va["reference_gfs_bilinear"]["aggregate"]) if va.get("aggregate") else None
+        rs = [res(t) for t in tags]
+        pr = next((r for r in rs + [v] if r and r.get("params_total")), None)
+        md.append(f"| {sz} | {pr['params_total'] / 1e6:.1f}M | " if pr else f"| {sz} | | ")
+        md[-1] += (f"{f(vcss, 4)} | {f(va.get('aggregate', {}).get('precip_crps'))} | "
+                   + " / ".join(f(css(r), 4) if r else PENDING for r in rs) + " | "
+                   + " / ".join(f(r['test']['aggregate']['precip_crps']) if r else PENDING for r in rs) + " | "
+                   + " / ".join(f(r['test']['aggregate']['precip_ssr'], 2) if r else PENDING for r in rs) + " |")
+
     # 4b. calibration
     c = jload("s10-calfit/out/calf/calibration.json")
     md += ["\n## 4b. Calibration: fitted on 2022 (model trained 2015–21), applied to the shipped model on 2023 (24 steps × 8)\n"]
