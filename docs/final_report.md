@@ -1,4 +1,4 @@
-# SIH-26074 — Sprints 1-9 re-run on real data: findings for Sprint 10
+# SIH-26074 — Sprints 1-10 on real data: findings and the shipped system
 
 Validation season 2022 drives decisions; 2023 test shown for reference. A second validation season (2021 held
 out) was added for history/context. CSS = Composite Skill Score vs GFS-bilinear (0 = raw GFS interpolated,
@@ -146,3 +146,14 @@ over the S denoiser -> **S denoiser is sufficient**; spend compute on members/st
 * ~852 heavily overlapping training initialisations limit how much extra history, context or capacity can help.
 * Two of my own errors were caught and fixed during the night (CSS bias term, tie rule); all tables use the fixed
   definitions (`audit_v3_code.md`).
+
+## 11. Sprint 10 outcome — the shipped system (full report: `final_system_report.md`)
+* **Shipped:** seed-0 MoE-S backbone (H=3, N/M=2.5, no mm-loss, 50 ep) + S residual-diffusion denoiser trained on
+  cross-fitted residuals + rain QM (FAST) + mean-preserving spread calibration (diffusion modes). Bundle:
+  `models/final` (not in git: 186 MB; rebuild with `scripts/export_final.py`), settings `configs/final/modes.yaml`.
+* **Modes (2023 test, T4, one forecast):** FAST 0.244 / 0.06 s; BALANCED 24×8 0.282 / ~4 s; ACCURATE 32×8 0.284 /
+  5.3 s; ENSEMBLE 24×16 0.290 / 8.3 s. BALANCED's steps were re-selected 16 → 24 on 2022 by a pre-registered rule.
+* **Honest headline:** diffusion-pipeline test CSS over 3 seeds = 0.263 ± 0.018 (shipped seed 0.281).
+* **Scaling:** test-time compute (steps up to ~24, then members) is the lever that works. Parameter count does not
+  help in either stage at 8 training seasons (3-seed stage-1 S/M/L/MoE tied; M/L denoisers over-confident).
+* **Next:** average 3 seeds' backbones; spread-calibrate the L denoiser; per-K spread factors; more seasons.

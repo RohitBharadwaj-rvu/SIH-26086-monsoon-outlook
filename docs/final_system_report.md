@@ -5,6 +5,16 @@ U, V). All numbers below are on the **2023 monsoon test season** (Jun–Sep, 122
 calibration fit or selection decision used. CSS = composite skill vs GFS-bilinear (higher is better; for
 ensembles, the ensemble mean). Tie rule: 1 SE of the paired difference.
 
+**Summary.**
+* One system, four modes (`models/final`, `configs/final/modes.yaml`): FAST 0.244 CSS in 0.06 s; BALANCED 0.282
+  (~4 s); ACCURATE 0.284 (5.3 s); ENSEMBLE 0.290 (8.3 s), all on one T4 at batch 1, < 1 GB VRAM.
+* The 3-seed expectation for the diffusion pipeline is 0.263 ± 0.018; the shipped seed's 0.281 is the lucky
+  end of that range (picked on out-of-fold skill before test was seen).
+* What worked: cross-fitted residual diffusion (rain CRPS −19 % vs the standard recipe, spread ratio 0.4 → 1.1),
+  ~24 DPM-Solver++ steps, more members for threshold probabilities, spread calibration (Tmax CRPS −9 %).
+* What did not: more capacity, in either stage. Stage-1 S/M/L/MoE are tied over 3 seeds; M/L denoisers fit
+  better but sample over-confident ensembles. With 8 training seasons the system is data-limited.
+
 ## 1. The shipped system
 
 * **Backbone (FAST):** spatiotemporal transformer, S size with an MoE FFN (8 experts, top-2, MoE in 50 % of
@@ -71,9 +81,18 @@ Selection evidence = 2022 validation (trained 2015–21, seed 1); 2023 test pair
 
 | denoiser | params | 2022 val CSS | 2022 val rain CRPS | 2023 test CSS (s1 / s2) | 2023 rain CRPS (s1 / s2) | rain SSR (s1 / s2) |
 |---|---|---|---|---|---|---|
-| S | 17.8M | _pending_ | _pending_ | 0.2448 / 0.2642 | 4.502 / 4.458 | 0.85 / 1.02 |
-| M | | _pending_ | _pending_ | _pending_ / _pending_ | _pending_ / _pending_ | _pending_ / _pending_ |
-| L | | _pending_ | _pending_ | _pending_ / _pending_ | _pending_ / _pending_ | _pending_ / _pending_ |
+| S | 17.8M | 0.2628 | 6.408 | 0.2448 / 0.2642 | 4.502 / 4.458 | 0.85 / 1.02 |
+| M | 34.3M | 0.2550 | 6.477 | 0.2410 / 0.2618 | 4.566 / 4.545 | 0.67 / 0.60 |
+| L | 58.8M | 0.2765 | 6.344 | 0.2484 / 0.2592 | 4.591 / 4.556 | 0.59 / 0.57 |
+
+**Decision: ship the S denoiser.** Bigger denoisers fit the training residuals better (final loss S 0.125,
+M 0.113, L 0.105) but sample *narrower* ensembles (2023 rain SSR ≈ 0.6 vs 0.85–1.02 for S): with ~970 training
+samples they overfit the residual distribution, the same mechanism that made in-sample residuals under-dispersed.
+L leads on 2022 validation (+0.014 CSS, −1 % rain CRPS) but that is one seed and inside the denoiser-to-denoiser
+noise shown by M (−0.008 vs S); every 2023 comparison has L's rain CRPS 1.8–2.2 % worse. Pooled over the four
+paired comparisons L − S = +0.006 CSS (1.4 SE) and +1.2 % rain CRPS, at ~2.2× the compute (training 179 vs 81 min per run).
+Next experiment: spread-calibrate L (its under-dispersion is exactly what the calibration corrects), and
+revisit denoiser capacity when more training seasons are available.
 
 ## 4b. Calibration: fitted on 2022 (model trained 2015–21), applied to the shipped model on 2023 (24 steps × 8)
 
