@@ -119,3 +119,5 @@ launch.py: error: argument --lane: expected at least one argument
 
 2026-10-02 13:35:37 INBOX update s10v-b ['lanes', 'retries']
 2026-10-02 13:35:49 LAUNCH s10v-b on a1 -> ok
+2026-10-02 13:45:54 DONE s10r-det-b
+2026-10-02 13:46:05 LAUNCH s10r-oof on a3 -> ok

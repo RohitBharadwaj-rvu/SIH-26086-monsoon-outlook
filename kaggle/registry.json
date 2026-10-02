@@ -902,5 +902,24 @@
   "launched_utc": 1790928349.6169353,
   "status": "queued",
   "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-s10v-b"
+ },
+ {
+  "name": "s10r-oof",
+  "account": "a3",
+  "user": "rohithphegde",
+  "slug": "sih26074-v3-s10r-oof",
+  "sprint": "S10 crossfit seed1",
+  "lanes": [
+   [
+    "@oof --mode oof --base **/s10_fin_det_s1/best.pt --folds **/s10_cf_f0_s1/best.pt=2015-2017 **/s10_cf_f1_s1/best.pt=2018-2020 **/s10_cf_f2_s1/best.pt=2021-2022 --tag oof"
+   ],
+   [
+    "@oof --mode insample --base **/s10_fin_det_s1/best.pt --tag ins"
+   ]
+  ],
+  "expected_min": 20.0,
+  "launched_utc": 1790928965.4137175,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohithphegde/sih26074-v3-s10r-oof"
  }
 ]
