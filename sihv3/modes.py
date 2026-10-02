@@ -82,6 +82,8 @@ def main():
     p.add_argument("--steps", type=int, nargs="+", default=[8, 16, 24, 32])
     p.add_argument("--members", type=int, nargs="+", default=[4, 8, 16])
     p.add_argument("--with_fast", action="store_true")
+    p.add_argument("--eval_year", type=int, default=2023,
+                   help="season to score; != 2023 is for selection (e.g. 2022 with the fold det + calibration diffusion)")
     p.add_argument("--tag", default="modes")
     p.add_argument("--out", default=os.environ.get("SIH_OUT", "/kaggle/working/out" if Path("/kaggle").exists() else "out"))
     a = p.parse_args()
@@ -96,7 +98,8 @@ def main():
     assert list(z["dates"].astype(str)) == list(data.dates) and str(z["kind"]) == "oof"
     ydet_all = z["ydet"]
     years = np.array([int(d[:4]) for d in data.dates])
-    test = np.where(years == 2023)[0]
+    assert not (a.with_fast and a.eval_year != 2023), "FAST/QM evaluation is defined on the 2023 test season only"
+    test = np.where(years == a.eval_year)[0]
     assert (a.alpha is None) != (a.alpha_file is None), "give exactly one of --alpha / --alpha_file"
     if a.alpha_file:
         cal = json.load(open(resolve(a.alpha_file)))
