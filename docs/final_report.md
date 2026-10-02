@@ -94,20 +94,53 @@ top-2, in half the decoder blocks matches dense L at one third of the active par
 for ~852 training samples; ~50 % MoE coverage is the sweet spot. **Use MoE E=8, top-2, 50 % (or dense S if latency
 matters most).**
 
-## 8. Recommended Sprint 10 configuration
-* **Inputs:** real GFS 7-day forecast + ERA5 history **H=3**, context **N=16-20** (N/M 1.0-1.25), terrain, land mask.
-* **Backbone:** spatiotemporal transformer, **MoE 8 experts, top-2, 50 % of decoder blocks** (~29M total / 19M active),
-  precipitation mm-loss term, 100 epochs.
-* **Probabilistic stage:** residual diffusion on the deterministic transformer, **DPM-Solver++ 16-24 steps,
-  8 members** (~2-3 s per district forecast on a T4).
-* **Operating modes:** FAST = deterministic + precip quantile mapping (CSS ~0.26); BALANCED = diffusion K=8, S=16
-  (0.258); ACCURATE = K=8, S=24-32 (0.264-0.265); ENSEMBLE = K=8-16 at S>=16 for threshold probabilities.
-* **Still open for Sprint 10:** (1) rain dryness (bias 0.6) and under-dispersion (SSR 0.7-0.8): calibrate the
-  ensemble (spread/quantile mapping on a held-out season) or train the diffusion on cross-fitted residuals;
-  (2) diffusion on the MoE/L backbone (capacity x test-time compute interaction) was not run; (3) train the final
-  model on 2015-2022 with a fixed epoch count, because stopping on 2022 alone raised 2022 scores but lowered 2023.
+## 8. Sprint 10 open problems — resolved (2023 test season; full table `results_s10.md`)
+All runs: H=3, **N/M = 2.5 (N=40, project lead's choice)**, MoE backbone, trained on 2015-2022 with a fixed epoch
+count (no single-season early stopping), diffusion sampled with DPM-Solver++ 24 steps x 8 members.
 
-## 9. Caveats
+**(a) Training recipe for the deterministic backbone** (test CSS):
+| | with mm-loss | without mm-loss |
+|---|---|---|
+| 50 epochs | 0.216 | **0.235** |
+| 75 epochs | 0.218 / 0.228 (2 seeds) | 0.234 |
+The mm-loss term only looked useful on the 2022 season; it costs 0.011-0.019 CSS on 2023 -> **dropped**. 50 and 75
+epochs are equivalent -> **50 epochs**. (Seed spread on 2023 Tmax is ~0.1 C, so earlier single-run Tmax differences
+were mostly noise.)
+
+**(b) Cross-fitted residual diffusion** (the root cause of dry, under-dispersed ensembles): the diffusion was learning
+in-sample residuals, which are **half the size** of out-of-sample ones (residual sigma, rain 0.52 vs 1.08; every
+variable ~2x). Training it on out-of-fold deterministic predictions (3 year-folds):
+| (2 seeds each) | in-sample residuals | **cross-fitted residuals** |
+|---|---|---|
+| rain CRPS | 5.64 / 5.70 | **4.47 / 4.51 (-21 %)** |
+| Brier > 30 mm | 0.050 / 0.049 | **0.039 / 0.039 (-21 %)** |
+| ens-mean CSS | 0.247 / 0.253 | 0.247 / **0.272** |
+| spread-skill (mean) | 0.87 | **0.98** |
+| rain bias / CSI@30 (mean) | 0.89 / **0.190** | 0.84 / 0.168 |
+**Use cross-fitting.** Trade-off: the ensemble mean is slightly more conservative for heavy rain.
+
+**(c) Capacity x test-time compute**: an MoE diffusion denoiser on the MoE backbone gives +0.0016 CSS and -0.5 % CRPS
+over the S denoiser -> **S denoiser is sufficient**; spend compute on members/steps, not denoiser size.
+
+**(d) Post-hoc calibration** (fitted on 2022, scored on 2023):
+* **Spread inflation** (mean-preserving): rain CRPS -2 %, **Tmax CRPS -9 %**, bias and Brier unchanged; parameters
+  transfer to the final model -> **use it**.
+* **Rain quantile mapping** fitted on one season: CSS +0.016-0.019 but over-corrects (bias 0.89 -> 1.25) and worsens
+  Brier, because wet-2022 statistics do not fit dry 2023 -> do **not** fit rain QM on a single season; fit it on the
+  multi-season cross-fitted out-of-fold predictions instead (available from the cross-fitting step).
+
+## 9. Recommended Sprint 10 system
+* **Inputs:** real GFS 7-day forecast, ERA5 history **H=3**, context **N/M = 2.5**, terrain, land mask.
+* **Deterministic backbone:** spatiotemporal transformer, **MoE 8 experts / top-2 / 50 % of decoder blocks**,
+  **no mm-loss, 50 epochs, trained on 2015-2022**.
+* **Probabilistic stage:** residual diffusion (S denoiser) trained on **cross-fitted** residuals (3 year-folds),
+  80 epochs; **DPM-Solver++ 16-24 steps x 8 members**; mean-preserving **spread calibration**.
+* **Operating modes:** FAST = deterministic + rain QM fitted on multi-season out-of-fold predictions; BALANCED =
+  diffusion K=8, S=16; ACCURATE = K=8, S=24-32; ENSEMBLE = K=8-16, S>=16 for threshold (advisory) probabilities.
+* The final-recipe pipeline (`s10f_*`: folds + final model without mm-loss, cross-fitted vs in-sample diffusion at
+  80 epochs) is the Sprint 10 starting model; its 2023 scores are in `results_s10.md`.
+
+## 10. Caveats
 * Seasons differ strongly (2022 wet, 2023 dry); single-season rankings flipped several times, so only effects that
   hold on both 2021 and 2022 validation are reported as findings.
 * ~852 heavily overlapping training initialisations limit how much extra history, context or capacity can help.
