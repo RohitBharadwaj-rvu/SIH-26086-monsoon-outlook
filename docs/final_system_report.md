@@ -85,6 +85,8 @@ Selection evidence = 2022 validation (trained 2015–21, seed 1); 2023 test pair
 | M | 34.3M | 0.2550 | 6.477 | 0.2410 / 0.2618 | 4.566 / 4.545 | 0.67 / 0.60 |
 | L | 58.8M | 0.2765 | 6.344 | 0.2484 / 0.2592 | 4.591 / 4.556 | 0.59 / 0.57 |
 
+Seed-0 runs (record only, finished after the decision): M test CSS 0.2683, rain CRPS 4.506, SSR 0.62; L test CSS 0.2632, rain CRPS 4.549, SSR 0.56 (seed-0 S: 0.2814 / 4.431 / 1.11).
+
 **Decision: ship the S denoiser.** Bigger denoisers fit the training residuals better (final loss S 0.125,
 M 0.113, L 0.105) but sample *narrower* ensembles (2023 rain SSR ≈ 0.6 vs 0.85–1.02 for S): with ~970 training
 samples they overfit the residual distribution, the same mechanism that made in-sample residuals under-dispersed.
