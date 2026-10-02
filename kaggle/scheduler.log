@@ -161,3 +161,4 @@ launch.py: error: argument --lane: expected at least one argument
 2026-10-02 16:31:45 LAUNCH s10-calmodel on a1 -> ok
 2026-10-02 16:31:56 LAUNCH s10cap-SM on a4 -> ok
 2026-10-02 16:32:07 LAUNCH s10cap-L on a4 -> ok
+2026-10-02 16:34:37 INBOX append s10-calfit

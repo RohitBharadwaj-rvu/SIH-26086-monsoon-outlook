@@ -1115,6 +1115,26 @@
   "state": "launched"
  },
  {
+  "name": "s10-calfit",
+  "account": "a1",
+  "sprint": "S10 calib",
+  "expected_min": 40,
+  "needs": [
+   "s10-calmodel",
+   "s10f-diff"
+  ],
+  "kernel_sources": [
+   "sih26074-v3-s10f-oof",
+   "sih26074-v3-s10-calmodel",
+   "sih26074-v3-s10f-diff"
+  ],
+  "lanes": [
+   [
+    "@calibrate --diff_ckpt **/s10f_diff_oof_S_cal_s0/best.pt --det_pred_file **/oof/ydet.npz --fit_years 2022 --eval_years 2023 --apply_ckpt **/s10f_diff_oof_S_s0/best.pt --tag calf"
+   ]
+  ]
+ },
+ {
   "name": "d-s7-p2",
   "account": "a1",
   "sprint": "S7",
