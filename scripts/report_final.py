@@ -54,8 +54,9 @@ def main():
            "  v-prediction, cosine schedule, 80 epochs) trained on **cross-fitted** residuals: every training season's",
            "  residual comes from a deterministic model that never saw that season. Sampled with DPM-Solver++(2M), then",
            "  mean-preserving spread calibration per lead × variable, fitted on 2022 by a model trained without 2022.",
-           "* **Mode settings** (pre-registered from Sprint 7/8 validation before the 2023 grid was run): FAST = 1 member;",
-           "  BALANCED = 16 steps × 8 members; ACCURATE = 32 × 8; ENSEMBLE = 24 × 16.",
+           "* **Mode settings:** FAST = 1 member; BALANCED = 24 steps × 8 members; ACCURATE = 32 × 8; ENSEMBLE = 24 × 16.",
+           "  Pre-registered from Sprint 7/8 validation (BALANCED was 16 × 8), then BALANCED's step count re-selected on 2022",
+           "  with a rule written down before that run (section 5); 2023 never chose a setting.",
            "* Entry point: `sihv3.predict.FinalDownscaler(\"models/final\").predict(history, forecast, mode=...)`.\n"]
 
     # 2. seed selection
@@ -129,13 +130,13 @@ def main():
                + f" (range {al.min():.1f}–{al.max():.1f}).\n",
                "| model | variant | CSS | rain CRPS | rain SSR | rain cov90 (ideal 0.70 for K=8) | rain bias | Brier>30 | Tmax CRPS |",
                "|---|---|---|---|---|---|---|---|---|"]
-        for grp, label in (("model", "2015–21 model, 2022 (fit season: in-sample for α)"), ("applied", "shipped model, 2023")):
+        for grp, label in (("model", "2015–21 calibration model, 2023"), ("applied", "shipped model, 2023")):
             for v, m in c.get(grp, {}).items():
                 md.append(f"| {label} | {v} | {m['css_ensmean']:.4f} | {m['precip_crps']:.3f} | {m['precip_ssr']:.2f} | "
                           f"{m['precip_cov90']:.2f} | {m['precip_bias_ratio']:.2f} | {m['brier30']:.4f} | {m['tmax_crps']:.3f} |")
         md += ["\nSpread calibration lowers rain CRPS (−3 %) and Tmax CRPS (−9 %) with CSS and bias unchanged, but rain",
                "coverage overshoots (0.84 vs ideal 0.70): slightly over-dispersed for rain. Rain QM on the ensemble is not",
-               "shipped: it worsens Brier>30 in both seasons and pushes the 2022 bias from 1.22 to 1.36."]
+               "shipped: it worsens Brier>30 for both models on 2023 and pushes the calibration model's bias from 1.22 to 1.36."]
     else:
         md.append(PENDING)
 
@@ -158,7 +159,7 @@ def main():
     fast = [c for c in rows if c["members"] == 1]
     spec = [("FAST", "det + rain QM", next((c for c in fast if "QM" in c["mode"]), None)),
             ("FAST (no QM)", "det only", next((c for c in fast if "raw" in c["mode"]), None)),
-            ("BALANCED", "16 steps × 8", find(8, 16)), ("ACCURATE", "32 steps × 8", find(8, 32)),
+            ("BALANCED", "24 steps × 8", find(8, 24)), ("ACCURATE", "32 steps × 8", find(8, 32)),
             ("ENSEMBLE", "24 steps × 16", find(16, 24))]
     for name, setting, c in spec:
         if not c:
@@ -170,11 +171,23 @@ def main():
                   f"{g(a.get('brier30'), 4)} | {g(a.get('tmax_crps'))} | {a['precip_bias_ratio']:.2f} | "
                   f"{c['latency_s_one_forecast']:.2f} | {f(c.get('peak_vram_gb'), 1) if c.get('peak_vram_gb') else ''} |")
     if rows:
-        md += ["\n* Skill rises monotonically with test-time compute: FAST < BALANCED < ACCURATE < ENSEMBLE.",
-               "* The pre-registered BALANCED point (16 steps, from Sprint 7/8 validation with in-sample residuals) is",
-               "  visibly short of the curve's knee on 2023 (24 steps: CSS 0.282 vs 0.269 at K=8): the wider cross-fitted",
-               "  residuals need more denoising steps. Not changed here, to keep 2023 out of the selection; confirm on 2022.",
-               "* Spread factors were fitted at K=8; at K=16 rain is somewhat over-dispersed (SSR 1.27–1.33).",
+        md += ["\n* Skill rises with test-time compute: FAST < BALANCED ≤ ACCURATE < ENSEMBLE.",
+               "* BALANCED steps re-selected on **2022** (fold det trained 2015–20 + diffusion trained 2015–21, K=8, raw;",
+               "  rule pre-registered: smallest S within 0.005 CSS and 1 % rain CRPS of the best):"]
+        s22 = {}
+        for t in ("steps22_a", "steps22_b"):
+            m = jload(f"s10-steps22/out/{t}/modes.json")
+            for cfg in (m or {}).get("configs", []):
+                if cfg.get("calibration") == "raw":
+                    s22[cfg["steps"]] = cfg
+        if s22:
+            md += ["", "  | steps (K=8) | 2022 CSS | 2022 rain CRPS |", "  |---|---|---|"]
+            for S in sorted(s22):
+                md.append(f"  | {S} | {s22[S]['css']:.4f} | {s22[S]['aggregate']['precip_crps']:.3f} |")
+            md += ["", "  16 steps (the Sprint 7/8 choice, made with in-sample residuals) is short of the knee: the wider",
+                   "  cross-fitted residuals need ~24 steps. 32 steps adds nothing on 2022 (ACCURATE ≈ BALANCED there);",
+                   "  the real accuracy upgrade is ENSEMBLE's extra members."]
+        md += ["", "* Spread factors were fitted at K=8; at K=16 rain is somewhat over-dispersed (SSR 1.27–1.33).",
                "* Latency above is with members sampled sequentially (as evaluated). The shipped `predict()` batches all",
                "  members into one pass with the same initial noise (identical samples, max |diff| 5e-6); see the table below.",
                "* Bundle acceptance test: `models/final` FAST mode on CPU fp32 reproduces the T4 result exactly (CSS 0.2435,",

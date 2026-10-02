@@ -14,8 +14,9 @@ ensembles, the ensemble mean). Tie rule: 1 SE of the paired difference.
   v-prediction, cosine schedule, 80 epochs) trained on **cross-fitted** residuals: every training season's
   residual comes from a deterministic model that never saw that season. Sampled with DPM-Solver++(2M), then
   mean-preserving spread calibration per lead × variable, fitted on 2022 by a model trained without 2022.
-* **Mode settings** (pre-registered from Sprint 7/8 validation before the 2023 grid was run): FAST = 1 member;
-  BALANCED = 16 steps × 8 members; ACCURATE = 32 × 8; ENSEMBLE = 24 × 16.
+* **Mode settings:** FAST = 1 member; BALANCED = 24 steps × 8 members; ACCURATE = 32 × 8; ENSEMBLE = 24 × 16.
+  Pre-registered from Sprint 7/8 validation (BALANCED was 16 × 8), then BALANCED's step count re-selected on 2022
+  with a rule written down before that run (section 5); 2023 never chose a setting.
 * Entry point: `sihv3.predict.FinalDownscaler("models/final").predict(history, forecast, mode=...)`.
 
 ## 2. Seed selection (out-of-fold, 2023 not used) and 3-seed spread
@@ -67,10 +68,10 @@ Spread factors (mean over leads) P/Tmax/Tmin/RH/U/V: 1.57 / 1.50 / 1.47 / 1.44 /
 
 | model | variant | CSS | rain CRPS | rain SSR | rain cov90 (ideal 0.70 for K=8) | rain bias | Brier>30 | Tmax CRPS |
 |---|---|---|---|---|---|---|---|---|
-| 2015–21 model, 2022 (fit season: in-sample for α) | raw | 0.2651 | 4.549 | 1.29 | 0.57 | 1.22 | 0.0420 | 0.756 |
-| 2015–21 model, 2022 (fit season: in-sample for α) | spread | 0.2652 | 4.373 | 1.45 | 0.88 | 1.22 | 0.0412 | 0.703 |
-| 2015–21 model, 2022 (fit season: in-sample for α) | rainqm | 0.2674 | 4.598 | 1.08 | 0.88 | 1.36 | 0.0448 | 0.756 |
-| 2015–21 model, 2022 (fit season: in-sample for α) | both | 0.2675 | 4.410 | 1.21 | 0.91 | 1.36 | 0.0437 | 0.703 |
+| 2015–21 calibration model, 2023 | raw | 0.2651 | 4.549 | 1.29 | 0.57 | 1.22 | 0.0420 | 0.756 |
+| 2015–21 calibration model, 2023 | spread | 0.2652 | 4.373 | 1.45 | 0.88 | 1.22 | 0.0412 | 0.703 |
+| 2015–21 calibration model, 2023 | rainqm | 0.2674 | 4.598 | 1.08 | 0.88 | 1.36 | 0.0448 | 0.756 |
+| 2015–21 calibration model, 2023 | both | 0.2675 | 4.410 | 1.21 | 0.91 | 1.36 | 0.0437 | 0.703 |
 | shipped model, 2023 | raw | 0.2811 | 4.421 | 1.12 | 0.49 | 0.91 | 0.0391 | 0.810 |
 | shipped model, 2023 | spread | 0.2811 | 4.298 | 1.25 | 0.84 | 0.91 | 0.0388 | 0.740 |
 | shipped model, 2023 | rainqm | 0.2854 | 4.454 | 0.92 | 0.85 | 1.07 | 0.0413 | 0.810 |
@@ -78,7 +79,7 @@ Spread factors (mean over leads) P/Tmax/Tmin/RH/U/V: 1.57 / 1.50 / 1.47 / 1.44 /
 
 Spread calibration lowers rain CRPS (−3 %) and Tmax CRPS (−9 %) with CSS and bias unchanged, but rain
 coverage overshoots (0.84 vs ideal 0.70): slightly over-dispersed for rain. Rain QM on the ensemble is not
-shipped: it worsens Brier>30 in both seasons and pushes the 2022 bias from 1.22 to 1.36.
+shipped: it worsens Brier>30 for both models on 2023 and pushes the calibration model's bias from 1.22 to 1.36.
 
 ## 5. Operating modes (2023 test)
 
@@ -86,14 +87,25 @@ shipped: it worsens Brier>30 in both seasons and pushes the 2022 bias from 1.22 
 |---|---|---|---|---|---|---|---|---|---|
 | FAST | det + rain QM | 0.2435 | – | – | – | – | 1.09 | 0.06 |  |
 | FAST (no QM) | det only | 0.2361 | – | – | – | – | 0.66 | 0.06 |  |
-| BALANCED | 16 steps × 8 | 0.2693 | 4.363 | 1.11 | 0.0387 | 0.752 | 0.80 | 3.45 | 0.6 |
+| BALANCED | 24 steps × 8 | 0.2821 | 4.296 | 1.25 | 0.0386 | 0.733 | 0.91 | 5.17 | 0.6 |
 | ACCURATE | 32 steps × 8 | 0.2839 | 4.312 | 1.29 | 0.0393 | 0.723 | 0.97 | 6.85 | 0.6 |
 | ENSEMBLE | 24 steps × 16 | 0.2900 | 4.347 | 1.27 | 0.0370 | 0.742 | 0.92 | 10.47 | 0.7 |
 
-* Skill rises monotonically with test-time compute: FAST < BALANCED < ACCURATE < ENSEMBLE.
-* The pre-registered BALANCED point (16 steps, from Sprint 7/8 validation with in-sample residuals) is
-  visibly short of the curve's knee on 2023 (24 steps: CSS 0.282 vs 0.269 at K=8): the wider cross-fitted
-  residuals need more denoising steps. Not changed here, to keep 2023 out of the selection; confirm on 2022.
+* Skill rises with test-time compute: FAST < BALANCED ≤ ACCURATE < ENSEMBLE.
+* BALANCED steps re-selected on **2022** (fold det trained 2015–20 + diffusion trained 2015–21, K=8, raw;
+  rule pre-registered: smallest S within 0.005 CSS and 1 % rain CRPS of the best):
+
+  | steps (K=8) | 2022 CSS | 2022 rain CRPS |
+  |---|---|---|
+  | 8 | 0.2410 | 6.609 |
+  | 16 | 0.2684 | 6.314 |
+  | 24 | 0.2795 | 6.258 |
+  | 32 | 0.2783 | 6.287 |
+
+  16 steps (the Sprint 7/8 choice, made with in-sample residuals) is short of the knee: the wider
+  cross-fitted residuals need ~24 steps. 32 steps adds nothing on 2022 (ACCURATE ≈ BALANCED there);
+  the real accuracy upgrade is ENSEMBLE's extra members.
+
 * Spread factors were fitted at K=8; at K=16 rain is somewhat over-dispersed (SSR 1.27–1.33).
 * Latency above is with members sampled sequentially (as evaluated). The shipped `predict()` batches all
   members into one pass with the same initial noise (identical samples, max |diff| 5e-6); see the table below.
@@ -143,7 +155,7 @@ Raw (uncalibrated) vs spread-calibrated rain CRPS / SSR:
 | observed | 0.247 | 3.815 | -0.177 | -0.574 | -0.126 | 0.579 | 6.632 | 0.000 |
 | FAST | 0.309 | 5.672 | -0.190 | -0.904 | -0.123 | 0.635 | 6.241 | 0.000 |
 | FAST (no QM) | 0.299 | 7.342 | -0.180 | -1.119 | -0.134 | 0.635 | 6.241 | 0.000 |
-| BALANCED | 0.207 | 5.789 | -0.116 | -0.933 | -0.104 | 0.606 | 6.269 | 0.000 |
+| BALANCED | 0.209 | 5.397 | -0.117 | -0.892 | -0.104 | 0.598 | 6.272 | 0.000 |
 | ACCURATE | 0.211 | 5.215 | -0.117 | -0.833 | -0.104 | 0.589 | 6.282 | 0.000 |
 | ENSEMBLE | 0.205 | 5.315 | -0.114 | -0.872 | -0.102 | 0.592 | 6.281 | 0.000 |
 

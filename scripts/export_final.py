@@ -15,7 +15,7 @@ from sihv3.predict import export_bundle  # noqa: E402
 
 MODES = {  # pre-registered in docs/decision_log.md before the 2023 modes grid was seen
     "FAST": {"members": 1, "rain_qm": True},
-    "BALANCED": {"steps": 16, "members": 8, "spread_calibration": True},
+    "BALANCED": {"steps": 24, "members": 8, "spread_calibration": True},  # 16 -> 24: re-selected on 2022 (decision_log)
     "ACCURATE": {"steps": 32, "members": 8, "spread_calibration": True},
     "ENSEMBLE": {"steps": 24, "members": 16, "spread_calibration": True},
 }

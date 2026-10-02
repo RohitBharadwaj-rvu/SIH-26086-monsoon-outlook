@@ -2,7 +2,7 @@ FAST:
   members: 1
   rain_qm: true
 BALANCED:
-  steps: 16
+  steps: 24
   members: 8
   spread_calibration: true
 ACCURATE:
