@@ -8,8 +8,8 @@ diffusion sampled with DPM-Solver++ 24 steps x 8 members. CSS vs GFS-bilinear (e
 | deterministic MoE (seed 0) | 0.2183 | 0.2323 | nan | nan | nan | 0.689 | nan | 0.185 | 17.274 | 1.217 | 3.602 | 0.695 |
 | deterministic MoE (seed 1) | 0.2278 | 0.2409 | nan | nan | nan | 0.687 | nan | 0.184 | 17.276 | 1.116 | 3.399 | 0.670 |
 | diffusion, in-sample residuals (seed 0) | 0.2466 |  | 5.640 | 1.004 | 0.361 | 0.921 | 0.050 | 0.191 | 16.546 | 1.189 | 3.518 | 0.657 |
-| diffusion, in-sample residuals (seed 1) | _pending_ |
+| diffusion, in-sample residuals (seed 1) | 0.2531 |  | 5.696 | 0.743 | 0.364 | 0.858 | 0.049 | 0.189 | 16.561 | 1.094 | 3.305 | 0.635 |
 | diffusion, CROSS-FITTED residuals (seed 0) | 0.2466 |  | 4.474 | 0.865 | 0.487 | 0.773 | 0.039 | 0.155 | 16.463 | 1.136 | 3.356 | 0.621 |
-| diffusion, CROSS-FITTED residuals (seed 1) | _pending_ |
+| diffusion, CROSS-FITTED residuals (seed 1) | 0.2722 |  | 4.506 | 1.085 | 0.524 | 0.903 | 0.039 | 0.180 | 16.023 | 1.074 | 3.175 | 0.611 |
 | diffusion, cross-fitted, MoE denoiser (seed 0) | 0.2482 |  | 4.449 | 0.811 | 0.438 | 0.786 | 0.039 | 0.157 | 16.274 | 1.156 | 3.409 | 0.613 |
 | diffusion, cross-fitted, trained 2015-21 (calibration model) | 0.2447 |  | 4.499 | 1.020 | 0.516 | 0.912 | 0.041 | 0.151 | 16.282 | 1.145 | 3.384 | 0.663 |

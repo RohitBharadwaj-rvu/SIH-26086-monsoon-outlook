@@ -128,3 +128,10 @@ launch.py: error: argument --lane: expected at least one argument
 2026-10-02 14:51:35 DONE s10-diff-a
 2026-10-02 14:51:45 LAUNCH s10-cal on a2 -> ok
 2026-10-02 14:54:11 DONE s10v-a
+2026-10-02 14:56:35 INBOX append s10f-det-a
+2026-10-02 14:56:35 INBOX append s10f-det-b
+2026-10-02 14:56:35 INBOX append s10f-oof
+2026-10-02 14:56:35 INBOX append s10f-diff
+2026-10-02 14:56:35 DONE s10r-diff
+2026-10-02 14:56:47 LAUNCH s10f-det-a on a1 -> ok
+2026-10-02 14:56:59 LAUNCH s10f-det-b on a1 -> ok
