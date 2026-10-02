@@ -175,10 +175,21 @@ def main():
                "  visibly short of the curve's knee on 2023 (24 steps: CSS 0.282 vs 0.269 at K=8): the wider cross-fitted",
                "  residuals need more denoising steps. Not changed here, to keep 2023 out of the selection; confirm on 2022.",
                "* Spread factors were fitted at K=8; at K=16 rain is somewhat over-dispersed (SSR 1.27–1.33).",
-               "* Members are sampled sequentially, so latency is linear in K; batching members into one forward pass",
-               "  would cut diffusion-mode latency several-fold (VRAM use is only 0.6–0.7 GB).",
+               "* Latency above is with members sampled sequentially (as evaluated). The shipped `predict()` batches all",
+               "  members into one pass with the same initial noise (identical samples, max |diff| 5e-6); see the table below.",
                "* Bundle acceptance test: `models/final` FAST mode on CPU fp32 reproduces the T4 result exactly (CSS 0.2435,",
                "  bias 1.09)."]
+
+    bench = jload("s10-bench/out/bench/bench.json")
+    if bench:
+        md += [f"\nShipped-mode latency, one forecast (batch 1), {bench['device']}, fp16:\n",
+               "| mode | sequential members s | batched members s (shipped) | peak VRAM GB (shipped) |", "|---|---|---|---|"]
+        for mode in ("FAST", "BALANCED", "ACCURATE", "ENSEMBLE"):
+            sq, bt = bench["modes"].get(f"{mode} (sequential)"), bench["modes"].get(f"{mode} (batched)")
+            shp = bt or sq
+            md.append(f"| {mode} | {sq['latency_s']:.2f} | {bt['latency_s']:.2f} | {shp['peak_vram_gb']:.2f} |" if bt else
+                      f"| {mode} | {sq['latency_s']:.3f} | – | {shp['peak_vram_gb']:.2f} |")
+        md.append("\nBatching gives only 1.3–1.4×: at 80×80 the denoiser already keeps a T4 fairly busy at batch 1.")
 
     # 6. test-time compute matrix
     md += ["\n## 6. Test-time compute matrix (spread-calibrated; cell = CSS / rain CRPS / latency s)\n"]
