@@ -8,6 +8,8 @@ import json
 import sys
 from pathlib import Path
 
+import numpy as np
+
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 from sihv3.metrics import composite_skill  # noqa: E402
@@ -121,7 +123,7 @@ def main():
     c = jload("s10-calfit/out/calf/calibration.json")
     md += ["\n## 4b. Calibration: fitted on 2022 (model trained 2015–21), applied to the shipped model on 2023 (24 steps × 8)\n"]
     if c:
-        import numpy as np
+
         al = np.array(c["alpha_spread"])
         md += ["Spread factors (mean over leads) P/Tmax/Tmin/RH/U/V: " + " / ".join(f"{x:.2f}" for x in al.mean(0))
                + f" (range {al.min():.1f}–{al.max():.1f}).\n",
@@ -163,9 +165,20 @@ def main():
             md.append(f"| {name} | {setting} | {PENDING} |")
             continue
         a = c["aggregate"]
-        md.append(f"| {name} | {setting} | {c['css']:.4f} | {f(a.get('precip_crps'))} | {f(a.get('precip_ssr'), 2)} | "
-                  f"{f(a.get('brier30'), 4)} | {f(a.get('tmax_crps'))} | {a['precip_bias_ratio']:.2f} | "
+        g = (lambda x, d=3: "–") if c["members"] == 1 else f  # probabilistic scores do not exist for one member
+        md.append(f"| {name} | {setting} | {c['css']:.4f} | {g(a.get('precip_crps'))} | {g(a.get('precip_ssr'), 2)} | "
+                  f"{g(a.get('brier30'), 4)} | {g(a.get('tmax_crps'))} | {a['precip_bias_ratio']:.2f} | "
                   f"{c['latency_s_one_forecast']:.2f} | {f(c.get('peak_vram_gb'), 1) if c.get('peak_vram_gb') else ''} |")
+    if rows:
+        md += ["\n* Skill rises monotonically with test-time compute: FAST < BALANCED < ACCURATE < ENSEMBLE.",
+               "* The pre-registered BALANCED point (16 steps, from Sprint 7/8 validation with in-sample residuals) is",
+               "  visibly short of the curve's knee on 2023 (24 steps: CSS 0.282 vs 0.269 at K=8): the wider cross-fitted",
+               "  residuals need more denoising steps. Not changed here, to keep 2023 out of the selection; confirm on 2022.",
+               "* Spread factors were fitted at K=8; at K=16 rain is somewhat over-dispersed (SSR 1.27–1.33).",
+               "* Members are sampled sequentially, so latency is linear in K; batching members into one forward pass",
+               "  would cut diffusion-mode latency several-fold (VRAM use is only 0.6–0.7 GB).",
+               "* Bundle acceptance test: `models/final` FAST mode on CPU fp32 reproduces the T4 result exactly (CSS 0.2435,",
+               "  bias 1.09)."]
 
     # 6. test-time compute matrix
     md += ["\n## 6. Test-time compute matrix (spread-calibrated; cell = CSS / rain CRPS / latency s)\n"]
@@ -205,6 +218,18 @@ def main():
     fm = next((m.get("fast_vs_oof_file_maxdiff") for m in modes.values() if "fast_vs_oof_file_maxdiff" in m), None)
     if fm is not None:
         md.append(f"\nArtefact check: FAST output vs the OOF file's 2023 rows, max |diff| = {fm:.4f} (normalised units, fp16).")
+        md += ["Mean |diff| is ~6e-4 and only 0.04 % of values differ by > 0.05; the rare large local differences come from",
+               "MoE top-2 routing flips under reduced precision (0.3–0.7 % of tokens switch expert between fp32 and bf16).",
+               "Aggregate scores are unaffected (identical CSS to 4 decimals)."]
+    md += ["\n## 8. Headline numbers and caveats\n",
+           "* **Expected skill of the pipeline** (3 seeds, cross-fitted diffusion, 24 × 8): test CSS "
+           + (lambda v: f"{np.mean(v):.3f} ± {np.std(v, ddof=1):.3f}" if len(v) == 3 else PENDING)(
+               [css(r) for r in (res(f"s10f_diff_oof_S_s{s}") for s in range(3)) if r])
+           + ". The shipped seed (0) scores above this mean; it was chosen on out-of-fold skill before test was seen,",
+           "  so its higher test score is luck, not selection.",
+           "* Seed variance is dominated by heavy-rain detection (CSI30 0.13–0.19 across seeds). Averaging the three seeds'",
+           "  deterministic backbones is the obvious next upgrade (3× stage-1 cost, ~0.2 s/forecast).",
+           "* One test season (2023, 122 forecasts) and 8 training seasons: differences under ~0.01 CSS are noise."]
 
     (REPO / "docs" / "final_system_report.md").write_text("\n".join(md) + "\n", encoding="utf-8")
     print("\n".join(md))

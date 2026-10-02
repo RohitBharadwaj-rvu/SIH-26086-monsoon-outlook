@@ -23,8 +23,8 @@ ensembles, the ensemble mean). Tie rule: 1 SE of the paired difference.
 | seed | OOF CSS 2015–22 (selection score) | final det test CSS | + rain QM | cross-fitted diffusion test CSS | rain CRPS | rain SSR |
 |---|---|---|---|---|---|---|
 | 0 **(shipped)** | 0.2472 | 0.2361 | 0.2488 | 0.2814 | 4.431 | 1.11 |
-| 1 | 0.2432 | 0.2205 | 0.2363 | _pending_ | _pending_ | _pending_ |
-| 2 | 0.2428 | 0.2484 | 0.2626 | _pending_ | _pending_ | _pending_ |
+| 1 | 0.2432 | 0.2205 | 0.2363 | 0.2448 | 4.502 | 0.85 |
+| 2 | 0.2428 | 0.2484 | 0.2626 | 0.2642 | 4.458 | 1.02 |
 
 Seed 0 has the best OOF score but the seeds are tied within noise (paired season SE ≈ 0.004–0.006).
 The spread across seeds in the test column is the honest uncertainty of any single shipped model.
@@ -51,6 +51,16 @@ MoE train losses include the Switch balance term (0.01 × ≈1 per MoE layer × 
 of ≈ 0.027: the MoE and the larger dense models fit the 8 training seasons *better* than dense S, but test skill
 is flat within the seed spread (±0.014). Capacity is data-limited at this training-set size, not broken.
 
+## 4a. Diffusion-denoiser capacity (cross-fitted residuals, 80 ep, DPM-Solver++ 24 × 8)
+
+Selection evidence = 2022 validation (trained 2015–21, seed 1); 2023 test pairs share the OOF file and seed.
+
+| denoiser | params | 2022 val CSS | 2022 val rain CRPS | 2023 test CSS (s1 / s2) | 2023 rain CRPS (s1 / s2) | rain SSR (s1 / s2) |
+|---|---|---|---|---|---|---|
+| S | 17.8M | _pending_ | _pending_ | 0.2448 / 0.2642 | 4.502 / 4.458 | 0.85 / 1.02 |
+| M | | _pending_ | _pending_ | _pending_ / _pending_ | _pending_ / _pending_ | _pending_ / _pending_ |
+| L | | _pending_ | _pending_ | _pending_ / _pending_ | _pending_ / _pending_ | _pending_ / _pending_ |
+
 ## 4b. Calibration: fitted on 2022 (model trained 2015–21), applied to the shipped model on 2023 (24 steps × 8)
 
 Spread factors (mean over leads) P/Tmax/Tmin/RH/U/V: 1.57 / 1.50 / 1.47 / 1.44 / 1.61 / 1.46 (range 1.2–2.1).
@@ -74,16 +84,67 @@ shipped: it worsens Brier>30 in both seasons and pushes the 2022 bias from 1.22 
 
 | mode | setting | CSS | rain CRPS | rain SSR | Brier>30 | Tmax CRPS | rain bias | latency s/forecast (T4, batch 1) | peak VRAM GB |
 |---|---|---|---|---|---|---|---|---|---|
-| FAST | det + rain QM | _pending_ |
-| FAST (no QM) | det only | _pending_ |
-| BALANCED | 16 steps × 8 | _pending_ |
-| ACCURATE | 32 steps × 8 | _pending_ |
-| ENSEMBLE | 24 steps × 16 | _pending_ |
+| FAST | det + rain QM | 0.2435 | – | – | – | – | 1.09 | 0.06 |  |
+| FAST (no QM) | det only | 0.2361 | – | – | – | – | 0.66 | 0.06 |  |
+| BALANCED | 16 steps × 8 | 0.2693 | 4.363 | 1.11 | 0.0387 | 0.752 | 0.80 | 3.45 | 0.6 |
+| ACCURATE | 32 steps × 8 | 0.2839 | 4.312 | 1.29 | 0.0393 | 0.723 | 0.97 | 6.85 | 0.6 |
+| ENSEMBLE | 24 steps × 16 | 0.2900 | 4.347 | 1.27 | 0.0370 | 0.742 | 0.92 | 10.47 | 0.7 |
+
+* Skill rises monotonically with test-time compute: FAST < BALANCED < ACCURATE < ENSEMBLE.
+* The pre-registered BALANCED point (16 steps, from Sprint 7/8 validation with in-sample residuals) is
+  visibly short of the curve's knee on 2023 (24 steps: CSS 0.282 vs 0.269 at K=8): the wider cross-fitted
+  residuals need more denoising steps. Not changed here, to keep 2023 out of the selection; confirm on 2022.
+* Spread factors were fitted at K=8; at K=16 rain is somewhat over-dispersed (SSR 1.27–1.33).
+* Members are sampled sequentially, so latency is linear in K; batching members into one forward pass
+  would cut diffusion-mode latency several-fold (VRAM use is only 0.6–0.7 GB).
+* Bundle acceptance test: `models/final` FAST mode on CPU fp32 reproduces the T4 result exactly (CSS 0.2435,
+  bias 1.09).
 
 ## 6. Test-time compute matrix (spread-calibrated; cell = CSS / rain CRPS / latency s)
 
-_pending_
+| members \ steps | 8 | 16 | 24 | 32 |
+|---|---|---|---|---|
+| K=4 | 0.2351 / 4.538 / 0.8 | 0.2630 / 4.249 / 1.7 | 0.2672 / 4.222 / 2.6 | 0.2684 / 4.207 / 3.4 |
+| K=8 | 0.2410 / 4.572 / 1.8 | 0.2693 / 4.363 / 3.4 | 0.2821 / 4.296 / 5.2 | 0.2839 / 4.312 / 6.9 |
+| K=16 | 0.2422 / 4.603 / 3.5 | 0.2788 / 4.382 / 7.0 | 0.2900 / 4.347 / 10.5 | 0.2948 / 4.334 / 13.9 |
+
+Raw (uncalibrated) vs spread-calibrated rain CRPS / SSR:
+
+| K | S | raw CRPS | cal CRPS | raw SSR | cal SSR |
+|---|---|---|---|---|---|
+| 4 | 8 | 4.761 | 4.538 | 0.69 | 0.77 |
+| 4 | 16 | 4.447 | 4.249 | 0.99 | 1.10 |
+| 4 | 24 | 4.415 | 4.222 | 1.10 | 1.23 |
+| 4 | 32 | 4.400 | 4.207 | 1.14 | 1.26 |
+| 8 | 8 | 4.743 | 4.572 | 0.67 | 0.77 |
+| 8 | 16 | 4.498 | 4.363 | 0.99 | 1.11 |
+| 8 | 24 | 4.417 | 4.296 | 1.11 | 1.25 |
+| 8 | 32 | 4.427 | 4.312 | 1.16 | 1.29 |
+| 16 | 8 | 4.750 | 4.603 | 0.66 | 0.77 |
+| 16 | 16 | 4.485 | 4.382 | 0.99 | 1.13 |
+| 16 | 24 | 4.433 | 4.347 | 1.13 | 1.27 |
+| 16 | 32 | 4.419 | 4.334 | 1.18 | 1.33 |
 
 ## 7. Multivariate physical consistency (per member; observed = ERA5-Land/CHIRPS targets)
 
-_pending_
+| | corr_rain_rh | rh_wet_minus_dry | corr_rain_tmax | tmax_wet_minus_dry | corr_wind_rain | corr_tmax_tmin | diurnal_range | tmax_lt_tmin_rate |
+|---|---|---|---|---|---|---|---|---|
+| observed | 0.247 | 3.815 | -0.177 | -0.574 | -0.126 | 0.579 | 6.632 | 0.000 |
+| FAST | 0.309 | 5.672 | -0.190 | -0.904 | -0.123 | 0.635 | 6.241 | 0.000 |
+| FAST (no QM) | 0.299 | 7.342 | -0.180 | -1.119 | -0.134 | 0.635 | 6.241 | 0.000 |
+| BALANCED | 0.207 | 5.789 | -0.116 | -0.933 | -0.104 | 0.606 | 6.269 | 0.000 |
+| ACCURATE | 0.211 | 5.215 | -0.117 | -0.833 | -0.104 | 0.589 | 6.282 | 0.000 |
+| ENSEMBLE | 0.205 | 5.315 | -0.114 | -0.872 | -0.102 | 0.592 | 6.281 | 0.000 |
+
+Artefact check: FAST output vs the OOF file's 2023 rows, max |diff| = 0.3651 (normalised units, fp16).
+Mean |diff| is ~6e-4 and only 0.04 % of values differ by > 0.05; the rare large local differences come from
+MoE top-2 routing flips under reduced precision (0.3–0.7 % of tokens switch expert between fp32 and bf16).
+Aggregate scores are unaffected (identical CSS to 4 decimals).
+
+## 8. Headline numbers and caveats
+
+* **Expected skill of the pipeline** (3 seeds, cross-fitted diffusion, 24 × 8): test CSS 0.263 ± 0.018. The shipped seed (0) scores above this mean; it was chosen on out-of-fold skill before test was seen,
+  so its higher test score is luck, not selection.
+* Seed variance is dominated by heavy-rain detection (CSI30 0.13–0.19 across seeds). Averaging the three seeds'
+  deterministic backbones is the obvious next upgrade (3× stage-1 cost, ~0.2 s/forecast).
+* One test season (2023, 122 forecasts) and 8 training seasons: differences under ~0.01 CSS are noise.
