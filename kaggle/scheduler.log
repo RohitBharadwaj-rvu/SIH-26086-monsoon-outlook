@@ -92,3 +92,7 @@
 2026-10-02 12:05:56 INBOX append s10-det-b
 2026-10-02 12:06:06 LAUNCH s10-det-a on a2 -> ok
 2026-10-02 12:06:16 LAUNCH s10-det-b on a2 -> ok
+2026-10-02 12:12:59 INBOX append s10-oof
+2026-10-02 12:12:59 INBOX append s10-diff-a
+2026-10-02 12:12:59 INBOX append s10-diff-b
+2026-10-02 12:12:59 INBOX append s10-cal

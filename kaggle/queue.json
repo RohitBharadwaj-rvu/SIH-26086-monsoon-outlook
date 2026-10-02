@@ -647,6 +647,91 @@
   "state": "launched"
  },
  {
+  "name": "s10-oof",
+  "account": "a2",
+  "sprint": "S10 crossfit",
+  "expected_min": 20,
+  "needs": [
+   "s10-det-a",
+   "s10-det-b"
+  ],
+  "kernel_sources": [
+   "sih26074-v3-s10-det-a",
+   "sih26074-v3-s10-det-b"
+  ],
+  "lanes": [
+   [
+    "@oof --mode oof --base **/s10_fin_det_s0/best.pt --folds **/s10_cf_f0_s0/best.pt=2015-2017 **/s10_cf_f1_s0/best.pt=2018-2020 **/s10_cf_f2_s0/best.pt=2021-2022 --tag oof"
+   ],
+   [
+    "@oof --mode insample --base **/s10_fin_det_s0/best.pt --tag ins"
+   ]
+  ]
+ },
+ {
+  "name": "s10-diff-a",
+  "account": "a2",
+  "sprint": "S10 diff",
+  "expected_min": 110,
+  "needs": [
+   "s10-oof"
+  ],
+  "kernel_sources": [
+   "sih26074-v3-s10-oof"
+  ],
+  "lanes": [
+   [
+    "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 100 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 24 --eval_members 8 --train_years 2015-2022 --det_pred_file **/oof/ydet.npz --seed 0 --tag s10_diff_oof_S_s0"
+   ],
+   [
+    "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 100 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 24 --eval_members 8 --train_years 2015-2022 --det_pred_file **/oof/ydet.npz --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --seed 0 --tag s10_diff_oof_MoE_s0"
+   ]
+  ]
+ },
+ {
+  "name": "s10-diff-b",
+  "account": "a2",
+  "sprint": "S10 diff",
+  "expected_min": 110,
+  "needs": [
+   "s10-oof"
+  ],
+  "kernel_sources": [
+   "sih26074-v3-s10-oof"
+  ],
+  "lanes": [
+   [
+    "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 100 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 24 --eval_members 8 --train_years 2015-2022 --det_pred_file **/ins/ydet.npz --seed 0 --tag s10_diff_ins_S_s0"
+   ],
+   [
+    "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 100 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 24 --eval_members 8 --train_years 2015-2021 --val_years 2022 --det_pred_file **/oof/ydet.npz --seed 0 --tag s10_diff_oof_S_cal_s0"
+   ]
+  ]
+ },
+ {
+  "name": "s10-cal",
+  "account": "a2",
+  "sprint": "S10 calib",
+  "expected_min": 40,
+  "needs": [
+   "s10-diff-a",
+   "s10-diff-b"
+  ],
+  "kernel_sources": [
+   "sih26074-v3-s10-oof",
+   "sih26074-v3-s10-diff-a",
+   "sih26074-v3-s10-diff-b"
+  ],
+  "lanes": [
+   [
+    "@calibrate --diff_ckpt **/s10_diff_oof_S_cal_s0/best.pt --det_pred_file **/oof/ydet.npz --fit_years 2022 --eval_years 2023 --apply_ckpt **/s10_diff_oof_S_s0/best.pt --tag cal_S"
+   ],
+   [
+    "@calibrate --diff_ckpt **/s10_diff_oof_S_cal_s0/best.pt --det_pred_file **/oof/ydet.npz --fit_years 2022 --eval_years 2023 --apply_ckpt **/s10_diff_oof_MoE_s0/best.pt --tag cal_MoE"
+   ]
+  ]
+ },
+ {
   "name": "d-s7-p2",
   "account": "a1",
   "sprint": "S7",
