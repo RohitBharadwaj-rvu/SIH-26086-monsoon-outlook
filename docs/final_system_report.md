@@ -114,14 +114,14 @@ shipped: it worsens Brier>30 for both models on 2023 and pushes the calibration 
 
 Shipped-mode latency, one forecast (batch 1), Tesla T4, fp16:
 
-| mode | sequential members s | batched members s (shipped) | peak VRAM GB (shipped) |
-|---|---|---|---|
-| FAST | 0.056 | – | 0.24 |
-| BALANCED | 3.28 | 2.61 | 0.56 |
-| ACCURATE | 7.28 | 5.33 | 0.56 |
-| ENSEMBLE | 10.61 | 8.31 | 0.90 |
+| mode | benchmarked setting | sequential members s | batched members s (shipped) | peak VRAM GB (shipped) |
+|---|---|---|---|---|
+| FAST | 1 member | 0.056 | – | 0.24 |
+| BALANCED | 16 × 8 | 3.28 | 2.61 | 0.56 |
+| ACCURATE | 32 × 8 | 7.28 | 5.33 | 0.56 |
+| ENSEMBLE | 24 × 16 | 10.61 | 8.31 | 0.90 |
 
-Batching gives only 1.3–1.4×: at 80×80 the denoiser already keeps a T4 fairly busy at batch 1.
+Batching gives only 1.3–1.4×: at 80×80 the denoiser already keeps a T4 fairly busy at batch 1. The bench ran before BALANCED moved to 24 steps; latency is linear in steps, so shipped BALANCED (24 × 8, batched) ≈ 4.0 s.
 
 ## 6. Test-time compute matrix (spread-calibrated; cell = CSS / rain CRPS / latency s)
 

@@ -196,13 +196,18 @@ def main():
     bench = jload("s10-bench/out/bench/bench.json")
     if bench:
         md += [f"\nShipped-mode latency, one forecast (batch 1), {bench['device']}, fp16:\n",
-               "| mode | sequential members s | batched members s (shipped) | peak VRAM GB (shipped) |", "|---|---|---|---|"]
+               "| mode | benchmarked setting | sequential members s | batched members s (shipped) | peak VRAM GB (shipped) |",
+               "|---|---|---|---|---|"]
         for mode in ("FAST", "BALANCED", "ACCURATE", "ENSEMBLE"):
             sq, bt = bench["modes"].get(f"{mode} (sequential)"), bench["modes"].get(f"{mode} (batched)")
             shp = bt or sq
-            md.append(f"| {mode} | {sq['latency_s']:.2f} | {bt['latency_s']:.2f} | {shp['peak_vram_gb']:.2f} |" if bt else
-                      f"| {mode} | {sq['latency_s']:.3f} | – | {shp['peak_vram_gb']:.2f} |")
-        md.append("\nBatching gives only 1.3–1.4×: at 80×80 the denoiser already keeps a T4 fairly busy at batch 1.")
+            st = f"{sq['steps']} × {sq['members']}" if sq["members"] > 1 else "1 member"
+            md.append(f"| {mode} | {st} | {sq['latency_s']:.2f} | {bt['latency_s']:.2f} | {shp['peak_vram_gb']:.2f} |" if bt else
+                      f"| {mode} | {st} | {sq['latency_s']:.3f} | – | {shp['peak_vram_gb']:.2f} |")
+        acc = bench["modes"].get("ACCURATE (batched)")
+        md.append("\nBatching gives only 1.3–1.4×: at 80×80 the denoiser already keeps a T4 fairly busy at batch 1. The bench ran"
+                  " before BALANCED moved to 24 steps; latency is linear in steps, so shipped BALANCED (24 × 8, batched) ≈ "
+                  + (f"{acc['latency_s'] * 24 / 32:.1f} s." if acc else "n/a."))
 
     # 6. test-time compute matrix
     md += ["\n## 6. Test-time compute matrix (spread-calibrated; cell = CSS / rain CRPS / latency s)\n"]
