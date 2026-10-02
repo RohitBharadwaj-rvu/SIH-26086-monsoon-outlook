@@ -148,6 +148,7 @@ over the S denoiser -> **S denoiser is sufficient**; spend compute on members/st
   definitions (`audit_v3_code.md`).
 
 ## 11. Sprint 10 outcome — the shipped system (full report: `final_system_report.md`)
+* **Deliverables (plan paths):** `models/final/`, `configs/final/`, `results/final_scaling_matrix.csv`, `reports/final_system_report.md`.
 * **Shipped:** seed-0 MoE-S backbone (H=3, N/M=2.5, no mm-loss, 50 ep) + S residual-diffusion denoiser trained on
   cross-fitted residuals + rain QM (FAST) + mean-preserving spread calibration (diffusion modes). Bundle:
   `models/final` (not in git: 186 MB; rebuild with `scripts/export_final.py`), settings `configs/final/modes.yaml`.

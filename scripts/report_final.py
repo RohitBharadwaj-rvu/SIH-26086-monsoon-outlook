@@ -240,6 +240,50 @@ def main():
                   " before BALANCED moved to 24 steps; latency is linear in steps, so shipped BALANCED (24 × 8, batched) ≈ "
                   + (f"{acc['latency_s'] * 24 / 32:.1f} s." if acc else "n/a."))
 
+    # 5b. full accuracy / extremes / spatial structure / probabilistic quality per variable
+    md += ["\n## 5b. Per-variable accuracy, extremes, spatial structure and probabilistic quality (2023 test)\n"]
+    shown = [(n, c) for n, _, c in spec if c]
+    if shown:
+        A = lambda key, d=3: [(f"{c['aggregate'][key]:.{d}f}" if key in c["aggregate"] else "–") for _, c in shown]
+        groups = [
+            ("**Accuracy** (deterministic or ensemble mean)", [
+                ("rain MAE / RMSE (mm/day)", None), ("Tmax MAE / RMSE / bias (°C)", None), ("Tmin MAE / RMSE / bias (°C)", None),
+                ("RH MAE / RMSE / bias (%)", None), ("wind vector RMSE (m/s)", "wind_vec_rmse"), ("rain bias ratio", "precip_bias_ratio"),
+                ("rain wet-day MAE (mm/day)", "precip_wet_mae")]),
+            ("**Precipitation events and extremes**", [
+                ("CSI ≥ 5 / 15 / 30 / 64.5 mm", None), ("POD / FAR ≥ 64.5 mm (very heavy)", None)]),
+            ("**Spatial structure**", [("rain FSS (15 mm)", "precip_fss15"), ("rain spatial correlation", "precip_spatial_corr")]),
+            ("**Probabilistic quality** (diffusion modes)", [
+                ("CRPS rain / Tmax / Tmin / RH", None), ("spread-skill ratio rain / Tmax / RH (ideal 1)", None),
+                ("90 % coverage rain / Tmax (ideal 0.70 at K=8, 0.79 at K=16)", None), ("Brier ≥ 15 / ≥ 30 mm", None)])]
+        combo = {
+            "rain MAE / RMSE (mm/day)": ("precip_mae", "precip_rmse"), "Tmax MAE / RMSE / bias (°C)": ("tmax_mae", "tmax_rmse", "tmax_bias"),
+            "Tmin MAE / RMSE / bias (°C)": ("tmin_mae", "tmin_rmse", "tmin_bias"), "RH MAE / RMSE / bias (%)": ("rh_mae", "rh_rmse", "rh_bias"),
+            "CSI ≥ 5 / 15 / 30 / 64.5 mm": ("precip_csi5", "precip_csi15", "precip_csi30", "precip_csi64.5"),
+            "POD / FAR ≥ 64.5 mm (very heavy)": ("precip_pod64.5", "precip_far64.5"),
+            "CRPS rain / Tmax / Tmin / RH": ("precip_crps", "tmax_crps", "tmin_crps", "rh_crps"),
+            "spread-skill ratio rain / Tmax / RH (ideal 1)": ("precip_ssr", "tmax_ssr", "rh_ssr"),
+            "90 % coverage rain / Tmax (ideal 0.70 at K=8, 0.79 at K=16)": ("precip_cov90", "tmax_cov90"),
+            "Brier ≥ 15 / ≥ 30 mm": ("brier15", "brier30")}
+        md += ["| metric | " + " | ".join(n for n, _ in shown) + " |", "|---|" + "---|" * len(shown)]
+        for title, items in groups:
+            md.append(f"| {title} |" + " |" * len(shown))
+            for label, key in items:
+                if key:
+                    md.append(f"| {label} | " + " | ".join(A(key)) + " |")
+                else:
+                    cols = [A(k, 4 if "brier" in k else (2 if any(s in k for s in ("ssr", "cov90", "csi", "pod", "far")) else 3)) for k in combo[label]]
+                    md.append(f"| {label} | " + " | ".join(" / ".join(col[i] for col in cols) for i in range(len(shown))) + " |")
+        md += ["\n* **Very heavy rain (≥ 64.5 mm): use FAST + rain QM for a yes/no warning.** It detects 31 % of events (CSI",
+               "  0.18) vs ~10 % (CSI 0.07–0.09) for the ensemble *mean* of the diffusion modes, which averages extremes away.",
+               "  The diffusion modes should instead be used through their exceedance probabilities (`prob[\"precip>64.5\"]`),",
+               "  where they are better calibrated (Brier ≥ 30 mm 0.037–0.039).",
+               "* Everywhere else the diffusion modes improve the mean forecast too: rain RMSE, Tmax/Tmin/RH MAE, wind",
+               "  RMSE, FSS (0.50 → 0.57) and spatial correlation all improve over FAST.",
+               "* Spread after calibration: rain is somewhat over-dispersed (SSR ~1.25), Tmax and RH are still under-dispersed",
+               "  (SSR 0.78–0.87, Tmax 90 % coverage 0.60–0.68 vs ideal 0.70–0.79). The 2022-fitted factors transfer only",
+               "  partly to 2023; per-variable factors fitted on more seasons are the fix."]
+
     # 6. test-time compute matrix
     md += ["\n## 6. Test-time compute matrix (spread-calibrated; cell = CSS / rain CRPS / latency s)\n"]
     Ks = sorted({c["members"] for c in rows if c["members"] > 1})
@@ -291,8 +335,78 @@ def main():
            "  deterministic backbones is the obvious next upgrade (3× stage-1 cost, ~0.2 s/forecast).",
            "* One test season (2023, 122 forecasts) and 8 training seasons: differences under ~0.01 CSS are noise."]
 
-    (REPO / "docs" / "final_system_report.md").write_text("\n".join(md) + "\n", encoding="utf-8")
-    print("\n".join(md))
+    # 9. compute statistics + reproducibility
+    walls = {}
+    for js in glob.glob(str(REPO / "results" / "*" / "out" / "job_status.json")):
+        job = Path(js).parents[1].name
+        walls[job] = json.load(open(js)).get("wall_min", 0) / 60
+    s10 = {k: v for k, v in walls.items() if k.startswith("s10")}
+    md += ["\n## 9. Compute, data and reproducibility\n",
+           f"* Kaggle T4×2 session-hours (wall clock of each job's session): all v3 jobs {sum(walls.values()):.1f} h over "
+           f"{len(walls)} jobs; Sprint 10 alone {sum(s10.values()):.1f} h over {len(s10)} jobs (4 team accounts, ≤ 2 sessions each).",
+           "* Dataset: `multitask_temporal_v3_realgfs.zarr` (real GFS 0.25° 00Z 2015–2023, ERA5 / ERA5-Land, CHIRPS; 1096",
+           "  monsoon initialisations; splits 2015–22 train, 2023 test; 2022 or 2021 held out for selection).",
+           "* Experiment IDs = job names in `kaggle/queue.json` / `kaggle/registry.json`; run tags in `results/<job>/out/<tag>/`.",
+           "* Every decision with its time and evidence: `docs/decision_log.md`. Scaling matrix: `results/final_scaling_matrix.csv`.",
+           "* Checkpoints: `models/final/{det,diff}.pt` (186 MB, outside git); rebuild with `scripts/export_final.py` from the",
+           "  Kaggle outputs of `s10f-det-b` and `s10f-diff` (account rohitajitbharadwaj)."]
+
+    text = "\n".join(md) + "\n"
+    (REPO / "docs" / "final_system_report.md").write_text(text, encoding="utf-8")
+    (REPO / "reports").mkdir(exist_ok=True)
+    (REPO / "reports" / "final_system_report.md").write_text(text, encoding="utf-8")
+    write_matrix(rows, bench)
+    print(text)
+
+
+def write_matrix(mode_rows, bench):
+    """results/final_scaling_matrix.csv: one row per evaluated operating point on 2023 (capacity x denoising steps x
+    ensemble size x quality x cost)."""
+    import csv
+    out = []
+
+    def add(stage, model, size, seed, r=None, steps=0, members=1, calib="", agg=None, css_=None, lat=None, vram=None, train_min=None):
+        a = agg if agg is not None else (r["test"]["aggregate"] if r else {})
+        out.append({"stage": stage, "model": model, "size": size, "seed": seed,
+                    "params_total_M": round(r["params_total"] / 1e6, 2) if r and r.get("params_total") else "",
+                    "params_active_M": round(r["params_active"] / 1e6, 2) if r and r.get("params_active") else "",
+                    "steps": steps, "members": members, "calibration": calib,
+                    "css": round(css_ if css_ is not None else css(r), 4),
+                    **{k: (round(a[k], 4) if k in a else "") for k in (
+                        "precip_crps", "precip_ssr", "precip_cov90", "brier30", "precip_bias_ratio", "precip_csi30",
+                        "precip_fss15", "tmax_mae", "tmax_crps", "rh_mae", "wind_vec_rmse")},
+                    "latency_s_one_forecast": round(lat, 3) if lat is not None else "",
+                    "peak_vram_gb": round(vram, 2) if vram else "", "train_min": round(train_min, 1) if train_min else ""})
+    for sz in "SML":
+        for s in range(3):
+            r = res(f"s10cap_{sz}_s{s}")
+            if r:
+                add("deterministic", "dense", sz, s, r, train_min=r.get("train_minutes"))
+    for s in range(3):
+        r = res(f"s10f_fin_det_s{s}")
+        if r:
+            add("deterministic", "MoE E8 top-2 50%", "S", s, r, train_min=r.get("train_minutes"))
+    for sz, tags in (("S", [f"s10f_diff_oof_S_s{s}" for s in range(3)]), ("M", [f"s10dcap_M_s{s}" for s in range(3)]),
+                     ("L", [f"s10dcap_L_s{s}" for s in range(3)])):
+        for t in tags:
+            r = res(t)
+            if r:
+                add("diffusion denoiser", "cross-fitted residual diffusion", sz, int(t[-1]), r, steps=24, members=8,
+                    calib="raw", train_min=r.get("train_minutes"))
+    for c in mode_rows:
+        add("operating point (shipped seed 0)", c["mode"], "S", 0, None, steps=c["steps"], members=c["members"],
+            calib=c.get("calibration", "rain QM" if "QM" in c["mode"] else "raw"), agg=c["aggregate"], css_=c["css"],
+            lat=c.get("latency_s_one_forecast"), vram=c.get("peak_vram_gb"))
+    for k, b in (bench or {}).get("modes", {}).items():
+        out.append({"stage": "latency bench (T4, batch 1)", "model": k, "size": "S", "seed": 0, "steps": b["steps"],
+                    "members": b["members"], "latency_s_one_forecast": round(b["latency_s"], 3),
+                    "peak_vram_gb": round(b["peak_vram_gb"], 2) if b.get("peak_vram_gb") else ""})
+    keys = list(out[0].keys())
+    with open(REPO / "results" / "final_scaling_matrix.csv", "w", newline="", encoding="utf-8") as fh:
+        w = csv.DictWriter(fh, fieldnames=keys)
+        w.writeheader()
+        for row in out:
+            w.writerow({k: row.get(k, "") for k in keys})
 
 
 if __name__ == "__main__":
