@@ -42,25 +42,28 @@ The spread across seeds in the test column is the honest uncertainty of any sing
 | model | params (active) | test CSS | + rain QM | final train loss |
 |---|---|---|---|---|
 | **dense S: mean of 3 seed(s)** | | **0.2376 ± 0.0066** | | |
-| **dense M: mean of 1 seed(s)** | | **0.2355** | | |
-| **dense L: mean of 2 seed(s)** | | **0.2365 ± 0.0034** | | |
+| **dense M: mean of 3 seed(s)** | | **0.2293 ± 0.0069** | | |
+| **dense L: mean of 3 seed(s)** | | **0.2367 ± 0.0024** | | |
 | **MoE S (shipped arch.): mean of 3 seed(s)** | | **0.2350 ± 0.0140** | | |
 | dense S, seed 0 | 17.7M (17.7M) | 0.2443 | 0.2570 | 0.034 |
 | dense S, seed 1 | 17.7M (17.7M) | 0.2310 | 0.2458 | 0.033 |
 | dense S, seed 2 | 17.7M (17.7M) | 0.2374 | 0.2532 | 0.034 |
 | dense M, seed 0 | 34.2M (34.2M) | 0.2355 | 0.2479 | 0.030 |
-| dense M, seed 1 | | _pending_ | | |
-| dense M, seed 2 | | _pending_ | | |
+| dense M, seed 1 | 34.2M (34.2M) | 0.2218 | 0.2352 | 0.029 |
+| dense M, seed 2 | 34.2M (34.2M) | 0.2307 | 0.2439 | 0.029 |
 | dense L, seed 0 | 58.7M (58.7M) | 0.2389 | 0.2520 | 0.025 |
 | dense L, seed 1 | 58.7M (58.7M) | 0.2341 | 0.2471 | 0.026 |
-| dense L, seed 2 | | _pending_ | | |
+| dense L, seed 2 | 58.7M (58.7M) | 0.2371 | 0.2504 | 0.026 |
 | MoE S (shipped arch.), seed 0 | 28.8M (19.3M) | 0.2361 | 0.2488 | 0.057 |
 | MoE S (shipped arch.), seed 1 | 28.8M (19.3M) | 0.2205 | 0.2363 | 0.057 |
 | MoE S (shipped arch.), seed 2 | 28.8M (19.3M) | 0.2484 | 0.2626 | 0.058 |
 
 MoE train losses include the Switch balance term (0.01 × ≈1 per MoE layer × 3 layers ≈ 0.03), i.e. a data loss
-of ≈ 0.027: the MoE and the larger dense models fit the 8 training seasons *better* than dense S, but test skill
-is flat within the seed spread (±0.014). Capacity is data-limited at this training-set size, not broken.
+of ≈ 0.027. Train loss falls monotonically with capacity (S 0.034 → M 0.029 → L 0.026), so the larger models do
+use their capacity, but 3-seed test skill is flat (M's dip is ~1.5 SE: noise). Caveat on the setup: every size
+used the same learning rate, weight decay and 50 epochs; larger models may need more regularisation to turn
+lower train loss into skill. The MoE has the same mean as dense S but twice the seed variance (±0.014 vs
+±0.007), so a single MoE model is less predictable; dense S would be an equally good, simpler backbone.
 
 ## 4a. Diffusion-denoiser capacity (cross-fitted residuals, 80 ep, DPM-Solver++ 24 × 8)
 

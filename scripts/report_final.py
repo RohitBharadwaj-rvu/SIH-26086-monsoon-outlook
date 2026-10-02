@@ -105,8 +105,11 @@ def main():
         tl = f"{hist[-1]['train_loss']:.3f}" if hist and "train_loss" in hist[-1] else ""
         md.append(f"| {name} | {pa} | {css(r):.4f} | {css(r, True):.4f} | {tl} |")
     md += ["\nMoE train losses include the Switch balance term (0.01 × ≈1 per MoE layer × 3 layers ≈ 0.03), i.e. a data loss",
-           "of ≈ 0.027: the MoE and the larger dense models fit the 8 training seasons *better* than dense S, but test skill",
-           "is flat within the seed spread (±0.014). Capacity is data-limited at this training-set size, not broken."]
+           "of ≈ 0.027. Train loss falls monotonically with capacity (S 0.034 → M 0.029 → L 0.026), so the larger models do",
+           "use their capacity, but 3-seed test skill is flat (M's dip is ~1.5 SE: noise). Caveat on the setup: every size",
+           "used the same learning rate, weight decay and 50 epochs; larger models may need more regularisation to turn",
+           "lower train loss into skill. The MoE has the same mean as dense S but twice the seed variance (±0.014 vs",
+           "±0.007), so a single MoE model is less predictable; dense S would be an equally good, simpler backbone."]
 
     # 4a. diffusion-denoiser capacity
     md += ["\n## 4a. Diffusion-denoiser capacity (cross-fitted residuals, 80 ep, DPM-Solver++ 24 × 8)\n",
