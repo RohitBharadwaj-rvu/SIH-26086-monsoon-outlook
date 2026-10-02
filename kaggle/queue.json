@@ -688,7 +688,7 @@
     "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 100 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 24 --eval_members 8 --train_years 2015-2022 --det_pred_file **/oof/ydet.npz --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --seed 0 --tag s10_diff_oof_MoE_s0"
    ]
   ],
-  "state": "launched"
+  "state": "done"
  },
  {
   "name": "s10-diff-b",
@@ -709,7 +709,7 @@
     "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 100 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 24 --eval_members 8 --train_years 2015-2021 --val_years 2022 --det_pred_file **/oof/ydet.npz --seed 0 --tag s10_diff_oof_S_cal_s0"
    ]
   ],
-  "state": "launched"
+  "state": "done"
  },
  {
   "name": "s10-cal",
@@ -732,7 +732,8 @@
    [
     "@calibrate --diff_ckpt **/s10_diff_oof_S_cal_s0/best.pt --det_pred_file **/oof/ydet.npz --fit_years 2022 --eval_years 2023 --apply_ckpt **/s10_diff_oof_MoE_s0/best.pt --tag cal_MoE"
    ]
-  ]
+  ],
+  "state": "launched"
  },
  {
   "name": "s10r-det-a",
@@ -787,7 +788,7 @@
     "@oof --mode insample --base **/s10_fin_det_s1/best.pt --tag ins"
    ]
   ],
-  "state": "launched"
+  "state": "done"
  },
  {
   "name": "s10r-diff",
@@ -807,7 +808,8 @@
    [
     "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 100 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 24 --eval_members 8 --train_years 2015-2022 --det_pred_file **/ins/ydet.npz --seed 1 --tag s10_diff_ins_S_s1"
    ]
-  ]
+  ],
+  "state": "launched"
  },
  {
   "name": "s10v-a",
@@ -823,7 +825,7 @@
     "--mode det --size S --patience 15 --time_budget_min 120 --H 3 --N 40 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2015-2022 --seed 0 --epochs 75 --tag s10v_e75_nolin_s0"
    ]
   ],
-  "state": "launched"
+  "state": "done"
  },
  {
   "name": "s10v-b",
@@ -837,7 +839,7 @@
    ]
   ],
   "retries": 0,
-  "state": "launched"
+  "state": "done"
  },
  {
   "name": "d-s7-p2",

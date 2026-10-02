@@ -921,5 +921,43 @@
   "launched_utc": 1790928965.4137175,
   "status": "queued",
   "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohithphegde/sih26074-v3-s10r-oof"
+ },
+ {
+  "name": "s10r-diff",
+  "account": "a3",
+  "user": "rohithphegde",
+  "slug": "sih26074-v3-s10r-diff",
+  "sprint": "S10 diff seed1",
+  "lanes": [
+   [
+    "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 100 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 24 --eval_members 8 --train_years 2015-2022 --det_pred_file **/oof/ydet.npz --seed 1 --tag s10_diff_oof_S_s1"
+   ],
+   [
+    "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 100 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 24 --eval_members 8 --train_years 2015-2022 --det_pred_file **/ins/ydet.npz --seed 1 --tag s10_diff_ins_S_s1"
+   ]
+  ],
+  "expected_min": 110.0,
+  "launched_utc": 1790929126.9794302,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohithphegde/sih26074-v3-s10r-diff"
+ },
+ {
+  "name": "s10-cal",
+  "account": "a2",
+  "user": "ssachithananthan",
+  "slug": "sih26074-v3-s10-cal",
+  "sprint": "S10 calib",
+  "lanes": [
+   [
+    "@calibrate --diff_ckpt **/s10_diff_oof_S_cal_s0/best.pt --det_pred_file **/oof/ydet.npz --fit_years 2022 --eval_years 2023 --apply_ckpt **/s10_diff_oof_S_s0/best.pt --tag cal_S"
+   ],
+   [
+    "@calibrate --diff_ckpt **/s10_diff_oof_S_cal_s0/best.pt --det_pred_file **/oof/ydet.npz --fit_years 2022 --eval_years 2023 --apply_ckpt **/s10_diff_oof_MoE_s0/best.pt --tag cal_MoE"
+   ]
+  ],
+  "expected_min": 40.0,
+  "launched_utc": 1790932905.4637506,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/ssachithananthan/sih26074-v3-s10-cal"
  }
 ]
