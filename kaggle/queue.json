@@ -732,6 +732,80 @@
   ]
  },
  {
+  "name": "s10r-det-a",
+  "account": "a3",
+  "sprint": "S10 det seed1",
+  "expected_min": 100,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 75 --patience 15 --time_budget_min 120 --H 3 --N 40 --precip_lin_w 1.0 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2018-2022 --seed 1 --tag s10_cf_f0_s1"
+   ],
+   [
+    "--mode det --size S --epochs 75 --patience 15 --time_budget_min 120 --H 3 --N 40 --precip_lin_w 1.0 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2015-2017,2021,2022 --seed 1 --tag s10_cf_f1_s1"
+   ]
+  ],
+  "state": "launched"
+ },
+ {
+  "name": "s10r-det-b",
+  "account": "a3",
+  "sprint": "S10 det seed1",
+  "expected_min": 100,
+  "needs": [],
+  "lanes": [
+   [
+    "--mode det --size S --epochs 75 --patience 15 --time_budget_min 120 --H 3 --N 40 --precip_lin_w 1.0 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2015-2020 --seed 1 --tag s10_cf_f2_s1"
+   ],
+   [
+    "--mode det --size S --epochs 75 --patience 15 --time_budget_min 120 --H 3 --N 40 --precip_lin_w 1.0 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2015-2022 --seed 1 --tag s10_fin_det_s1"
+   ]
+  ],
+  "state": "launched"
+ },
+ {
+  "name": "s10r-oof",
+  "account": "a3",
+  "sprint": "S10 crossfit seed1",
+  "expected_min": 20,
+  "needs": [
+   "s10r-det-a",
+   "s10r-det-b"
+  ],
+  "kernel_sources": [
+   "sih26074-v3-s10r-det-a",
+   "sih26074-v3-s10r-det-b"
+  ],
+  "lanes": [
+   [
+    "@oof --mode oof --base **/s10_fin_det_s1/best.pt --folds **/s10_cf_f0_s1/best.pt=2015-2017 **/s10_cf_f1_s1/best.pt=2018-2020 **/s10_cf_f2_s1/best.pt=2021-2022 --tag oof"
+   ],
+   [
+    "@oof --mode insample --base **/s10_fin_det_s1/best.pt --tag ins"
+   ]
+  ]
+ },
+ {
+  "name": "s10r-diff",
+  "account": "a3",
+  "sprint": "S10 diff seed1",
+  "expected_min": 110,
+  "needs": [
+   "s10r-oof"
+  ],
+  "kernel_sources": [
+   "sih26074-v3-s10r-oof"
+  ],
+  "lanes": [
+   [
+    "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 100 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 24 --eval_members 8 --train_years 2015-2022 --det_pred_file **/oof/ydet.npz --seed 1 --tag s10_diff_oof_S_s1"
+   ],
+   [
+    "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 100 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 24 --eval_members 8 --train_years 2015-2022 --det_pred_file **/ins/ydet.npz --seed 1 --tag s10_diff_ins_S_s1"
+   ]
+  ]
+ },
+ {
   "name": "d-s7-p2",
   "account": "a1",
   "sprint": "S7",
