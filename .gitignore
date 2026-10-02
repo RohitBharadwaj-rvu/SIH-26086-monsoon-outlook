@@ -8,4 +8,6 @@ datasets/
 kaggle/runs/
 kaggle/status.json
 ckpts/
-models/
+models/*
+!models/final/
+!models/final/*.pt

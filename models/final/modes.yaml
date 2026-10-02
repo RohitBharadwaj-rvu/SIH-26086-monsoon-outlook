@@ -1,0 +1,15 @@
+FAST:
+  members: 1
+  rain_qm: true
+BALANCED:
+  steps: 24
+  members: 8
+  spread_calibration: true
+ACCURATE:
+  steps: 32
+  members: 8
+  spread_calibration: true
+ENSEMBLE:
+  steps: 24
+  members: 16
+  spread_calibration: true
