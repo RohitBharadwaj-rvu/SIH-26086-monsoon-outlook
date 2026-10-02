@@ -22,7 +22,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 RUNS = REPO / "kaggle" / "runs"
 REGISTRY = REPO / "kaggle" / "registry.json"
-USERS = {"a1": "rohitajitbharadwaj", "a2": "ssachithananthan", "a3": "rohithphegde"}
+USERS = {"a1": "rohitajitbharadwaj", "a2": "ssachithananthan", "a3": "rohithphegde", "a4": "saketmeda"}
 
 
 def kaggle_env(acct: str) -> dict:
@@ -30,8 +30,8 @@ def kaggle_env(acct: str) -> dict:
     import os
     env = dict(os.environ, PYTHONIOENCODING="utf-8")
     home = Path.home()
-    if acct == "a2":
-        env["KAGGLE_API_TOKEN"] = (home / ".kaggle" / "acct2" / "access_token").read_text().strip()
+    if acct in ("a2", "a4"):
+        env["KAGGLE_API_TOKEN"] = (home / ".kaggle" / f"acct{acct[1]}" / "access_token").read_text().strip()
     elif acct == "a3":
         env.pop("KAGGLE_API_TOKEN", None)
         h = str(home / ".kaggle" / "acct3_home")
