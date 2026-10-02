@@ -132,6 +132,7 @@ def main():
         P = inv(Pn, 2)
         train = np.where(years != 2023)[0]
         qm = fit_qm_arrays(inv(ydet_all[train].astype(np.float32), 2), inv(data.targ[train], 2), data.mask[train])
+        np.savez(out / "calibration_params.npz", alpha=alpha.ravel(), qm_pq=qm[0], qm_oq=qm[1])  # for the final bundle
         lat = latency(fast)
         for name, X in (("FAST raw", P), ("FAST + rain QM (multi-season OOF fit)", apply_qm(P, qm))):
             agg = det_metrics(X, T, M)["aggregate"]
