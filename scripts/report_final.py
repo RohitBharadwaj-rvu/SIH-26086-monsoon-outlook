@@ -99,6 +99,26 @@ def main():
            "of ≈ 0.027: the MoE and the larger dense models fit the 8 training seasons *better* than dense S, but test skill",
            "is flat within the seed spread (±0.014). Capacity is data-limited at this training-set size, not broken."]
 
+    # 4b. calibration
+    c = jload("s10-calfit/out/calf/calibration.json")
+    md += ["\n## 4b. Calibration: fitted on 2022 (model trained 2015–21), applied to the shipped model on 2023 (24 steps × 8)\n"]
+    if c:
+        import numpy as np
+        al = np.array(c["alpha_spread"])
+        md += ["Spread factors (mean over leads) P/Tmax/Tmin/RH/U/V: " + " / ".join(f"{x:.2f}" for x in al.mean(0))
+               + f" (range {al.min():.1f}–{al.max():.1f}).\n",
+               "| model | variant | CSS | rain CRPS | rain SSR | rain cov90 (ideal 0.70 for K=8) | rain bias | Brier>30 | Tmax CRPS |",
+               "|---|---|---|---|---|---|---|---|---|"]
+        for grp, label in (("model", "2015–21 model, 2022 (fit season: in-sample for α)"), ("applied", "shipped model, 2023")):
+            for v, m in c.get(grp, {}).items():
+                md.append(f"| {label} | {v} | {m['css_ensmean']:.4f} | {m['precip_crps']:.3f} | {m['precip_ssr']:.2f} | "
+                          f"{m['precip_cov90']:.2f} | {m['precip_bias_ratio']:.2f} | {m['brier30']:.4f} | {m['tmax_crps']:.3f} |")
+        md += ["\nSpread calibration lowers rain CRPS (−3 %) and Tmax CRPS (−9 %) with CSS and bias unchanged, but rain",
+               "coverage overshoots (0.84 vs ideal 0.70): slightly over-dispersed for rain. Rain QM on the ensemble is not",
+               "shipped: it worsens Brier>30 in both seasons and pushes the 2022 bias from 1.22 to 1.36."]
+    else:
+        md.append(PENDING)
+
     # 5. modes
     modes = {}
     for t in ("modes_a", "modes_b"):

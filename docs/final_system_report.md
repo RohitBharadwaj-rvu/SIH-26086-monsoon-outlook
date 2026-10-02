@@ -42,7 +42,7 @@ The spread across seeds in the test column is the honest uncertainty of any sing
 |---|---|---|---|---|
 | dense S | 17.7M (17.7M) | 0.2443 | 0.2570 | 0.034 |
 | dense M | 34.2M (34.2M) | 0.2355 | 0.2479 | 0.030 |
-| dense L | | _pending_ | | |
+| dense L | 58.7M (58.7M) | 0.2389 | 0.2520 | 0.025 |
 | MoE S, seed 0 (shipped) | 28.8M (19.3M) | 0.2361 | 0.2488 | 0.057 |
 | MoE S, seed 1 | 28.8M (19.3M) | 0.2205 | 0.2363 | 0.057 |
 | MoE S, seed 2 | 28.8M (19.3M) | 0.2484 | 0.2626 | 0.058 |
@@ -50,6 +50,25 @@ The spread across seeds in the test column is the honest uncertainty of any sing
 MoE train losses include the Switch balance term (0.01 × ≈1 per MoE layer × 3 layers ≈ 0.03), i.e. a data loss
 of ≈ 0.027: the MoE and the larger dense models fit the 8 training seasons *better* than dense S, but test skill
 is flat within the seed spread (±0.014). Capacity is data-limited at this training-set size, not broken.
+
+## 4b. Calibration: fitted on 2022 (model trained 2015–21), applied to the shipped model on 2023 (24 steps × 8)
+
+Spread factors (mean over leads) P/Tmax/Tmin/RH/U/V: 1.57 / 1.50 / 1.47 / 1.44 / 1.61 / 1.46 (range 1.2–2.1).
+
+| model | variant | CSS | rain CRPS | rain SSR | rain cov90 (ideal 0.70 for K=8) | rain bias | Brier>30 | Tmax CRPS |
+|---|---|---|---|---|---|---|---|---|
+| 2015–21 model, 2022 (fit season: in-sample for α) | raw | 0.2651 | 4.549 | 1.29 | 0.57 | 1.22 | 0.0420 | 0.756 |
+| 2015–21 model, 2022 (fit season: in-sample for α) | spread | 0.2652 | 4.373 | 1.45 | 0.88 | 1.22 | 0.0412 | 0.703 |
+| 2015–21 model, 2022 (fit season: in-sample for α) | rainqm | 0.2674 | 4.598 | 1.08 | 0.88 | 1.36 | 0.0448 | 0.756 |
+| 2015–21 model, 2022 (fit season: in-sample for α) | both | 0.2675 | 4.410 | 1.21 | 0.91 | 1.36 | 0.0437 | 0.703 |
+| shipped model, 2023 | raw | 0.2811 | 4.421 | 1.12 | 0.49 | 0.91 | 0.0391 | 0.810 |
+| shipped model, 2023 | spread | 0.2811 | 4.298 | 1.25 | 0.84 | 0.91 | 0.0388 | 0.740 |
+| shipped model, 2023 | rainqm | 0.2854 | 4.454 | 0.92 | 0.85 | 1.07 | 0.0413 | 0.810 |
+| shipped model, 2023 | both | 0.2854 | 4.312 | 1.04 | 0.88 | 1.07 | 0.0407 | 0.740 |
+
+Spread calibration lowers rain CRPS (−3 %) and Tmax CRPS (−9 %) with CSS and bias unchanged, but rain
+coverage overshoots (0.84 vs ideal 0.70): slightly over-dispersed for rain. Rain QM on the ensemble is not
+shipped: it worsens Brier>30 in both seasons and pushes the 2022 bias from 1.22 to 1.36.
 
 ## 5. Operating modes (2023 test)
 
