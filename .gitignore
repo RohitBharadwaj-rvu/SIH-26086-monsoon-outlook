@@ -7,3 +7,4 @@ datasets/
 *.zarr/
 kaggle/runs/
 kaggle/status.json
+ckpts/
