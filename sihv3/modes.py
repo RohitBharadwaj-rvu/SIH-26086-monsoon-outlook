@@ -77,7 +77,8 @@ def main():
     p.add_argument("--det_ckpt", required=True)
     p.add_argument("--diff_ckpt", required=True)
     p.add_argument("--oof_file", required=True)
-    p.add_argument("--alpha", required=True, help="42 comma-separated spread factors [lead-major 7 x 6]")
+    p.add_argument("--alpha", default=None, help="42 comma-separated spread factors [lead-major 7 x 6]")
+    p.add_argument("--alpha_file", default=None, help="calibration.json from sihv3.calibrate (alpha_spread 7 x 6)")
     p.add_argument("--steps", type=int, nargs="+", default=[8, 16, 24, 32])
     p.add_argument("--members", type=int, nargs="+", default=[4, 8, 16])
     p.add_argument("--with_fast", action="store_true")
@@ -96,7 +97,13 @@ def main():
     ydet_all = z["ydet"]
     years = np.array([int(d[:4]) for d in data.dates])
     test = np.where(years == 2023)[0]
-    alpha = np.array([float(x) for x in a.alpha.split(",")], np.float32).reshape(7, 6, 1, 1)
+    assert (a.alpha is None) != (a.alpha_file is None), "give exactly one of --alpha / --alpha_file"
+    if a.alpha_file:
+        cal = json.load(open(resolve(a.alpha_file)))
+        alpha = np.array(cal["alpha_spread"], np.float32).reshape(7, 6, 1, 1)
+        print(f"[{a.tag}] spread factors from {resolve(a.alpha_file)} (fit {cal['fit_years']} -> eval {cal['eval_years']})", flush=True)
+    else:
+        alpha = np.array([float(x) for x in a.alpha.split(",")], np.float32).reshape(7, 6, 1, 1)
     inv = lambda x, ax: data.norm.inv(x, axis=ax)
     T = inv(data.targ[test], 2)
     M = data.mask[test].astype(np.float32)
