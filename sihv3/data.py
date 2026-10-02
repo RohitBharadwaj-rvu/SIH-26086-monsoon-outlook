@@ -81,7 +81,8 @@ class Normalizer:
 class V3Data:
     """Holds the whole (normalised) dataset in memory; `batches()` yields cropped tensors."""
 
-    def __init__(self, history_len: int = 14, context: int = 16, val_year: int | None = None):
+    def __init__(self, history_len: int = 14, context: int = 16, val_year: int | None = None,
+                 train_years: list | None = None, val_years: list | None = None):
         import zarr
 
         assert 1 <= history_len <= 14 and 16 <= context <= 40 and context % 2 == 0
@@ -111,7 +112,14 @@ class V3Data:
             years = np.array([int(d[:4]) for d in self.dates])
             assert val_year not in (2023,) and (years == val_year).any(), val_year
             self.splits = np.where(years == val_year, "val", np.where(self.splits == "test", "test", "train"))
-        self.idx = {s: np.where(self.splits == s)[0] for s in ("train", "val", "test")}
+        if train_years is not None:  # explicit year-based split; 2023 is always the test season
+            years = np.array([int(d[:4]) for d in self.dates])
+            assert 2023 not in set(train_years) | set(val_years or []), "2023 is the held-out test season"
+            assert not set(train_years) & set(val_years or []), "train/val years overlap"
+            self.splits = np.where(np.isin(years, train_years), "train",
+                                   np.where(np.isin(years, val_years or []), "val",
+                                            np.where(years == 2023, "test", "unused")))
+        self.idx = {s: np.where(self.splits == s)[0] for s in ("train", "val", "test", "unused")}
 
     def batches(self, split: str, batch_size: int, shuffle: bool, device, rng=None):
         ids = self.idx[split].copy()

@@ -53,6 +53,11 @@ def parse():
     p.add_argument("--eval_members", type=int, default=8)
     p.add_argument("--eval_steps", type=int, default=16)
     p.add_argument("--val_year", type=int, default=None, help="alternative validation season (default 2022)")
+    p.add_argument("--train_years", default=None, help="e.g. 2015-2022 or 2017,2018 (explicit year split)")
+    p.add_argument("--val_years", default="", help="years held out for validation with --train_years ('' = none)")
+    p.add_argument("--eval_sampler", default="ddim", choices=["ddim", "dpmpp2m"])
+    p.add_argument("--det_pred_file", default=None,
+                   help="npz with precomputed y_det for every sample (cross-fitted OOF); replaces --det_ckpt in diff mode")
     p.add_argument("--tag", default="run")
     p.add_argument("--out", default=os.environ.get("SIH_OUT", "/kaggle/working/out" if Path("/kaggle").exists() else "out"))
     p.add_argument("--max_batches", type=int, default=0, help="smoke test: limit batches per epoch")
@@ -60,6 +65,16 @@ def parse():
 
 
 # ------------------------------------------------------------------------------- utilities
+def parse_years(spec):
+    if spec is None or spec == "":
+        return None if spec is None else []
+    out = []
+    for part in str(spec).split(","):
+        a, _, b = part.partition("-")
+        out += list(range(int(a), int(b or a) + 1))
+    return out
+
+
 def resolve(path: str) -> str:
     """Allow glob patterns (e.g. '**/s4_h7_n16_s0/best.pt') searched under /kaggle/input and cwd."""
     if "*" not in path:
@@ -214,7 +229,9 @@ def main():
     t_start = time.time()
     print(f"[{args.tag}] device={dev} gpus={torch.cuda.device_count()} args={vars(args)}", flush=True)
 
-    data = V3Data(history_len=args.H, context=args.N, val_year=args.val_year)
+    data = V3Data(history_len=args.H, context=args.N, val_year=args.val_year,
+                  train_years=parse_years(args.train_years), val_years=parse_years(args.val_years) or [])
+    has_val = len(data.idx["val"]) > 0
     print(f"[{args.tag}] data: train {len(data.idx['train'])} val {len(data.idx['val'])} test {len(data.idx['test'])}"
           f" | load {time.time() - t_start:.0f}s", flush=True)
 
@@ -223,19 +240,31 @@ def main():
     n_total, n_active = model.n_params(), model.n_params(active=True)
     print(f"[{args.tag}] params total {n_total / 1e6:.2f}M active {n_active / 1e6:.2f}M", flush=True)
 
-    det_model, sigma = None, None
+    det_model, sigma, det_pred = None, None, None
+    if diff and args.det_pred_file:
+        z = np.load(resolve(args.det_pred_file))
+        assert list(z["dates"].astype(str)) == list(data.dates), "det_pred_file rows must align with the dataset"
+        det_pred = torch.from_numpy(z["ydet"].astype(np.float32))
+        print(f"[{args.tag}] using precomputed y_det {tuple(det_pred.shape)} from {args.det_pred_file} ({z['kind']})", flush=True)
+
+    def y_det_of(b):
+        if det_pred is not None:
+            return det_pred[b["index"]].to(dev)
+        return det_predict(det_model, b).float()
+
     if diff:
-        ck = torch.load(resolve(args.det_ckpt), map_location=dev, weights_only=False)
-        a2 = argparse.Namespace(**{**vars(args), **{k: ck["args"][k] for k in ("moe_experts", "moe_topk", "moe_frac")}})
-        det_model = build(a2, diffusion=False, size=ck["args"]["size"]).to(dev)
-        det_model.load_state_dict(ck["ema"])
-        det_model.eval().requires_grad_(False)
-        assert ck["args"]["H"] == args.H and ck["args"]["N"] == args.N, "det model must share H/N"
+        if det_pred is None:
+            ck = torch.load(resolve(args.det_ckpt), map_location=dev, weights_only=False)
+            a2 = argparse.Namespace(**{**vars(args), **{k: ck["args"][k] for k in ("moe_experts", "moe_topk", "moe_frac")}})
+            det_model = build(a2, diffusion=False, size=ck["args"]["size"]).to(dev)
+            det_model.load_state_dict(ck["ema"])
+            det_model.eval().requires_grad_(False)
+            assert ck["args"]["H"] == args.H and ck["args"]["N"] == args.N, "det model must share H/N"
         # per-channel residual scale over the training set
         ss, cnt = torch.zeros(6, device=dev), torch.zeros(6, device=dev)
         for b in data.batches("train", 16, False, dev):
             with torch.autocast(dev.type, dtype=torch.float16, enabled=dev.type == "cuda"):
-                r = (b["target"] - det_predict(det_model, b).float()) * b["mask"]
+                r = (b["target"] - y_det_of(b)) * b["mask"]
             ss += (r.float() ** 2).sum((0, 1, 3, 4))
             cnt += b["mask"].sum((0, 1, 3, 4))
         sigma = torch.sqrt(ss / cnt).view(1, 1, 6, 1, 1)
@@ -263,7 +292,7 @@ def main():
                     loss = loss + args.precip_lin_w * ((pp - pt).abs() * pm).sum() / pm.sum().clamp_min(1) / 10.0
                 return loss
             with torch.no_grad():
-                y_det = det_predict(det_model, b).float()
+                y_det = y_det_of(b)
             r0 = (b["target"] - y_det) / sigma * b["mask"]
             t = torch.rand(len(r0), device=dev).clamp(1e-3, 1 - 1e-3)
             a, s = cosine_ab(t.view(-1, 1, 1, 1, 1))
@@ -298,9 +327,11 @@ def main():
             nb += 1
             if args.max_batches and nb >= args.max_batches:
                 break
-        # validation
+        # validation (skipped when there is no validation season: fixed-epoch training, last epoch kept)
         ema.eval()
-        if diff:
+        if not has_val:
+            score, metric = float(ep), {}
+        elif diff:
             vl, vn = 0.0, 0
             g = torch.Generator(device=dev).manual_seed(123)
             torch.manual_seed(123)
@@ -325,7 +356,7 @@ def main():
         print(f"[{args.tag}] ep {ep:3d} loss {rec['train_loss']:.4f} " + " ".join(f"{k} {v:.4f}" for k, v in metric.items())
               + f" | {ep_t:.0f}s/ep elapsed {elapsed / 60:.1f}m{' *' if improved else ''}", flush=True)
         json.dump(hist_log, open(out / "history.json", "w"), indent=1)
-        if ep - best_ep >= args.patience or elapsed + ep_t * 1.3 > budget:
+        if (has_val and ep - best_ep >= args.patience) or elapsed + ep_t * 1.3 > budget:
             print(f"[{args.tag}] stop at ep {ep} (best {best_ep}, {'patience' if ep - best_ep >= args.patience else 'time budget'})", flush=True)
             break
 
@@ -334,15 +365,17 @@ def main():
     ema.load_state_dict(ck["ema"])
     result = {"args": vars(args), "params_total": n_total, "params_active": n_active, "best_epoch": best_ep,
               "train_minutes": (time.time() - t_start) / 60, "history": hist_log}
-    for split in ("val", "test"):
+    qm = None
+    for split in [sp for sp in ("val", "test") if len(data.idx[sp]) > 0]:
         t0 = time.time()
         if diff:
             g = torch.Generator(device=dev).manual_seed(7)
 
             def pf(b):
                 with torch.autocast(dev.type, dtype=torch.float16, enabled=dev.type == "cuda"):
-                    yd = det_predict(det_model, b).float()
-                    return sample(ema, b, yd, sigma, steps=args.eval_steps, members=args.eval_members, gen=g)
+                    yd = y_det_of(b)
+                    return sample(ema, b, yd, sigma, steps=args.eval_steps, members=args.eval_members,
+                                  sampler=args.eval_sampler, gen=g)
             r = evaluate(data, split, pf, dev)
         else:
             def pf(b):
@@ -351,7 +384,7 @@ def main():
             r = evaluate(data, split, pf, dev)
         r["latency_sec_per_sample"] = (time.time() - t0) / len(data.idx[split])
         if not diff:  # post-hoc precipitation quantile mapping fitted on train (fixes log-loss dry bias)
-            if split == "val":
+            if qm is None:  # fitted once, on the train split
                 qm = fit_precip_qm(data, pf, dev)
             rq = evaluate(data, split, pf, dev, post=lambda P: apply_precip_qm(P, qm))
             r["precip_qm"] = {"css": rq["css"], "aggregate": rq["aggregate"]}
