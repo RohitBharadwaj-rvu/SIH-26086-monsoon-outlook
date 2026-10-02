@@ -162,3 +162,50 @@ launch.py: error: argument --lane: expected at least one argument
 2026-10-02 16:31:56 LAUNCH s10cap-SM on a4 -> ok
 2026-10-02 16:32:07 LAUNCH s10cap-L on a4 -> ok
 2026-10-02 16:34:37 INBOX append s10-calfit
+2026-10-02 17:06:40 DONE s10s1-det-a
+2026-10-02 17:09:21 DONE s10s2-det-a
+2026-10-02 17:27:27 DONE s10f-diff
+2026-10-02 17:27:27 DONE s10s1-det-b
+2026-10-02 17:27:37 LAUNCH s10s1-oof on a2 -> ok
+2026-10-02 17:27:49 LAUNCH s10s0-oofm on a1 -> ok
+2026-10-02 17:30:38 DONE s10s1-oof
+2026-10-02 17:30:38 DONE s10s2-det-b
+2026-10-02 17:30:50 LAUNCH s10s1-diff on a2 -> ok
+2026-10-02 17:30:57 LAUNCH s10s2-oof on a3 -> ok
+2026-10-02 17:33:31 DONE s10s0-oofm
+2026-10-02 17:36:01 DONE s10s2-oof
+2026-10-02 17:36:08 LAUNCH s10s2-diff on a3 -> ok
+2026-10-02 17:48:36 INBOX append s10-modes
+2026-10-02 17:51:28 DONE s10cap-SM
+2026-10-02 17:58:49 DONE s10-calmodel
+2026-10-02 17:59:03 LAUNCH s10-calfit on a1 -> ok
+2026-10-02 18:31:46 DONE s10cap-L
+2026-10-02 18:34:08 INBOX append s10cap2-SL
+2026-10-02 18:34:08 INBOX append s10cap2-ML
+2026-10-02 18:34:08 DONE s10-calfit
+2026-10-02 18:34:17 LAUNCH s10-modes on a1 -> ok
+2026-10-02 18:34:28 LAUNCH s10cap2-SL on a4 -> ok
+2026-10-02 18:34:37 LAUNCH s10cap2-ML on a4 -> ok
+2026-10-02 19:01:05 INBOX append s10dcap-s1
+2026-10-02 19:01:05 INBOX append s10dcap-s2
+2026-10-02 19:01:05 INBOX append s10dcap-val
+2026-10-02 19:01:15 LAUNCH s10dcap-s1 on a2 -> ok
+2026-10-02 19:01:23 LAUNCH s10dcap-s2 on a3 -> ok
+2026-10-02 19:04:27 DONE s10s1-diff
+2026-10-02 19:04:27 DONE s10s2-diff
+2026-10-02 19:04:37 LAUNCH s10dcap-val on a2 -> ok
+2026-10-02 19:34:40 DONE s10-modes
+2026-10-02 19:44:49 INBOX append s10-steps22
+2026-10-02 19:45:00 LAUNCH s10-steps22 on a1 -> ok
+2026-10-02 19:49:51 INBOX append s10-bench
+2026-10-02 19:50:01 LAUNCH s10-bench on a1 -> ok
+2026-10-02 19:55:30 DONE s10-bench
+2026-10-02 20:08:20 DONE s10-steps22
+2026-10-02 20:30:35 DONE s10cap2-SL
+2026-10-02 21:08:20 DONE s10cap2-ML
+2026-10-02 21:12:44 INBOX append s10dcap-s0
+2026-10-02 21:12:55 LAUNCH s10dcap-s0 on a4 -> ok
+2026-10-02 22:21:19 DONE s10dcap-s1
+2026-10-02 22:21:19 DONE s10dcap-s2
+2026-10-02 22:59:26 DONE s10dcap-val
+2026-10-03 00:20:39 DONE s10dcap-s0
