@@ -71,7 +71,7 @@ class FinalDownscaler:
         g = torch.Generator(device=self.dev).manual_seed(seed)
         with torch.autocast(**amp):
             ens = sample(self.diff, batch, yd, self.sigma, steps=cfg["steps"], members=cfg["members"],
-                         sampler="dpmpp2m", gen=g)
+                         sampler="dpmpp2m", gen=g, batch_members=True)
         E = self.norm.inv(ens.float(), axis=3).cpu().numpy().transpose(1, 0, 2, 3, 4, 5)  # [B,K,...]
         if cfg.get("spread_calibration", True):
             E = apply_spread(E, self.alpha)

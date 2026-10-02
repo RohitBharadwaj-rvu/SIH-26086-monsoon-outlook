@@ -110,41 +110,55 @@ def det_predict(model, batch):
 
 
 @torch.no_grad()
-def sample(model, batch, y_det, sigma, steps=16, members=1, sampler="ddim", eta=0.0, gen=None):
-    """Returns [K, B, 7, 6, 80, 80] normalised samples of y = y_det + sigma * r."""
+def _denoise(model, batch, y_det, z, steps, sampler, eta, gen):
+    """Integrate one batch of initial noise z from t=0.999 to 0; returns the final residual z."""
+    ts = torch.linspace(0.999, 0.0, steps + 1, device=y_det.device)  # training uses t in [1e-3, 0.999]
+    x0_prev = None
+    for i in range(steps):
+        t, tn = ts[i], ts[i + 1]
+        a, s = cosine_ab(t)
+        an, sn = cosine_ab(tn)
+        v, _, _ = model(batch["history"], batch["forecast"], batch["static"], t=t.expand(len(z)),
+                        fine_extra=torch.cat([y_det, z], 2))
+        v = v.float()
+        x0 = a * z - s * v
+        eps = s * z + a * v
+        if sampler == "dpmpp2m" and x0_prev is not None and i < steps - 1:
+            # DPM-Solver++(2M) in data-prediction form (Lu et al. 2022) for the VP cosine schedule
+            lam = lambda aa, ss: torch.log(aa / ss.clamp_min(1e-8))
+            h = lam(an, sn) - lam(a, s)
+            tp = ts[i - 1]
+            ap, sp = cosine_ab(tp)
+            h_prev = lam(a, s) - lam(ap, sp)
+            r = h_prev / h
+            d = (1 + 1 / (2 * r)) * x0 - (1 / (2 * r)) * x0_prev
+            z = (sn / s) * z - an * torch.expm1(-h) * d
+        else:  # DDIM (eta=0 deterministic, eta>0 stochastic)
+            if tn > 0:
+                c = eta * torch.sqrt((sn ** 2 / s ** 2) * (1 - a ** 2 / an ** 2).clamp_min(0)) if eta > 0 else 0.0
+                dir_ = torch.sqrt((sn ** 2 - c ** 2).clamp_min(0)) if eta > 0 else sn
+                noise = torch.randn(z.shape, device=z.device, generator=gen) if eta > 0 else 0.0
+                z = an * x0 + dir_ * eps + c * noise
+            else:
+                z = x0
+        x0_prev = x0
+    return z
+
+
+def sample(model, batch, y_det, sigma, steps=16, members=1, sampler="ddim", eta=0.0, gen=None, batch_members=False):
+    """Returns [K, B, 7, 6, 80, 80] normalised samples of y = y_det + sigma * r.
+    batch_members: all K members in one batched pass (deterministic samplers only). The initial noise is drawn in the
+    same order as the sequential path, so both give the same samples up to floating-point reordering."""
+    if batch_members and members > 1 and eta == 0.0:
+        z = torch.cat([torch.randn(y_det.shape, device=y_det.device, generator=gen) for _ in range(members)])
+        rep = lambda v: v.repeat(members, *([1] * (v.dim() - 1)))
+        big = {k: rep(batch[k]) for k in ("history", "forecast", "static")}
+        z = _denoise(model, big, rep(y_det), z, steps, sampler, eta, gen)
+        return (y_det[None] + sigma * z.view(members, *y_det.shape))
     outs = []
     for _ in range(members):
         z = torch.randn(y_det.shape, device=y_det.device, generator=gen)
-        ts = torch.linspace(0.999, 0.0, steps + 1, device=y_det.device)  # training uses t in [1e-3, 0.999]
-        x0_prev = None
-        for i in range(steps):
-            t, tn = ts[i], ts[i + 1]
-            a, s = cosine_ab(t)
-            an, sn = cosine_ab(tn)
-            v, _, _ = model(batch["history"], batch["forecast"], batch["static"], t=t.expand(len(z)),
-                            fine_extra=torch.cat([y_det, z], 2))
-            v = v.float()
-            x0 = a * z - s * v
-            eps = s * z + a * v
-            if sampler == "dpmpp2m" and x0_prev is not None and i < steps - 1:
-                # DPM-Solver++(2M) in data-prediction form (Lu et al. 2022) for the VP cosine schedule
-                lam = lambda aa, ss: torch.log(aa / ss.clamp_min(1e-8))
-                h = lam(an, sn) - lam(a, s)
-                tp = ts[i - 1]
-                ap, sp = cosine_ab(tp)
-                h_prev = lam(a, s) - lam(ap, sp)
-                r = h_prev / h
-                d = (1 + 1 / (2 * r)) * x0 - (1 / (2 * r)) * x0_prev
-                z = (sn / s) * z - an * torch.expm1(-h) * d
-            else:  # DDIM (eta=0 deterministic, eta>0 stochastic)
-                if tn > 0:
-                    c = eta * torch.sqrt((sn ** 2 / s ** 2) * (1 - a ** 2 / an ** 2).clamp_min(0)) if eta > 0 else 0.0
-                    dir_ = torch.sqrt((sn ** 2 - c ** 2).clamp_min(0)) if eta > 0 else sn
-                    noise = torch.randn(z.shape, device=z.device, generator=gen) if eta > 0 else 0.0
-                    z = an * x0 + dir_ * eps + c * noise
-                else:
-                    z = x0
-            x0_prev = x0
+        z = _denoise(model, batch, y_det, z, steps, sampler, eta, gen)
         outs.append(y_det + sigma * z)
     return torch.stack(outs)
 
