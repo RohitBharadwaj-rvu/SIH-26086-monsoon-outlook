@@ -810,5 +810,97 @@
   "launched_utc": 1790923524.9028378,
   "status": "queued",
   "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohithphegde/sih26074-v3-s10r-det-b"
+ },
+ {
+  "name": "s10-oof",
+  "account": "a2",
+  "user": "ssachithananthan",
+  "slug": "sih26074-v3-s10-oof",
+  "sprint": "S10 crossfit",
+  "lanes": [
+   [
+    "@oof --mode oof --base **/s10_fin_det_s0/best.pt --folds **/s10_cf_f0_s0/best.pt=2015-2017 **/s10_cf_f1_s0/best.pt=2018-2020 **/s10_cf_f2_s0/best.pt=2021-2022 --tag oof"
+   ],
+   [
+    "@oof --mode insample --base **/s10_fin_det_s0/best.pt --tag ins"
+   ]
+  ],
+  "expected_min": 20.0,
+  "launched_utc": 1790927758.164667,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/ssachithananthan/sih26074-v3-s10-oof"
+ },
+ {
+  "name": "s10-diff-a",
+  "account": "a2",
+  "user": "ssachithananthan",
+  "slug": "sih26074-v3-s10-diff-a",
+  "sprint": "S10 diff",
+  "lanes": [
+   [
+    "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 100 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 24 --eval_members 8 --train_years 2015-2022 --det_pred_file **/oof/ydet.npz --seed 0 --tag s10_diff_oof_S_s0"
+   ],
+   [
+    "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 100 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 24 --eval_members 8 --train_years 2015-2022 --det_pred_file **/oof/ydet.npz --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --seed 0 --tag s10_diff_oof_MoE_s0"
+   ]
+  ],
+  "expected_min": 110.0,
+  "launched_utc": 1790928042.4839883,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/ssachithananthan/sih26074-v3-s10-diff-a"
+ },
+ {
+  "name": "s10-diff-b",
+  "account": "a2",
+  "user": "ssachithananthan",
+  "slug": "sih26074-v3-s10-diff-b",
+  "sprint": "S10 diff",
+  "lanes": [
+   [
+    "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 100 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 24 --eval_members 8 --train_years 2015-2022 --det_pred_file **/ins/ydet.npz --seed 0 --tag s10_diff_ins_S_s0"
+   ],
+   [
+    "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 100 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 24 --eval_members 8 --train_years 2015-2021 --val_years 2022 --det_pred_file **/oof/ydet.npz --seed 0 --tag s10_diff_oof_S_cal_s0"
+   ]
+  ],
+  "expected_min": 110.0,
+  "launched_utc": 1790928052.6813672,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/ssachithananthan/sih26074-v3-s10-diff-b"
+ },
+ {
+  "name": "s10v-a",
+  "account": "a1",
+  "user": "rohitajitbharadwaj",
+  "slug": "sih26074-v3-s10v-a",
+  "sprint": "S10 recipe",
+  "lanes": [
+   [
+    "--mode det --size S --patience 15 --time_budget_min 120 --H 3 --N 40 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2015-2022 --seed 0 --epochs 50 --precip_lin_w 1.0 --tag s10v_e50_lin_s0"
+   ],
+   [
+    "--mode det --size S --patience 15 --time_budget_min 120 --H 3 --N 40 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2015-2022 --seed 0 --epochs 75 --tag s10v_e75_nolin_s0"
+   ]
+  ],
+  "expected_min": 95.0,
+  "launched_utc": 1790928198.3032188,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-s10v-a"
+ },
+ {
+  "name": "s10v-b",
+  "account": "a1",
+  "user": "rohitajitbharadwaj",
+  "slug": "sih26074-v3-s10v-b",
+  "sprint": "S10 recipe",
+  "lanes": [
+   [
+    "--mode det --size S --patience 15 --time_budget_min 120 --H 3 --N 40 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2015-2022 --seed 0 --epochs 50 --tag s10v_e50_nolin_s0"
+   ]
+  ],
+  "expected_min": 65.0,
+  "launched_utc": 1790928349.6169353,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-s10v-b"
  }
 ]

@@ -103,3 +103,19 @@
 2026-10-02 12:15:16 LAUNCH s10r-det-a on a3 -> ok
 2026-10-02 12:15:24 LAUNCH s10r-det-b on a3 -> ok
 2026-10-02 13:01:24 DONE s10-det-a
+2026-10-02 13:12:38 DONE s10r-det-a
+2026-10-02 13:25:47 DONE s10-det-b
+2026-10-02 13:25:58 LAUNCH s10-oof on a2 -> ok
+2026-10-02 13:30:31 DONE s10-oof
+2026-10-02 13:30:42 LAUNCH s10-diff-a on a2 -> ok
+2026-10-02 13:30:52 LAUNCH s10-diff-b on a2 -> ok
+2026-10-02 13:33:06 INBOX append s10v-a
+2026-10-02 13:33:06 INBOX append s10v-b
+2026-10-02 13:33:18 LAUNCH s10v-a on a1 -> ok
+2026-10-02 13:33:18 LAUNCH s10v-b on a1 -> FAILED usage: launch.py [-h] --account {a1,a2,a3} --name NAME --lane LANE [LANE ...]
+                 --expected_min EXPECTED_MIN
+                 [--kernel_sources [KERNEL_SOURCES ...]] [--sprint SPRINT]
+launch.py: error: argument --lane: expected at least one argument
+
+2026-10-02 13:35:37 INBOX update s10v-b ['lanes', 'retries']
+2026-10-02 13:35:49 LAUNCH s10v-b on a1 -> ok
