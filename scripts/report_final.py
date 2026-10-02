@@ -88,8 +88,14 @@ def main():
     # 4. capacity
     md += ["\n## 4. Capacity under the final recipe (deterministic, H3 N40, 50 ep, 2015–22)\n",
            "| model | params (active) | test CSS | + rain QM | final train loss |", "|---|---|---|---|---|"]
-    for tag, name in [("s10cap_S_s0", "dense S"), ("s10cap_M_s0", "dense M"), ("s10cap_L_s0", "dense L"),
-                      ("s10f_fin_det_s0", "MoE S, seed 0 (shipped)"), ("s10f_fin_det_s1", "MoE S, seed 1"), ("s10f_fin_det_s2", "MoE S, seed 2")]:
+    groups = {"dense S": [f"s10cap_S_s{s}" for s in range(3)], "dense M": [f"s10cap_M_s{s}" for s in range(3)],
+              "dense L": [f"s10cap_L_s{s}" for s in range(3)], "MoE S (shipped arch.)": [f"s10f_fin_det_s{s}" for s in range(3)]}
+    for name, tags in groups.items():
+        cs = [css(r) for r in (res(t) for t in tags) if r]
+        if cs:
+            sd = f" ± {np.std(cs, ddof=1):.4f}" if len(cs) > 1 else ""
+            md.insert(len(md) - 0, f"| **{name}: mean of {len(cs)} seed(s)** | | **{np.mean(cs):.4f}{sd}** | | |")
+    for tag, name in [(t, f"{g}, seed {t[-1]}") for g, ts in groups.items() for t in ts]:
         r = res(tag)
         if not r:
             md.append(f"| {name} | | {PENDING} | | |")

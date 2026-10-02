@@ -41,12 +41,22 @@ The spread across seeds in the test column is the honest uncertainty of any sing
 
 | model | params (active) | test CSS | + rain QM | final train loss |
 |---|---|---|---|---|
-| dense S | 17.7M (17.7M) | 0.2443 | 0.2570 | 0.034 |
-| dense M | 34.2M (34.2M) | 0.2355 | 0.2479 | 0.030 |
-| dense L | 58.7M (58.7M) | 0.2389 | 0.2520 | 0.025 |
-| MoE S, seed 0 (shipped) | 28.8M (19.3M) | 0.2361 | 0.2488 | 0.057 |
-| MoE S, seed 1 | 28.8M (19.3M) | 0.2205 | 0.2363 | 0.057 |
-| MoE S, seed 2 | 28.8M (19.3M) | 0.2484 | 0.2626 | 0.058 |
+| **dense S: mean of 3 seed(s)** | | **0.2376 ± 0.0066** | | |
+| **dense M: mean of 1 seed(s)** | | **0.2355** | | |
+| **dense L: mean of 2 seed(s)** | | **0.2365 ± 0.0034** | | |
+| **MoE S (shipped arch.): mean of 3 seed(s)** | | **0.2350 ± 0.0140** | | |
+| dense S, seed 0 | 17.7M (17.7M) | 0.2443 | 0.2570 | 0.034 |
+| dense S, seed 1 | 17.7M (17.7M) | 0.2310 | 0.2458 | 0.033 |
+| dense S, seed 2 | 17.7M (17.7M) | 0.2374 | 0.2532 | 0.034 |
+| dense M, seed 0 | 34.2M (34.2M) | 0.2355 | 0.2479 | 0.030 |
+| dense M, seed 1 | | _pending_ | | |
+| dense M, seed 2 | | _pending_ | | |
+| dense L, seed 0 | 58.7M (58.7M) | 0.2389 | 0.2520 | 0.025 |
+| dense L, seed 1 | 58.7M (58.7M) | 0.2341 | 0.2471 | 0.026 |
+| dense L, seed 2 | | _pending_ | | |
+| MoE S (shipped arch.), seed 0 | 28.8M (19.3M) | 0.2361 | 0.2488 | 0.057 |
+| MoE S (shipped arch.), seed 1 | 28.8M (19.3M) | 0.2205 | 0.2363 | 0.057 |
+| MoE S (shipped arch.), seed 2 | 28.8M (19.3M) | 0.2484 | 0.2626 | 0.058 |
 
 MoE train losses include the Switch balance term (0.01 × ≈1 per MoE layer × 3 layers ≈ 0.03), i.e. a data loss
 of ≈ 0.027: the MoE and the larger dense models fit the 8 training seasons *better* than dense S, but test skill
