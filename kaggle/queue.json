@@ -628,7 +628,7 @@
     "--mode det --size S --epochs 75 --patience 15 --time_budget_min 120 --H 3 --N 40 --precip_lin_w 1.0 --moe_experts 8 --moe_topk 2 --moe_frac 0.5 --train_years 2015-2017,2021,2022 --seed 0 --tag s10_cf_f1_s0"
    ]
   ],
-  "state": "launched"
+  "state": "done"
  },
  {
   "name": "s10-det-b",

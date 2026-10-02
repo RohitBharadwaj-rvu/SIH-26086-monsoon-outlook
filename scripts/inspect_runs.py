@@ -18,6 +18,21 @@ QM_VAL = base["val"]["gfs_qm_css_vs_trainer_ref"]  # GFS-QM scored against the s
 
 def check(f):
     r = json.load(open(f))
+    if "val" not in r:  # fixed-epoch runs (Sprint 10 protocol) have no validation season: report test only
+        t = r["test"]
+        ref = t["reference_gfs_bilinear"]["aggregate"]
+        qm = t.get("precip_qm")
+        h = r["history"]
+        print(f"{r['args']['tag']:22s} {r['args']['mode']} H{r['args']['H']} N{r['args']['N']} train {r['args'].get('train_years')} | "
+              f"{len(h)} ep, loss {h[0]['train_loss']:.3f} -> {h[-1]['train_loss']:.3f}, {r['train_minutes']:.0f} min | "
+              f"TEST CSS {composite_skill(t['aggregate'], ref):+.4f}"
+              + (f" (+precipQM {composite_skill(qm['aggregate'], ref):+.4f})" if qm else "")
+              + f" | bias {t['aggregate']['precip_bias_ratio']:.2f} csi30 {t['aggregate']['precip_csi30']:.3f} "
+              f"Tmax {t['aggregate']['tmax_mae']:.2f} wind {t['aggregate']['wind_vec_rmse']:.2f}"
+              + (f" | crps_p {t['aggregate']['precip_crps']:.3f} ssr_p {t['aggregate'].get('precip_ssr', float('nan')):.2f} cov90 {t['aggregate'].get('precip_cov90', float('nan')):.2f}" if "precip_crps" in t["aggregate"] else ""))
+        if any(e["train_loss"] != e["train_loss"] for e in h):
+            print(f"{'':22s} !! NaN train loss")
+        return
     for sp in ("val", "test"):  # recompute with the current CSS definition (stored values may predate fixes)
         ref = r[sp]["reference_gfs_bilinear"]["aggregate"]
         r[sp]["css"] = composite_skill(r[sp]["aggregate"], ref)
