@@ -47,6 +47,7 @@ class FinalDownscaler:
         cal = np.load(b / "calibration.npz")
         self.alpha = cal["alpha"].reshape(7, 6, 1, 1)
         self.qm = (cal["qm_pq"], cal["qm_oq"])
+        self.rain_cap = cal["rain_cap"] if "rain_cap" in cal.files else None  # [80,80] training block max (mm/day)
         self.static = torch.from_numpy(np.load(b / "static.npy")).to(self.dev)
 
     def _load(self, path, diffusion):
@@ -80,6 +81,8 @@ class FinalDownscaler:
         E = self.norm.inv(ens.float(), axis=3).cpu().numpy().transpose(1, 0, 2, 3, 4, 5)  # [B,K,...]
         if cfg.get("spread_calibration", True):
             E = apply_spread(E, self.alpha)
+        if self.rain_cap is not None and cfg.get("rain_cap", True):  # no member rains more than any training day
+            E[:, :, :, 0] = np.minimum(E[:, :, :, 0], self.rain_cap)
         prob = {f"precip>{t:g}": (E[:, :, :, 0] >= t).mean(1) for t in THRESHOLDS}
         from sihv3.post import pm_mean
         land = self.static[-1].cpu().numpy()[None, None, None].repeat(E.shape[0], 0).repeat(7, 1).repeat(6, 2)
@@ -87,7 +90,7 @@ class FinalDownscaler:
                 "rain_pm": pm_mean(E, land)[:, :, 0], "mode": mode}
 
 
-def export_bundle(out_dir, det_ckpt, diff_ckpt, alpha, qm, static, stats_yaml, modes, extra_dets=()):
+def export_bundle(out_dir, det_ckpt, diff_ckpt, alpha, qm, static, stats_yaml, modes, extra_dets=(), rain_cap=None):
     """Write the self-contained final model bundle (extra_dets: other seeds' final models, for `backbone: avg`)."""
     import shutil
     o = Path(out_dir)
@@ -99,7 +102,8 @@ def export_bundle(out_dir, det_ckpt, diff_ckpt, alpha, qm, static, stats_yaml, m
     for i, d in enumerate(extra_dets, 1):
         shutil.copy(d, o / f"det_s{i}.pt")
     shutil.copy(stats_yaml, o / "normalization_stats_v3.yaml")
-    np.savez(o / "calibration.npz", alpha=np.asarray(alpha, np.float32), qm_pq=qm[0], qm_oq=qm[1])
+    extra = {} if rain_cap is None else {"rain_cap": np.asarray(rain_cap, np.float32)}
+    np.savez(o / "calibration.npz", alpha=np.asarray(alpha, np.float32), qm_pq=qm[0], qm_oq=qm[1], **extra)
     np.save(o / "static.npy", np.asarray(static, np.float32))
     (o / "modes.yaml").write_text(yaml.safe_dump(modes, sort_keys=False))
     json.dump({"det": str(det_ckpt), "extra_dets": [str(d) for d in extra_dets], "diff": str(diff_ckpt)},

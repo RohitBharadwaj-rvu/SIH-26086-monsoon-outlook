@@ -19,6 +19,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from sihv3.data import V3Data, find  # noqa: E402
 from sihv3.modes import fit_qm_arrays  # noqa: E402
+from sihv3.post import tail_cap  # noqa: E402
 from sihv3.predict import export_bundle  # noqa: E402
 
 MODES = {  # pre-registered in docs/decision_log.md before the 2023 modes grid was seen
@@ -59,6 +60,10 @@ if __name__ == "__main__":
         qm = (c["qm_pq"], c["qm_oq"])
     for m in ("BALANCED", "ACCURATE", "ENSEMBLE"):
         modes[m]["backbone"] = a.diff_backbone
+        modes[m]["rain_cap"] = True  # adopted in Sprint 11 (decision_log)
+    yrs = np.array([int(d[:4]) for d in data.dates])
+    tr = np.where(yrs != 2023)[0]
+    cap = tail_cap(data.norm.inv(data.targ[tr], axis=2), data.mask[tr])  # training seasons 2015-2022 only
     export_bundle(a.out, a.det, a.diff, alpha, qm, data.static, find("normalization_stats_v3.yaml"), modes,
-                  extra_dets=a.extra_dets)
+                  extra_dets=a.extra_dets, rain_cap=cap)
     print("bundle written to", a.out, json.dumps(modes))
