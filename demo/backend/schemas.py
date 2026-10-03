@@ -90,6 +90,14 @@ class DailyForecastItem(BaseModel):
     advisory_summary_kn: str = ""
     provenance: str = "IMD_OBSERVATION_DOWNSCALED"
     parcels: list[ParcelDetailSchema] = []
+    # v3 additions: ensemble threshold probabilities (diffusion modes), heavy-rain field, verification values
+    prob_ge_15mm: float | None = None
+    prob_ge_30mm: float | None = None
+    prob_ge_64_5mm: float | None = None
+    heavy_rain_pm_mm: float | None = None
+    gfs_raw_mm: float | None = None
+    observed_mm: float | None = None
+    observed_tmax_c: float | None = None
 
 
 class AgrometVariables(BaseModel):
@@ -119,6 +127,8 @@ class ForecastResponse(BaseModel):
     is_cached: bool = False
     spatial_variance: SpatialVarianceSchema | None = None
     multi_day_forecast: list[DailyForecastItem] = []
+    mode: str | None = None
+    crop_stages: dict | None = None
 
 
 class IntegrationMockResponse(BaseModel):

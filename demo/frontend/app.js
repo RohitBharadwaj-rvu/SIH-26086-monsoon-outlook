@@ -1,3 +1,71 @@
+// ---- SIH-26074 v3 demo: operating mode + init date (2023 held-out season replay) ----
+const V3 = { mode: (() => { try { return localStorage.getItem("v3_mode") || "BALANCED"; } catch { return "BALANCED"; } })(),
+             date: (() => { try { return localStorage.getItem("v3_date") || ""; } catch { return ""; } })(), meta: null };
+function apiUrl(path) {
+  const q = new URLSearchParams({ mode: V3.mode });
+  if (V3.date) q.set("date", V3.date);
+  return `${path}${path.includes("?") ? "&" : "?"}${q}`;
+}
+window.apiUrl = apiUrl;
+window.V3 = V3;
+async function initV3Controls() {
+  if (V3.meta) return;
+  try {
+    const res = await fetch("/api/v1/dates");
+    V3.meta = await res.json();
+  } catch { return; }
+  const modeSel = document.querySelector("#v3-mode");
+  const dateSel = document.querySelector("#v3-date");
+  if (!V3.meta.modes.includes(V3.mode)) V3.mode = V3.meta.modes.includes("BALANCED") ? "BALANCED" : V3.meta.modes[0];
+  if (!V3.meta.dates.includes(V3.date)) V3.date = V3.meta.default;
+  if (modeSel) {
+    [...modeSel.options].forEach(o => { o.disabled = !V3.meta.modes.includes(o.value); });
+    modeSel.value = V3.mode;
+    modeSel.addEventListener("change", () => { V3.mode = modeSel.value; try { localStorage.setItem("v3_mode", V3.mode); } catch {} reloadV3(); });
+  }
+  if (dateSel) {
+    dateSel.innerHTML = V3.meta.dates.map(d => `<option value="${d}">${d}${d === V3.meta.default ? " (wettest week)" : ""}</option>`).join("");
+    dateSel.value = V3.date;
+    dateSel.addEventListener("change", () => { V3.date = dateSel.value; try { localStorage.setItem("v3_date", V3.date); } catch {} reloadV3(); });
+  }
+  updateModeInfo();
+  loadModelCard();
+}
+function updateModeInfo() {
+  const info = document.querySelector("#v3-mode-info");
+  if (info && V3.meta) info.textContent = V3.meta.mode_info[V3.mode] || "";
+}
+async function reloadV3() {
+  updateModeInfo();
+  if (typeof loadData === "function") await loadData();
+  loadModelCard();
+  renderDownscalingPlots();
+}
+async function loadModelCard() {
+  try {
+    const res = await fetch(apiUrl("/api/v1/model-card"));
+    const card = await res.json();
+    const all = card.skill_2023_gp_level_all_modes || {};
+    const any = Object.values(all)[0];
+    const body = document.querySelector("#skill-table-body");
+    if (body && any) {
+      const row = (name, s, gfs) => `<tr${name.endsWith(V3.mode) ? ' class="highlight-row"' : ""}><td><strong>${name}</strong></td>` +
+        `<td>${(gfs ? s.gfs_rain_mae_mm : s.rain_mae_mm).toFixed(2)}</td><td>${(gfs ? s.gfs_wet_day_mae_mm : s.wet_day_mae_mm).toFixed(2)}</td>` +
+        `<td>${(gfs ? s.gfs_rain_bias_ratio : s.rain_bias_ratio).toFixed(2)}</td><td>${(gfs ? s.gfs_tmax_mae_c : s.tmax_mae_c).toFixed(2)}</td></tr>`;
+      body.innerHTML = row("Raw GFS (interpolated)", any, true) + Object.entries(all).map(([m, s]) => row(`v3 ${m}`, s, false)).join("");
+    }
+    const s = card.skill_2023_gp_level || {};
+    const set = (id, txt) => { const el = document.querySelector(id); if (el) el.textContent = txt; };
+    set("#stat-coverage", s.range_coverage_5_95 !== undefined ? `${(100 * s.range_coverage_5_95).toFixed(0)} %` : "FAST: no range");
+    set("#stat-brier30", s.brier_ge_30mm !== undefined ? `${s.brier_ge_30mm.toFixed(3)} (${s.climatology_brier_ge_30mm.toFixed(3)})` : "FAST: no probabilities");
+    set("#stat-wetmae", `${s.wet_day_mae_mm.toFixed(1)} vs ${s.gfs_wet_day_mae_mm.toFixed(1)} mm`);
+    set("#stat-tmax", `${s.tmax_mae_c.toFixed(2)} vs ${s.gfs_tmax_mae_c.toFixed(2)}`);
+    set("#stat-rh", `${s.rh_mae_pct.toFixed(1)} %`);
+    set("#pill-cal", V3.mode === "FAST" ? "FAST: deterministic + rain QM" : `5–95 % range covers ${(100 * s.range_coverage_5_95).toFixed(0)} % (2023)`);
+  } catch (e) { console.warn("model card", e); }
+}
+window.loadModelCard = loadModelCard;
+
 /**
  * frontend/app.js
  * Mandya Weather Advisory PWA — Interactive Downscaling Engine (SIH PS 26074)
@@ -579,7 +647,7 @@ function broadcastToWhatsApp(record) {
       `🌾 *Gram Panchayat: ${record.panchayat_name}* (Mandya District)\n` +
       `📅 Date: ${dateStr}${dayTag}\n\n` +
       `🌧️ *Rainfall Forecast:* ${intensity.label} (${exp.toFixed(1)} mm)\n` +
-      `📊 *CQR 90% Likely Range:* ${lMin.toFixed(1)} mm – ${lMax.toFixed(1)} mm\n` +
+      `📊 *Likely range (5–95 %):* ${lMin.toFixed(1)} mm – ${lMax.toFixed(1)} mm\n` +
       `${alertLine}\n\n` +
       `🌱 *Ragi Advisory:* ${record.advisory?.ragi?.action_en || ""}\n` +
       `🌾 *Paddy Advisory:* ${record.advisory?.paddy?.action_en || ""}\n` +
@@ -624,10 +692,11 @@ function broadcastToWhatsApp(record) {
 // -------------------------------------------------------------
 function getLayerColor(record, layerType) {
   if (!record) return "#cbd5e1";
-  if (layerType === "imd") return "#e3f2fd";
 
   const mdf = record.multi_day_forecast;
   const activeDay = (mdf && mdf[currentSelectedDayIndex]) ? mdf[currentSelectedDayIndex] : null;
+  if (layerType === "imd") return getRainColor(activeDay?.gfs_raw_mm ?? 0.0);   // raw GFS 0.25 deg at the panchayat
+  if (layerType === "obs") return getRainColor(activeDay?.observed_mm ?? 0.0);  // observed (CHIRPS), 2023 replay
 
   const exp = activeDay ? activeDay.expected_mm : (record.rainfall_mm?.expected ?? record.expected_mm ?? 0.0);
   const lMin = activeDay ? activeDay.likely_min_mm : (record.rainfall_mm?.likely_min ?? record.likely_min_mm ?? 0.0);
@@ -681,11 +750,11 @@ function getFeatureStyle(feature, isSelected = false) {
   const code = String(feature?.id || feature?.properties?.code || "");
   const record = currentRecords.find(r => String(r.lgd_code) === code);
 
-  // 1. IMD Block View: Uniform 1.8mm light blue across all 234 GPs
+  // 1. Raw GFS 0.25 deg view: the coarse forecast interpolated to each panchayat (real values)
   if (currentMapLayer === "imd") {
     if (isSelected) {
       return {
-        fillColor: "#e3f2fd",
+        fillColor: getLayerColor(record, "imd"),
         fillOpacity: 0.95,
         weight: 3.5,
         color: "#000000",
@@ -694,7 +763,7 @@ function getFeatureStyle(feature, isSelected = false) {
       };
     }
     return {
-      fillColor: "#e3f2fd",
+      fillColor: getLayerColor(record, "imd"),
       fillOpacity: 0.85,
       weight: 1.0,
       color: "#94a3b8",
@@ -704,7 +773,7 @@ function getFeatureStyle(feature, isSelected = false) {
   }
 
   // 2. 5x AI / Rainfall / Temp / RH / Wind Layer: Full Downscaled Spatial Choropleth
-  if (["ai", "rainfall", "temp", "rh", "wind"].includes(currentMapLayer)) {
+  if (["ai", "rainfall", "temp", "rh", "wind", "obs"].includes(currentMapLayer)) {
     const highlightColor = getLayerColor(record, currentMapLayer);
     if (isSelected) {
       return {
@@ -798,23 +867,23 @@ function formatTooltipContent(record, feature) {
   const spread = Math.max(0, lMax - lMin);
 
   if (currentMapLayer === "imd") {
-    const blockVal = getDistrictAvgRain(currentSelectedDayIndex);
+    const blockVal = (activeDay && activeDay.gfs_raw_mm !== undefined && activeDay.gfs_raw_mm !== null) ? activeDay.gfs_raw_mm : null;
     const aiVal = exp.toFixed(1);
     const delta = blockVal !== null ? (exp - blockVal).toFixed(1) : "—";
     const deltaSign = (blockVal !== null && (exp - blockVal) > 0) ? "+" : "";
     const anomalyBadge = exp >= 15.0
-      ? `<span style="color:#ef4444; font-weight:700;">🚨 Convective peak hidden by IMD</span>`
-      : (exp >= 2.5 ? `<span style="color:#f59e0b; font-weight:700;">⚠️ Local rain missed by block</span>` : `<span style="color:#10b981; font-weight:700;">🟢 Dry valley (matches block)</span>`);
+      ? `<span style="color:#ef4444; font-weight:700;">🌧️ v3: moderate/heavy rain here</span>`
+      : (exp >= 2.5 ? `<span style="color:#f59e0b; font-weight:700;">🌦️ v3: light rain here</span>` : `<span style="color:#10b981; font-weight:700;">🟢 v3: dry here</span>`);
 
     return `
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:4px;">
         <strong style="font-size:0.92rem; color:#f8fafc;">${pName}</strong>
-        <span style="font-size:0.72rem; color:#f59e0b; font-weight:700; background:rgba(245,158,11,0.2); padding:1px 6px; border-radius:4px;">IMD 0.25° Block</span>
+        <span style="font-size:0.72rem; color:#f59e0b; font-weight:700; background:rgba(245,158,11,0.2); padding:1px 6px; border-radius:4px;">Raw GFS 0.25°</span>
       </div>
       <div style="font-size:0.76rem; color:#94a3b8; margin-bottom:4px;">${taluk} Taluk • LGD ${record?.lgd_code || feature.id}</div>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
-        <span style="font-size:0.8rem; color:#cbd5e1;">IMD Block Prediction:</span>
-        <strong style="font-size:0.88rem; color:#93c5fd;">${blockVal !== null ? blockVal.toFixed(1) + ' mm (Flat)' : '—'}</strong>
+        <span style="font-size:0.8rem; color:#cbd5e1;">Raw GFS here:</span>
+        <strong style="font-size:0.88rem; color:#93c5fd;">${blockVal !== null ? blockVal.toFixed(1) + ' mm' : '—'}</strong>
       </div>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
         <span style="font-size:0.8rem; color:#cbd5e1;">Our 5× Downscaled:</span>
@@ -948,13 +1017,13 @@ function updateMapLegend(layerType) {
     return;
   }
 
-  if (layerType === "imd") {
-    const blockVal = getDistrictAvgRain(currentSelectedDayIndex);
-    const blockValStr = blockVal !== null ? `Uniform ${blockVal.toFixed(1)} mm (All 234 GPs)` : "No forecast data loaded";
+  if (layerType === "imd" || layerType === "obs") {
     legend.innerHTML = `
-      <span class="legend-title">IMD Block NWP (0.25°):</span>
-      <div class="legend-item"><span class="legend-swatch" style="background:#cbd5e1;border:1px solid #94a3b8;"></span> ${blockValStr}</div>
-      <div class="legend-item" style="color:#d97706;font-weight:600;"><span class="legend-swatch" style="background:#f59e0b;"></span> ⚠️ Blind to Local Storm Peaks</div>
+      <span class="legend-title">${layerType === "imd" ? "Raw GFS 0.25° rain (input)" : "Observed rain (CHIRPS)"}:</span>
+      <div class="legend-item"><span class="legend-swatch band-dry"></span> &lt; 2.5 mm (Dry)</div>
+      <div class="legend-item"><span class="legend-swatch band-light"></span> 2.5–15.5 mm (Light)</div>
+      <div class="legend-item"><span class="legend-swatch band-mod"></span> 15.5–64.4 mm (Moderate)</div>
+      <div class="legend-item"><span class="legend-swatch band-heavy"></span> &gt; 64.5 mm (Heavy)</div>
     `;
     return;
   }
@@ -991,80 +1060,48 @@ function updateMapLegend(layerType) {
   }
 }
 
-function renderDownscalingPlots() {
-  const cCoarse = document.querySelector("#canvas-coarse");
-  const cFine = document.querySelector("#canvas-fine");
-  if (!cCoarse || !cFine) return;
-
-  const ctxCoarse = cCoarse.getContext("2d");
-  const ctxFine = cFine.getContext("2d");
-  const wC = cCoarse.width;
-  const hC = cCoarse.height;
-  const wF = cFine.width;
-  const hF = cFine.height;
-
-  // 1. Draw 16x16 Coarse Grid
-  const cellW_C = wC / 16;
-  const cellH_C = hC / 16;
-  for (let r = 0; r < 16; r++) {
-    for (let c = 0; c < 16; c++) {
-      ctxCoarse.fillStyle = "#a7f3d0";
-      ctxCoarse.fillRect(c * cellW_C, r * cellH_C, cellW_C, cellH_C);
-      ctxCoarse.strokeStyle = "#334155";
-      ctxCoarse.lineWidth = 0.5;
-      ctxCoarse.strokeRect(c * cellW_C, r * cellH_C, cellW_C, cellH_C);
+async function renderDownscalingPlots() {
+  const canv = { gfs: document.querySelector("#canvas-coarse"), v3: document.querySelector("#canvas-fine"), obs: document.querySelector("#canvas-obs") };
+  if (!canv.gfs || !canv.v3) return;
+  let f;
+  try {
+    const res = await fetch(apiUrl(`/api/v1/fields?day=${currentSelectedDayIndex || 0}`));
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    f = await res.json();
+  } catch (e) {
+    for (const c of Object.values(canv)) {
+      if (!c) continue;
+      const ctx = c.getContext("2d");
+      ctx.clearRect(0, 0, c.width, c.height);
+      ctx.fillStyle = "#475569"; ctx.font = "12px sans-serif"; ctx.textAlign = "center";
+      ctx.fillText("fields unavailable", c.width / 2, c.height / 2);
     }
+    return;
   }
-  ctxCoarse.fillStyle = "#0f172a";
-  ctxCoarse.font = "bold 13px sans-serif";
-  ctxCoarse.textAlign = "center";
-  ctxCoarse.fillText("1.8 mm Flat Macro-Grid", wC / 2, hC / 2);
-
-  // 2. Draw 80x80 Fine Downscaled Grid
-  const cellW_F = wF / 80;
-  const cellH_F = hF / 80;
-  for (let r = 0; r < 80; r++) {
-    for (let c = 0; c < 80; c++) {
-      const dNalligere = Math.hypot(r - 55, c - 35);
-      const dBanavasi = Math.hypot(r - 20, c - 65);
-      let val = 1.8 + 28.5 * Math.exp(-(dNalligere * dNalligere) / 80) - 1.2 * Math.exp(-(dBanavasi * dBanavasi) / 120);
-      val = Math.max(0.0, val);
-
-      let col = "#22c55e";
-      if (val >= 25.0) col = "#ef4444";
-      else if (val >= 15.0) col = "#f97316";
-      else if (val >= 5.0) col = "#eab308";
-      else if (val >= 2.5) col = "#84cc16";
-
-      ctxFine.fillStyle = col;
-      ctxFine.fillRect(c * cellW_F, r * cellH_F, cellW_F + 0.5, cellH_F + 0.5);
+  const draw = (c, grid) => {
+    if (!c) return;
+    const ctx = c.getContext("2d");
+    const nr = grid.length, nc = grid[0].length;
+    const cw = c.width / nc, ch = c.height / nr;
+    ctx.clearRect(0, 0, c.width, c.height);
+    for (let r = 0; r < nr; r++) for (let k = 0; k < nc; k++) {
+      ctx.fillStyle = getImdRainCategoryColor(grid[r][k]);
+      ctx.fillRect(k * cw, r * ch, cw + 0.5, ch + 0.5);
     }
-  }
-
-  // Label Nalligere (r=55, c=35)
-  ctxFine.fillStyle = "#ffffff";
-  ctxFine.beginPath();
-  ctxFine.arc(35 * cellW_F, 55 * cellH_F, 4.5, 0, Math.PI * 2);
-  ctxFine.fill();
-  ctxFine.strokeStyle = "#000000";
-  ctxFine.lineWidth = 1.5;
-  ctxFine.stroke();
-  ctxFine.fillStyle = "#ffffff";
-  ctxFine.font = "bold 9px sans-serif";
-  ctxFine.textAlign = "center";
-  ctxFine.fillText("Nalligere Peak", 35 * cellW_F, 55 * cellH_F - 6);
-
-  // Label Banavasi (r=20, c=65)
-  ctxFine.fillStyle = "#000000";
-  ctxFine.beginPath();
-  ctxFine.arc(65 * cellW_F, 20 * cellH_F, 4.5, 0, Math.PI * 2);
-  ctxFine.fill();
-  ctxFine.strokeStyle = "#ffffff";
-  ctxFine.lineWidth = 1.5;
-  ctxFine.stroke();
-  ctxFine.fillStyle = "#ffffff";
-  ctxFine.fillText("Banavasi 1.7mm", 65 * cellW_F, 20 * cellH_F + 13);
+    // panchayat footprint outline (cells used by the 234 GPs)
+    ctx.strokeStyle = "rgba(15,23,42,0.55)"; ctx.lineWidth = 0.6;
+    for (const [r, k] of f.gp_cells) ctx.strokeRect(k * cw, r * ch, cw, ch);
+  };
+  draw(canv.gfs, f.gfs); draw(canv.v3, f.v3); draw(canv.obs, f.obs);
+  const st = (g) => { const v = g.flat(); return { mean: v.reduce((a, b) => a + b, 0) / v.length, max: Math.max(...v) }; };
+  const sg = st(f.gfs), sv = st(f.v3), so = st(f.obs);
+  const set = (id, t) => { const el = document.querySelector(id); if (el) el.textContent = t; };
+  set("#proof-day-label", `Valid ${f.valid_date} (forecast issued ${f.init_date}, day ${f.day + 1})`);
+  set("#proof-gfs-stat", `mean ${sg.mean.toFixed(1)} mm • max ${sg.max.toFixed(0)} mm (one value per 27 km block)`);
+  set("#proof-v3-stat", `mean ${sv.mean.toFixed(1)} mm • max ${sv.max.toFixed(0)} mm (FAST, 5.5 km)`);
+  set("#proof-obs-stat", `mean ${so.mean.toFixed(1)} mm • max ${so.max.toFixed(0)} mm`);
 }
+window.renderDownscalingPlots = renderDownscalingPlots;
 
 function setupLiveInference() {
   const inferBtn = document.querySelector("#btn-run-live-infer");
@@ -1073,30 +1110,31 @@ function setupLiveInference() {
 
   inferBtn.addEventListener("click", async () => {
     inferBtn.disabled = true;
-    inferBtn.textContent = "⏳ Inferring 5×...";
-    if (statusElem) statusElem.textContent = "Running UNet5x forward pass...";
+    inferBtn.textContent = "⏳ Running v3 FAST...";
+    if (statusElem) statusElem.textContent = "Running the 3-seed transformer on the real GFS + ERA5 inputs...";
 
     try {
       const res = await fetch("/api/v1/infer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ date: V3.date, mode: "FAST" }),
       });
-      if (!res.ok) throw new Error("Inference failed");
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).detail || ("HTTP " + res.status));
       const data = await res.json();
       inferBtn.textContent = "⚡ Run Live Inference";
       inferBtn.disabled = false;
       if (statusElem) {
-        statusElem.textContent = `Completed in ${data.execution_time_ms} ms! (Mass Error: ${data.mass_conservation_error_pct}%)`;
+        statusElem.textContent = `FAST ran in ${data.execution_time_ms} ms here • district mean ${data.downscaled_mean_mm} mm vs raw GFS ${data.coarse_mean_mm} mm • matches the GPU-precomputed forecast to ${data.matches_precomputed_max_abs_mm} mm`;
         statusElem.style.color = "#15803d";
       }
       renderDownscalingPlots();
-      showToast(`⚡ Live 5× Inference: 234 GPs mapped in ${data.execution_time_ms} ms (0.000% Mass Error)`);
+      showToast(`⚡ Live v3 FAST: ${data.total_panchayats_mapped} GPs × 7 days in ${data.execution_time_ms} ms`);
     } catch (err) {
       inferBtn.textContent = "⚡ Run Live Inference";
       inferBtn.disabled = false;
       if (statusElem) {
-        statusElem.textContent = "Inference completed (cached mode)";
+        statusElem.textContent = `Live inference unavailable: ${err.message}. Showing the precomputed forecast.`;
+        statusElem.style.color = "#b45309";
       }
       renderDownscalingPlots();
     }
@@ -1121,11 +1159,10 @@ function setupMapLayerSelector() {
       // Show/hide IMD comparison banner
       if (imdBanner) {
         if (layer === "imd") {
+          const g = (currentRecords || []).map(r => r.multi_day_forecast?.[currentSelectedDayIndex]?.gfs_raw_mm).filter(v => v !== null && v !== undefined);
+          const gAvg = g.length ? (g.reduce((x, y) => x + y, 0) / g.length) : null;
           const avg = getDistrictAvgRain(currentSelectedDayIndex);
-          const max = getDistrictMaxRain(currentSelectedDayIndex);
-          const avgStr = avg !== null ? `${avg.toFixed(1)}mm` : "—";
-          const maxStr = max !== null ? `${max.toFixed(1)}mm` : "—";
-          imdBanner.innerHTML = `<span class="banner-icon">⚠️</span><span><strong>IMD Block View:</strong> Uniform ${avgStr} over all 234 GPs • Convective peaks up to ${maxStr} obscured • Zero intra-block resolution</span>`;
+          imdBanner.innerHTML = `<span class="banner-icon">ℹ️</span><span><strong>Raw GFS view:</strong> the coarse 0.25° model input interpolated to each panchayat • district mean ${gAvg !== null ? gAvg.toFixed(1) : "—"} mm vs v3 ${avg !== null ? avg.toFixed(1) : "—"} mm</span>`;
           imdBanner.classList.remove("hidden");
         } else {
           imdBanner.classList.add("hidden");
@@ -1310,7 +1347,7 @@ async function renderMap(records) {
     setTimeout(() => leafletMap.invalidateSize(), 150);
 
     if (status) {
-      status.textContent = `${geojsonData.features.length} Mandya panchayats loaded with 5× downscaled GIS choropleth.`;
+      status.textContent = `${geojsonData.features.length} Mandya panchayats loaded (v3 forecast, 0.05°).`;
     }
   } catch (err) {
     if (status) status.textContent = "Map boundary rendering fallback. Search is operational.";
@@ -1400,7 +1437,7 @@ async function submitNandiniValidation(rainedBool) {
   };
 
   try {
-    const res = await fetch("/api/v1/validation/nandini", {
+    const res = await fetch(apiUrl("/api/v1/validation/nandini"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -1488,10 +1525,10 @@ async function loadVirtualArgPayload() {
   const pName = rec ? rec.panchayat_name : "Banavasi";
 
   if (stationTitle) stationTitle.textContent = `Station: VARG_KA_MAN_${code} (${pName})`;
-  if (apiLink) apiLink.href = `/api/v1/virtual-arg/${code}`;
+  if (apiLink) apiLink.href = apiUrl(`/api/v1/virtual-arg/${code}`);
 
   try {
-    const res = await fetch(`/api/v1/virtual-arg/${code}`);
+    const res = await fetch(apiUrl(`/api/v1/virtual-arg/${code}`));
     if (res.ok) {
       const data = await res.json();
       if (codeBlock) codeBlock.textContent = JSON.stringify(data, null, 2);
@@ -1499,28 +1536,7 @@ async function loadVirtualArgPayload() {
       throw new Error("HTTP " + res.status);
     }
   } catch (err) {
-    const fallback = {
-      station_id: `VARG_KA_MAN_${code}`,
-      station_name: `${pName} Virtual ARG`,
-      lgd_code: String(code),
-      district: "MANDYA",
-      state: "KARNATAKA",
-      latitude: 12.52,
-      longitude: 76.89,
-      elevation_m: 660.0,
-      observation_datetime_utc: `${rec?.forecast_date || "2023-07-01"}T03:00:00Z`,
-      observation_datetime_ist: `${rec?.forecast_date || "2023-07-01"} 08:30:00 IST`,
-      rainfall_24h_mm: rec?.rainfall_mm?.expected ?? rec?.expected_mm ?? 1.7,
-      uncertainty_range_90pct: {
-        lower_bound_mm: rec?.rainfall_mm?.likely_min ?? rec?.likely_min_mm ?? 0.0,
-        upper_bound_mm: rec?.rainfall_mm?.likely_max ?? rec?.likely_max_mm ?? 4.6,
-        confidence: "90% CQR empirical"
-      },
-      qc_status: "VALIDATED_MASS_CONSERVED",
-      data_type: "SYNTHETIC_DOWNSCALED_FEATURE_STREAM",
-      provenance: "SIH26074_vARG_Unet5x_Terrain"
-    };
-    if (codeBlock) codeBlock.textContent = JSON.stringify(fallback, null, 2);
+    if (codeBlock) codeBlock.textContent = `Panchayat feed unavailable (${err.message}).`;
   }
 }
 
@@ -1887,7 +1903,8 @@ async function loadData() {
   let isCachedMode = false;
 
   try {
-    const res = await fetch("/api/forecasts");
+    await initV3Controls();
+    const res = await fetch(apiUrl("/api/forecasts"));
     if (!res.ok) throw new Error("Network API unavailable");
     if (res.headers.get("X-Cache-Fallback") === "1") {
       isCachedMode = true;
@@ -2348,15 +2365,22 @@ function updateDualModalHUD(records, dayIdx = 0) {
   const prov = activeDay0?.provenance || rec0.provenance || "OPENMETEO_FORECAST_DOWNSCALED";
   const cycleDate = rec0.cycle_date || rec0.forecast_date || "—";
 
-  if (granImd) granImd.textContent = "1 Block-Mean Value (0.25°)";
+  const dayVals = (key) => records.map(r => r.multi_day_forecast?.[dayIdx]?.[key]).filter(v => v !== null && v !== undefined);
+  const gfsV = dayVals("gfs_raw_mm"), obsV = dayVals("observed_mm");
+  const mean = (v) => v.length ? (v.reduce((a, b) => a + b, 0) / v.length) : NaN;
+  const gfsAvg = mean(gfsV), obsAvg = mean(obsV);
+  const gfsMax = gfsV.length ? Math.max(...gfsV) : NaN;
+  const gfsCats = new Set(gfsV.map(v => imdCategory(v))).size;
+  const v3Cats = new Set(records.map(r => imdCategory(r.multi_day_forecast?.[dayIdx]?.expected_mm ?? 0))).size;
+  if (granImd) granImd.textContent = "Raw GFS 0.25° (≈27 km blocks)";
   if (granAi) granAi.textContent = `${records.length} GP Forecasts (5.5 km)`;
-  if (peakImd) peakImd.textContent = `${avg} mm (Block-Mean)`;
+  if (peakImd) peakImd.textContent = `${gfsMax.toFixed(1)} mm (raw GFS max)`;
   if (peakAi) peakAi.textContent = `${mx} mm (${peakGP})`;
-  if (zonesImd) zonesImd.textContent = "0 (Single Warning Class)";
-  if (zonesAi) zonesAi.textContent = `${wrongCat} GPs in Different Warning Class`;
-  if (subImd) subImd.textContent = `Uniform ${avg} mm block-mean • single IMD warning class (${imdCategoryLabel(avg)}) • blind to orographic concentration & rain-shadows`;
-  if (subAi) subAi.textContent = `${mn}–${mx} mm • convective peak resolved • 0.000% parent-cell volume error`;
-  if (footerMass) footerMass.textContent = `(1/25)Σ HR·cos(φ) = LR • district parent-cell mean ${avg} mm (= coarse block-mean)`;
+  if (zonesImd) zonesImd.textContent = `${gfsCats} rain class(es) across the district`;
+  if (zonesAi) zonesAi.textContent = `${v3Cats} rain class(es) • ${wrongCat} GPs differ from the district-mean class`;
+  if (subImd) subImd.textContent = `Raw GFS • district mean ${gfsAvg.toFixed(1)} mm (${imdCategoryLabel(gfsAvg)})`;
+  if (subAi) subAi.textContent = `v3 ${window.V3 ? window.V3.mode : ""} • ${mn}–${mx} mm • district mean ${avg} mm`;
+  if (footerMass) footerMass.textContent = `District mean: v3 ${avg} mm • raw GFS ${gfsAvg.toFixed(1)} mm • observed ${isNaN(obsAvg) ? "—" : obsAvg.toFixed(1) + " mm"} (v3 corrects GFS; it does not conserve the coarse mass)`;
   if (provChip) provChip.textContent = `Cycle ${cycleDate} • ${dayLabel} • ${prov}`;
 }
 
@@ -2550,20 +2574,24 @@ function initDualSyncMaps() {
 
   const geojson = window.panchayatGeoJSON;
   if (geojson) {
-    const blockAvg = getDistrictAvgRain(currentSelectedDayIndex);
+    // coarse baseline = the raw GFS forecast averaged over the district (was the model's own mean, labelled IMD)
+    const gfsDistrict = (currentRecords || []).map(r => r.multi_day_forecast?.[currentSelectedDayIndex]?.gfs_raw_mm).filter(v => v !== null && v !== undefined);
+    const blockAvg = gfsDistrict.length ? +(gfsDistrict.reduce((a, b) => a + b, 0) / gfsDistrict.length).toFixed(1) : getDistrictAvgRain(currentSelectedDayIndex);
     const baseColor = blockAvg !== null ? getImdRainCategoryColor(blockAvg) : "#cbd5e1";
 
-    const imdStyle = {
-      fillColor: baseColor,
-      fillOpacity: 0.78,
-      weight: 1.0,
-      color: "#94a3b8"
+    const gfsVal = (code) => {
+      const rec = currentRecords ? currentRecords.find(r => String(r.lgd_code) === code) : null;
+      return rec?.multi_day_forecast?.[currentSelectedDayIndex]?.gfs_raw_mm;
+    };
+    const imdStyle = (feature) => {
+      const v = gfsVal(String(feature?.id || feature?.properties?.code || ""));
+      return { fillColor: (v === undefined || v === null) ? baseColor : getImdRainCategoryColor(v), fillOpacity: 0.78, weight: 1.0, color: "#94a3b8" };
     };
 
     const imdGeoLayer = L.geoJSON(geojson, {
       style: imdStyle,
       onEachFeature: (f, l) => {
-        l.getStyle = () => imdStyle;
+        l.getStyle = () => imdStyle(f);
         const code = String(f.id || f.properties?.code || "");
         const rec = currentRecords ? currentRecords.find(r => String(r.lgd_code) === code) : null;
         const name = rec?.panchayat_name || f.properties?.gpname || `GP ${code}`;
@@ -2571,13 +2599,15 @@ function initDualSyncMaps() {
         const v = rec
           ? (rec.multi_day_forecast?.[currentSelectedDayIndex]?.expected_mm ?? rec.expected_mm ?? 0.0)
           : 0.0;
-        const blockAvgStr = blockAvg !== null ? `${blockAvg.toFixed(1)} mm (Uniform Flat)` : "No data";
+        const g = gfsVal(code);
+        const o = rec?.multi_day_forecast?.[currentSelectedDayIndex]?.observed_mm;
+        const blockAvgStr = (g === undefined || g === null) ? "No data" : `${g.toFixed(1)} mm`;
         l.bindTooltip(`
           <div style="font-family:sans-serif; font-size:11px; line-height:1.3; color:#0f172a;">
             <strong>${name} (${taluk})</strong><br>
-            <span style="color:#475569; font-weight:700;">IMD NWP: ${blockAvgStr}</span><br>
-            <span style="color:#64748b;">Our 5× Downscaled: ${v.toFixed(1)} mm</span><br>
-            <span style="color:#b91c1c; font-weight:600;">⚠️ Blind to local convective cells</span>
+            <span style="color:#475569; font-weight:700;">Raw GFS 0.25°: ${blockAvgStr}</span><br>
+            <span style="color:#64748b;">v3 downscaled: ${v.toFixed(1)} mm</span><br>
+            <span style="color:#0f766e; font-weight:600;">Observed: ${(o === undefined || o === null) ? "—" : o.toFixed(1) + " mm"}</span>
           </div>
         `, { sticky: true });
       }
@@ -2603,7 +2633,7 @@ function initDualSyncMaps() {
           <div style="font-family:sans-serif; font-size:11px; line-height:1.3; color:#0f172a;">
             <strong>${name} (${taluk})</strong><br>
             <span style="color:${v >= 15 ? '#059669' : '#0369a1'}; font-weight:800;">5× Downscaled: ${v.toFixed(1)} mm (Δ ${deltaSign}${delta} mm)</span><br>
-            <span style="color:#64748b;">IMD Block Input: ${blockAvg !== null ? blockAvg.toFixed(1) + ' mm' : '—'}</span><br>
+            <span style="color:#64748b;">Raw GFS (district mean): ${blockAvg !== null ? blockAvg.toFixed(1) + ' mm' : '—'}</span><br>
             ${alertNote}
           </div>
         `, { sticky: true });
@@ -2665,11 +2695,11 @@ function initDualSyncMaps() {
         : "💧 Lightest-Rain Zone";
 
       const peakImdTag = (maxVal - blockAvg) > 5
-        ? "⚠️ Missed Convective Cell"
-        : "Block-Mean Baseline";
+        ? "⚠️ Peak above the GFS mean"
+        : "Near the GFS mean";
       const minImdTag = (blockAvg >= 2.5 && minVal < 2.5)
-        ? "⚠️ False Rain Alert"
-        : "Block-Mean Baseline";
+        ? "⚠️ Dry spot inside a GFS rain area"
+        : "Near the GFS mean";
 
       const PIN_W = 150;
       const PIN_H = 58;
@@ -2680,7 +2710,7 @@ function initDualSyncMaps() {
         html: `
           <div class="anchor-pin pin-imd">
             <div class="pin-title">📍 ${peakName}</div>
-            <div class="pin-val">IMD: ${blockAvg} mm</div>
+            <div class="pin-val">GFS mean: ${blockAvg} mm</div>
             <div class="pin-tag ${(maxVal - blockAvg) > 5 ? 'tag-missed' : 'tag-neutral'}">${peakImdTag}</div>
           </div>
         `,
@@ -2694,7 +2724,7 @@ function initDualSyncMaps() {
         html: `
           <div class="anchor-pin pin-imd">
             <div class="pin-title">📍 ${minName}</div>
-            <div class="pin-val">IMD: ${blockAvg} mm</div>
+            <div class="pin-val">GFS mean: ${blockAvg} mm</div>
             <div class="pin-tag ${(blockAvg >= 2.5 && minVal < 2.5) ? 'tag-false' : 'tag-neutral'}">${minImdTag}</div>
           </div>
         `,

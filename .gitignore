@@ -11,3 +11,4 @@ ckpts/
 models/*
 !models/final/
 !models/final/*.pt
+demo/data/serving/nandini_feedback.db
