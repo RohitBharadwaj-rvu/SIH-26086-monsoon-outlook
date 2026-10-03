@@ -28,7 +28,7 @@ Observed truth: CHIRPS v2.0 0.05° daily rain, 1981–2023, area-weighted to eac
 
 ## Validation
 * Outlook: 9 season-blocked folds over 43 seasons. Each season is predicted by models that never saw it, and climatology comes from the same training folds.
-* Hybrids: leave-one-season-out over the seasons with GFS / v3 archives (GFS: 7 seasons 2015-2023 (leave-one-season-out); v3: 9 seasons 2015–2023), on top of
+* Hybrids: leave-one-season-out over the seasons with GFS / v3 archives (GFS: 9 seasons 2015-2023 (leave-one-season-out); v3: 9 seasons 2015–2023), on top of
   outlook probabilities that are themselves out-of-fold.
 * Score: Brier skill score (BSS) vs climatology (0 = no better than the long-term average). 90 % CI from a season bootstrap.
 * **Selection rule (fixed before the final run):** a hybrid replaces the outlook only if, on the same rows, its BSS beats the
@@ -38,24 +38,24 @@ Observed truth: CHIRPS v2.0 0.05° daily rain, 1981–2023, area-weighted to eac
 
 | Target | Base rate | Outlook, 43 seasons | + v3 week 1 | + GFS d1–16 + v3 | Shipped | Shipped BSS |
 |---|---|---|---|---|---|---|
-| Dry week (all 7 days < 2.5 mm), week 1 | 0.181 | +0.071 [+0.049, +0.094] | +0.125 [+0.013, +0.209] | +0.148 [+0.033, +0.251] | **outlook + GFS d1–16 + v3 week 1** | **+0.148** |
-| Dry week (all 7 days < 2.5 mm), week 2 | 0.179 | +0.050 [+0.033, +0.069] | – | +0.147 [+0.073, +0.223] | **outlook + GFS d1–16 + v3 week 1** | **+0.147** |
+| Dry week (all 7 days < 2.5 mm), week 1 | 0.181 | +0.071 [+0.049, +0.094] | +0.125 [+0.013, +0.209] | +0.150 [+0.062, +0.228] | **outlook + GFS d1–16 + v3 week 1** | **+0.150** |
+| Dry week (all 7 days < 2.5 mm), week 2 | 0.179 | +0.050 [+0.033, +0.069] | – | +0.149 [+0.094, +0.209] | **outlook + GFS d1–16 + v3 week 1** | **+0.149** |
 | Dry week (all 7 days < 2.5 mm), week 3 | 0.183 | +0.035 [+0.014, +0.057] | – | – | **climate-driver outlook** | **+0.035** |
 | Dry week (all 7 days < 2.5 mm), week 4 | 0.193 | +0.034 [+0.012, +0.055] | – | – | **climate-driver outlook** | **+0.034** |
-| Wet week (≥ 1.5 × normal), week 1 | 0.237 | +0.066 [+0.035, +0.096] | +0.204 [+0.098, +0.294] | +0.264 [+0.158, +0.349] | **outlook + GFS d1–16 + v3 week 1** | **+0.264** |
-| Wet week (≥ 1.5 × normal), week 2 | 0.235 | +0.026 [+0.004, +0.052] | – | +0.064 [+0.011, +0.111] | **outlook + GFS d1–16 + v3 week 1** | **+0.064** |
+| Wet week (≥ 1.5 × normal), week 1 | 0.237 | +0.066 [+0.035, +0.096] | +0.204 [+0.098, +0.294] | +0.216 [+0.120, +0.295] | **outlook + GFS d1–16 + v3 week 1** | **+0.216** |
+| Wet week (≥ 1.5 × normal), week 2 | 0.235 | +0.026 [+0.004, +0.052] | – | +0.055 [-0.027, +0.119] | **climate-driver outlook** | **+0.026** |
 | Wet week (≥ 1.5 × normal), week 3 | 0.234 | -0.001 [-0.018, +0.020] | – | – | **climate-driver outlook** | **-0.001** |
 | Wet week (≥ 1.5 × normal), week 4 | 0.238 | -0.000 [-0.022, +0.019] | – | – | **climate-driver outlook** | **-0.000** |
-| Heavy rain (a day ≥ 30 mm), week 1 | 0.060 | -0.006 [-0.021, +0.009] | +0.049 [-0.003, +0.096] | +0.011 [-0.156, +0.089] | **climate-driver outlook** | **-0.006** |
-| Heavy rain (a day ≥ 30 mm), week 2 | 0.075 | -0.003 [-0.027, +0.020] | – | -0.034 [-0.138, +0.035] | **climate-driver outlook** | **-0.003** |
+| Heavy rain (a day ≥ 30 mm), week 1 | 0.060 | -0.006 [-0.021, +0.009] | +0.049 [-0.003, +0.096] | +0.022 [-0.036, +0.054] | **climate-driver outlook** | **-0.006** |
+| Heavy rain (a day ≥ 30 mm), week 2 | 0.075 | -0.003 [-0.027, +0.020] | – | -0.036 [-0.095, +0.021] | **climate-driver outlook** | **-0.003** |
 | Heavy rain (a day ≥ 30 mm), week 3 | 0.085 | -0.008 [-0.028, +0.012] | – | – | **climate-driver outlook** | **-0.008** |
 | Heavy rain (a day ≥ 30 mm), week 4 | 0.092 | +0.011 [-0.010, +0.034] | – | – | **climate-driver outlook** | **+0.011** |
-| Monsoon onset in that week, week 1 | 0.084 | -0.016 [-0.032, -0.000] | -0.006 [-0.103, +0.092] | -0.017 [-0.203, +0.121] | **climate-driver outlook** | **-0.016** |
-| Monsoon onset in that week, week 2 | 0.084 | +0.004 [-0.003, +0.012] | – | -0.038 [-0.057, -0.018] | **climate-driver outlook** | **+0.004** |
+| Monsoon onset in that week, week 1 | 0.084 | -0.016 [-0.032, -0.000] | -0.006 [-0.103, +0.092] | +0.019 [-0.117, +0.132] | **climate-driver outlook** | **-0.016** |
+| Monsoon onset in that week, week 2 | 0.084 | +0.004 [-0.003, +0.012] | – | -0.025 [-0.043, -0.007] | **climate-driver outlook** | **+0.004** |
 | Monsoon onset in that week, week 3 | 0.084 | -0.002 [-0.009, +0.005] | – | – | **climate-driver outlook** | **-0.002** |
 | Monsoon onset in that week, week 4 | 0.075 | +0.028 [+0.007, +0.052] | – | – | **climate-driver outlook** | **+0.028** |
-| Dry spell ≥ 7 days within 3 weeks | 0.538 | +0.092 [+0.059, +0.125] | – | +0.085 [+0.033, +0.137] | **outlook + GFS d1–16 + v3 week 1** | **+0.085** |
-| False onset within 3 weeks | 0.315 | -0.005 [-0.020, +0.009] | +0.060 [+0.002, +0.111] | -0.038 [-0.187, +0.029] | **outlook + v3 week 1** | **+0.060** |
+| Dry spell ≥ 7 days within 3 weeks | 0.538 | +0.092 [+0.059, +0.125] | – | +0.109 [+0.037, +0.187] | **outlook + GFS d1–16 + v3 week 1** | **+0.109** |
+| False onset within 3 weeks | 0.315 | -0.005 [-0.020, +0.009] | +0.060 [+0.002, +0.111] | -0.022 [-0.083, +0.017] | **outlook + v3 week 1** | **+0.060** |
 
 **9 of 18** shipped targets have a 90 % CI entirely above zero.
 
@@ -66,7 +66,8 @@ Observed truth: CHIRPS v2.0 0.05° daily rain, 1981–2023, area-weighted to eac
 * **No reliable skill:**
   * Heavy-rain days beyond what climatology gives.
   * Onset week, except a small signal in week 4.
-  * For these targets the system ships calibrated climatology-like probabilities, and the advisory thresholds are set so they rarely fire on their own.
+  * For these targets the system ships calibrated climatology-like probabilities.
+  * Heavy-rain advisories are therefore capped at amber; red is reserved for events with validated skill.
 * **Validation sample:** the hybrid rows rest on far fewer seasons (≤ 9) than the outlook (43), so their CIs are wider.
 
 ## Leakage audits (all fixed before the numbers above)

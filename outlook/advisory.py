@@ -70,9 +70,9 @@ def advise(p: dict, onset_seen: bool, month: int, enso: float | None = None, iod
             add("delayed_onset", 4, p=pct(onset4))
     if p["break3w"] >= THRESH["break"]:
         add("break", 2, "red" if p["break3w"] >= THRESH["break_red"] else "amber", p=pct(p["break3w"]))
-    for k in (1, 2, 3, 4):
+    for k in (1, 2, 3, 4):                     # amber only: heavy-rain days show no validated skill over climatology
         if p[f"heavy_{k}"] >= THRESH["heavy_week"]:
-            add("heavy", k, "red" if k <= 2 else "amber", p=pct(p[f"heavy_{k}"]), wk_en=WEEK_EN[k], wk_kn=WEEK_KN[k])
+            add("heavy", k, "amber", p=pct(p[f"heavy_{k}"]), wk_en=WEEK_EN[k], wk_kn=WEEK_KN[k])
             break
     if onset_seen and p["dry_1"] < THRESH["dry_week"] and p["wet_1"] >= THRESH["wet_week"] and p["break3w"] < THRESH["break"]:
         add("good_window", 1, p=pct(p["wet_1"]))

@@ -92,7 +92,8 @@ Observed truth: CHIRPS v2.0 0.05° daily rain, 1981–2023, area-weighted to eac
 * **No reliable skill:**
   * Heavy-rain days beyond what climatology gives.
   * Onset week, except a small signal in week 4.
-  * For these targets the system ships calibrated climatology-like probabilities, and the advisory thresholds are set so they rarely fire on their own.
+  * For these targets the system ships calibrated climatology-like probabilities.
+  * Heavy-rain advisories are therefore capped at amber; red is reserved for events with validated skill.
 * **Validation sample:** the hybrid rows rest on far fewer seasons (≤ 9) than the outlook (43), so their CIs are wider.
 
 ## Leakage audits (all fixed before the numbers above)
