@@ -209,3 +209,64 @@ launch.py: error: argument --lane: expected at least one argument
 2026-10-02 22:21:19 DONE s10dcap-s2
 2026-10-02 22:59:26 DONE s10dcap-val
 2026-10-03 00:20:39 DONE s10dcap-s0
+2026-10-03 10:36:39 INBOX append s11-a
+2026-10-03 10:36:39 INBOX append s11-b
+2026-10-03 10:36:39 INBOX append s11-c
+2026-10-03 10:36:39 INBOX append s11-d
+2026-10-03 10:36:53 LAUNCH s11-a on a4 -> ok
+2026-10-03 10:37:07 LAUNCH s11-b on a4 -> ok
+2026-10-03 10:37:15 LAUNCH s11-c on a3 -> ok
+2026-10-03 10:39:29 INBOX update s11-d ['needs', 'lanes', 'expected_min']
+2026-10-03 10:39:37 LAUNCH s11-d on a3 -> ok
+2026-10-03 10:49:22 INBOX append s11-post
+2026-10-03 10:49:33 LAUNCH s11-post on a1 -> ok
+2026-10-03 11:27:55 DONE s11-post
+2026-10-03 11:32:26 INBOX append s11-davg
+2026-10-03 11:32:36 LAUNCH s11-davg on a1 -> ok
+2026-10-03 12:00:18 INBOX append s11-post2
+2026-10-03 12:00:27 LAUNCH s11-post2 on a1 -> ok
+2026-10-03 12:22:19 DONE s11-post2
+2026-10-03 13:03:10 DONE s11-davg
+2026-10-03 13:45:41 DONE s11-d
+2026-10-03 14:29:58 DONE s11-a
+2026-10-03 14:41:43 DONE s11-b
+2026-10-03 14:48:57 DONE s11-c
+2026-10-03 14:50:57 INBOX append s12s0-det-a
+2026-10-03 14:50:57 INBOX append s12s0-det-b
+2026-10-03 14:50:57 INBOX append s12s0-oof
+2026-10-03 14:50:57 INBOX append s12s1-det-a
+2026-10-03 14:50:57 INBOX append s12s1-det-b
+2026-10-03 14:50:57 INBOX append s12s1-oof
+2026-10-03 14:50:57 INBOX append s12s2-det-a
+2026-10-03 14:50:57 INBOX append s12s2-det-b
+2026-10-03 14:50:57 INBOX append s12s2-oof
+2026-10-03 14:51:08 LAUNCH s12s0-det-a on a2 -> ok
+2026-10-03 14:51:20 LAUNCH s12s0-det-b on a2 -> ok
+2026-10-03 14:51:29 LAUNCH s12s1-det-a on a3 -> ok
+2026-10-03 14:51:38 LAUNCH s12s1-det-b on a3 -> ok
+2026-10-03 14:51:50 LAUNCH s12s2-det-a on a4 -> ok
+2026-10-03 14:52:03 LAUNCH s12s2-det-b on a4 -> ok
+2026-10-03 14:54:28 INBOX append s12s0-diff
+2026-10-03 14:54:28 INBOX append s12s1-diff
+2026-10-03 14:54:28 INBOX append s12s2-diff
+2026-10-03 15:30:26 DONE s12s0-det-a
+2026-10-03 15:30:26 DONE s12s1-det-a
+2026-10-03 15:30:26 DONE s12s2-det-a
+2026-10-03 15:49:04 DONE s12s1-det-b
+2026-10-03 15:49:13 LAUNCH s12s1-oof on a3 -> ok
+2026-10-03 15:52:01 DONE s12s0-det-b
+2026-10-03 15:52:01 DONE s12s2-det-b
+2026-10-03 15:52:12 LAUNCH s12s0-oof on a2 -> ok
+2026-10-03 15:52:24 LAUNCH s12s2-oof on a4 -> ok
+2026-10-03 15:55:04 DONE s12s1-oof
+2026-10-03 15:55:12 LAUNCH s12s1-diff on a3 -> ok
+2026-10-03 15:57:46 DONE s12s0-oof
+2026-10-03 15:57:46 DONE s12s2-oof
+2026-10-03 15:57:57 LAUNCH s12s0-diff on a2 -> ok
+2026-10-03 15:58:10 LAUNCH s12s2-diff on a4 -> ok
+2026-10-03 16:18:59 INBOX append s11-post3
+2026-10-03 16:19:12 LAUNCH s11-post3 on a1 -> ok
+2026-10-03 16:40:34 DONE s11-post3
+2026-10-03 17:31:39 DONE s12s1-diff
+2026-10-03 17:31:39 DONE s12s2-diff
+2026-10-03 17:38:11 DONE s12s0-diff
