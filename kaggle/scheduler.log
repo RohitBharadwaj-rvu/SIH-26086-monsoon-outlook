@@ -270,3 +270,6 @@ launch.py: error: argument --lane: expected at least one argument
 2026-10-03 17:31:39 DONE s12s1-diff
 2026-10-03 17:31:39 DONE s12s2-diff
 2026-10-03 17:38:11 DONE s12s0-diff
+2026-10-03 19:56:34 INBOX append demo-pre23
+2026-10-03 19:56:45 LAUNCH demo-pre23 on a1 -> ok
+2026-10-03 20:29:11 DONE demo-pre23

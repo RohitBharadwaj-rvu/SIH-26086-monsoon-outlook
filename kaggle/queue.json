@@ -1710,6 +1710,25 @@
   "state": "done"
  },
  {
+  "name": "demo-pre23",
+  "account": "a1",
+  "sprint": "demo precompute",
+  "expected_min": 40,
+  "needs": [],
+  "kernel_sources": [
+   "dataset:sih26074-v3-bundle"
+  ],
+  "lanes": [
+   [
+    "@precompute --bundle_glob **/modes.yaml --gp_cells **/gp_cells.json --year 2023 --bs 4 --modes FAST BALANCED --with_obs --tag demo23_a"
+   ],
+   [
+    "@precompute --bundle_glob **/modes.yaml --gp_cells **/gp_cells.json --year 2023 --bs 4 --modes ACCURATE ENSEMBLE --tag demo23_b"
+   ]
+  ],
+  "state": "done"
+ },
+ {
   "name": "d-s7-p2",
   "account": "a1",
   "sprint": "S7",

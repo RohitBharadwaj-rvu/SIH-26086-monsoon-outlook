@@ -1822,5 +1822,24 @@
   "launched_utc": 1791024552.6980817,
   "status": "queued",
   "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-s11-post3"
+ },
+ {
+  "name": "demo-pre23",
+  "account": "a1",
+  "user": "rohitajitbharadwaj",
+  "slug": "sih26074-v3-demo-pre23",
+  "sprint": "demo precompute",
+  "lanes": [
+   [
+    "@precompute --bundle_glob **/modes.yaml --gp_cells **/gp_cells.json --year 2023 --bs 4 --modes FAST BALANCED --with_obs --tag demo23_a"
+   ],
+   [
+    "@precompute --bundle_glob **/modes.yaml --gp_cells **/gp_cells.json --year 2023 --bs 4 --modes ACCURATE ENSEMBLE --tag demo23_b"
+   ]
+  ],
+  "expected_min": 40.0,
+  "launched_utc": 1791037605.5534346,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-demo-pre23"
  }
 ]
