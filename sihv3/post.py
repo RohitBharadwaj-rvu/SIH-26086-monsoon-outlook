@@ -52,11 +52,13 @@ def pm_mean(E, M):
     return out
 
 
-def tail_cap(targ_phys, mask, block=5):
-    """Per 5x5 block: the largest observed daily rain in the given (training) rows, over all leads -> [80,80] cap."""
+def tail_cap(targ_phys, mask, block=5, factor=2.0, ceiling=1.2):
+    """Rain cap per pixel = min(factor x the largest observed daily rain in its 5x5 block, ceiling x the largest in
+    the whole domain), from the given (training) rows only. factor 2 / ceiling 1.2 were chosen by leave-one-season-out
+    over 2015-2022: no held-out season ever exceeds the cap (factor 1 clipped 0.014 % of real pixel-days)."""
     P = np.where(mask[:, :, 0], targ_phys[:, :, 0], 0.0)              # [n,7,80,80]
     bmax = P.reshape(P.shape[0], 7, 80 // block, block, 80 // block, block).max((0, 1, 3, 5))
-    return np.kron(bmax, np.ones((block, block), np.float32))
+    return np.minimum(factor * np.kron(bmax, np.ones((block, block), np.float32)), ceiling * P.max())
 
 
 def apply_cap(E, cap):
