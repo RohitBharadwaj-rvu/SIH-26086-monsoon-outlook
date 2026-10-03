@@ -19,7 +19,7 @@ from sihv3.modes import apply_qm, fit_qm_arrays  # noqa: E402
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--files", nargs="+", required=True)
-    p.add_argument("--eval_year", type=int, required=True)
+    p.add_argument("--eval_year", type=int, nargs="+", required=True, help="one or more seasons")
     a = p.parse_args()
     data = V3Data(history_len=3, context=40)  # inputs are not used: only targets, masks and the GFS reference
     Y = None
@@ -31,14 +31,15 @@ if __name__ == "__main__":
         del y
     Y /= len(a.files)
     years = np.array([int(d[:4]) for d in data.dates])
-    ev, fit = np.where(years == a.eval_year)[0], np.where((years != a.eval_year) & (years != 2023))[0]
     inv = lambda x: data.norm.inv(x, axis=2)
-    T, M = inv(data.targ[ev]), data.mask[ev].astype(np.float32)
-    up = F.interpolate(torch.from_numpy(data.fcst[ev][:, :, :, 12:28, 12:28]).flatten(0, 1), size=(80, 80), mode="bilinear",
-                       align_corners=False).view(-1, 7, 6, 80, 80).numpy()
-    ref = det_metrics(inv(up), T, M)["aggregate"]
-    qm = fit_qm_arrays(inv(Y[fit]), inv(data.targ[fit]), data.mask[fit])
-    for name, P in (("raw", inv(Y[ev])), ("+ rain QM", apply_qm(inv(Y[ev]), qm))):
-        agg = det_metrics(P, T, M)["aggregate"]
-        print(f"FAST {len(a.files)}-file average {name:10s} {a.eval_year}: CSS {composite_skill(agg, ref):.4f} "
-              f"bias {agg['precip_bias_ratio']:.2f} csi30 {agg['precip_csi30']:.3f} Tmax MAE {agg['tmax_mae']:.3f}")
+    for ey in a.eval_year:
+        ev, fit = np.where(years == ey)[0], np.where((years != ey) & (years != 2023))[0]
+        T, M = inv(data.targ[ev]), data.mask[ev].astype(np.float32)
+        up = F.interpolate(torch.from_numpy(data.fcst[ev][:, :, :, 12:28, 12:28]).flatten(0, 1), size=(80, 80), mode="bilinear",
+                           align_corners=False).view(-1, 7, 6, 80, 80).numpy()
+        ref = det_metrics(inv(up), T, M)["aggregate"]
+        qm = fit_qm_arrays(inv(Y[fit]), inv(data.targ[fit]), data.mask[fit])
+        for name, P in (("raw", inv(Y[ev])), ("+ rain QM", apply_qm(inv(Y[ev]), qm))):
+            agg = det_metrics(P, T, M)["aggregate"]
+            print(f"FAST {len(a.files)}-file average {name:10s} {ey}: CSS {composite_skill(agg, ref):.4f} "
+                  f"bias {agg['precip_bias_ratio']:.2f} csi30 {agg['precip_csi30']:.3f} Tmax MAE {agg['tmax_mae']:.3f}", flush=True)
