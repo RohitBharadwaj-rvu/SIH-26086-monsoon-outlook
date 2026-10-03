@@ -52,6 +52,20 @@ def pm_mean(E, M):
     return out
 
 
+def tail_cap(targ_phys, mask, block=5):
+    """Per 5x5 block: the largest observed daily rain in the given (training) rows, over all leads -> [80,80] cap."""
+    P = np.where(mask[:, :, 0], targ_phys[:, :, 0], 0.0)              # [n,7,80,80]
+    bmax = P.reshape(P.shape[0], 7, 80 // block, block, 80 // block, block).max((0, 1, 3, 5))
+    return np.kron(bmax, np.ones((block, block), np.float32))
+
+
+def apply_cap(E, cap):
+    """Cap every member's rain at the training block maximum (other variables unchanged)."""
+    E = E.copy()
+    E[:, :, :, 0] = np.minimum(E[:, :, :, 0], cap)
+    return E
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--det_files", nargs="+", required=True, help="OOF ydet files of several seeds; the first is 'single'")
@@ -61,6 +75,7 @@ def main():
     p.add_argument("--steps", type=int, default=24)
     p.add_argument("--members", type=int, default=16)
     p.add_argument("--bs", type=int, default=4)
+    p.add_argument("--backbones", nargs="+", default=["single", "avg"], choices=["single", "avg"])
     p.add_argument("--tag", default="post")
     p.add_argument("--out", default=os.environ.get("SIH_OUT", "/kaggle/working/out" if Path("/kaggle").exists() else "out"))
     a = p.parse_args()
@@ -88,6 +103,9 @@ def main():
     cal = json.load(open(resolve(a.alpha_file)))
     alpha = np.array(cal["alpha_spread"], np.float32).reshape(7, 6, 1, 1)
     res = {"eval_year": a.eval_year, "n_seeds": len(files), "rows": []}
+    cap = tail_cap(inv(data.targ[fit], 2), data.mask[fit])          # training seasons only (never the evaluated one)
+    print(f"[{a.tag}] rain tail cap from {len(fit)} training forecasts: block max range {cap.min():.0f}-{cap.max():.0f} mm/day; "
+          f"evaluated-season observed max {np.where(M[:, :, 0] > 0, T[:, :, 0], 0).max():.0f}", flush=True)
 
     def row(name, agg, extra=None):
         r = {"variant": name, "css": composite_skill(agg, ref), "aggregate": agg, **(extra or {})}
@@ -106,7 +124,8 @@ def main():
 
     # diffusion, paired noise across backbones
     data.idx["_e"] = ev
-    for nm, Y in (("single seed", single), (f"{len(files)}-seed average", avg)):
+    bb = {"single": ("single seed", single), "avg": (f"{len(files)}-seed average", avg)}
+    for nm, Y in (bb[k] for k in a.backbones):
         g = torch.Generator(device=dev).manual_seed(1234)
         Yt = torch.from_numpy(Y)
         E = []
@@ -116,8 +135,15 @@ def main():
                 s = sample(diff, b, yd, sigma, steps=a.steps, members=a.members, sampler="dpmpp2m", gen=g, batch_members=True)
             E.append(inv(s.float(), 3).cpu().numpy().transpose(1, 0, 2, 3, 4, 5))
         E = np.concatenate(E)
+        lm = M[:, None, :, 0].astype(bool)
+        x = E[:, :, :, 0][np.broadcast_to(lm, E[:, :, :, 0].shape)]
+        res.setdefault("member_tails", {})[nm] = {q: float(np.quantile(x, float(q))) for q in ("0.99", "0.999", "0.9999")}
+        res["member_tails"][nm]["max"] = float(x.max())
+        res["member_tails"][nm]["frac_above_cap"] = float((E[:, :, :, 0] > cap)[np.broadcast_to(lm, E[:, :, :, 0].shape)].mean())
+        print(f"[{a.tag}] {nm} member rain tails (land): {res['member_tails'][nm]}", flush=True)
         for K in sorted({8, a.members}):
-            for cname, X in (("raw", E[:, :K]), ("spread-cal", apply_spread(E[:, :K], alpha))):
+            sc = apply_spread(E[:, :K], alpha)
+            for cname, X in (("raw", E[:, :K]), ("spread-cal", sc), ("spread-cal + tail cap", apply_cap(sc, cap))):
                 agg = prob_metrics(X, T, M)["aggregate"]
                 row(f"diff {nm} K={K} {cname} | ens mean", agg)
                 pm = det_metrics(pm_mean(X, M), T, M)["aggregate"]
