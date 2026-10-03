@@ -1,0 +1,627 @@
+{
+ "generated": "2026-10-04T00:59",
+ "pipeline": [
+  {
+   "id": "v3",
+   "name": "v3 spatiotemporal transformer + residual diffusion",
+   "role": "Days 1-7: downscales the GFS 0.25° forecast to 0.05° (all 6 variables), 4 operating modes",
+   "inputs": [
+    "GFS 0.25° 7-day forecast (40×40 context)",
+    "ERA5 last 3 days",
+    "terrain, land mask"
+   ],
+   "params": "28.8 M (19.3 M active, MoE) + 17.8 M denoiser",
+   "training": "2015-2022 monsoons, 2023 held out",
+   "status": "trained"
+  },
+  {
+   "id": "outlook",
+   "name": "Sub-seasonal outlook (gradient-boosted, one model per event × week)",
+   "role": "Weeks 1-4: probabilities of onset, false onset, dry spells, wet weeks and heavy downpours per panchayat",
+   "inputs": [
+    "MJO (OMI PC1/PC2, amplitude)",
+    "ENSO (weekly Niño 3.4)",
+    "IOD (DMI)",
+    "panchayat climatology",
+    "recent observed rain",
+    "calendar, location",
+    "v3 week-1 forecast"
+   ],
+   "params": "18 models",
+   "training": "CHIRPS 1981-2023 (43 monsoons), season-blocked cross-validation",
+   "status": "training"
+  },
+  {
+   "id": "expert",
+   "name": "Agronomic expert system",
+   "role": "Probabilities → ranked, crop-specific advisories (Kannada / English), SMS and WhatsApp texts",
+   "inputs": [
+    "18 outlook probabilities",
+    "observed onset status",
+    "crop calendar",
+    "ENSO/IOD state"
+   ],
+   "params": "8 rule templates · explicit, tunable probability thresholds",
+   "status": "ready",
+   "thresholds": {
+    "onset_soon": 0.45,
+    "false_risk": 0.35,
+    "delayed": 0.3,
+    "break": 0.5,
+    "dry_week": 0.45,
+    "heavy_week": 0.2,
+    "wet_week": 0.45,
+    "el_nino": 0.8,
+    "pos_iod": 0.4
+   }
+  }
+ ],
+ "feasibility_9_seasons": {
+  "source": "scripts/feasibility_ps26086.py (2015-2023, leave-one-season-out, Brier skill vs climatology, 90% CI)",
+  "all_predictors": {
+   "dry": {
+    "1": {
+     "base_rate": 0.181,
+     "n_gp_cases": 195624,
+     "pers": [
+      0.029,
+      0.005,
+      0.052
+     ],
+     "idx": [
+      0.048,
+      -0.016,
+      0.104
+     ],
+     "all": [
+      0.05,
+      -0.007,
+      0.121
+     ],
+     "v3": [
+      0.091,
+      -0.003,
+      0.184
+     ]
+    },
+    "2": {
+     "base_rate": 0.181,
+     "n_gp_cases": 195624,
+     "pers": [
+      -0.014,
+      -0.024,
+      -0.005
+     ],
+     "idx": [
+      0.044,
+      -0.009,
+      0.109
+     ],
+     "all": [
+      0.021,
+      -0.059,
+      0.099
+     ]
+    },
+    "3": {
+     "base_rate": 0.186,
+     "n_gp_cases": 195624,
+     "pers": [
+      -0.011,
+      -0.025,
+      -0.001
+     ],
+     "idx": [
+      0.023,
+      -0.034,
+      0.085
+     ],
+     "all": [
+      0.013,
+      -0.05,
+      0.088
+     ]
+    },
+    "4": {
+     "base_rate": 0.172,
+     "n_gp_cases": 195624,
+     "pers": [
+      -0.011,
+      -0.019,
+      -0.005
+     ],
+     "idx": [
+      0.003,
+      -0.07,
+      0.083
+     ],
+     "all": [
+      0.001,
+      -0.064,
+      0.073
+     ]
+    }
+   },
+   "heavy": {
+    "1": {
+     "base_rate": 0.027,
+     "n_gp_cases": 195624,
+     "pers": [
+      0.019,
+      0.005,
+      0.039
+     ],
+     "idx": [
+      -0.014,
+      -0.197,
+      0.11
+     ],
+     "all": [
+      -0.018,
+      -0.167,
+      0.091
+     ],
+     "v3": [
+      -0.013,
+      -0.176,
+      0.102
+     ]
+    },
+    "2": {
+     "base_rate": 0.027,
+     "n_gp_cases": 195624,
+     "pers": [
+      -0.022,
+      -0.045,
+      -0.011
+     ],
+     "idx": [
+      -0.135,
+      -0.477,
+      0.05
+     ],
+     "all": [
+      -0.14,
+      -0.431,
+      0.039
+     ]
+    },
+    "3": {
+     "base_rate": 0.029,
+     "n_gp_cases": 195624,
+     "pers": [
+      -0.017,
+      -0.031,
+      -0.008
+     ],
+     "idx": [
+      -0.102,
+      -0.314,
+      0.022
+     ],
+     "all": [
+      -0.106,
+      -0.338,
+      0.022
+     ]
+    },
+    "4": {
+     "base_rate": 0.036,
+     "n_gp_cases": 195624,
+     "pers": [
+      -0.011,
+      -0.036,
+      0.007
+     ],
+     "idx": [
+      -0.047,
+      -0.111,
+      -0.007
+     ],
+     "all": [
+      -0.041,
+      -0.083,
+      -0.005
+     ]
+    }
+   },
+   "wet": {
+    "1": {
+     "base_rate": 0.242,
+     "n_gp_cases": 195624,
+     "pers": [
+      0.032,
+      0.009,
+      0.048
+     ],
+     "idx": [
+      0.22,
+      0.092,
+      0.299
+     ],
+     "all": [
+      0.219,
+      0.11,
+      0.301
+     ],
+     "v3": [
+      0.267,
+      0.175,
+      0.336
+     ]
+    },
+    "2": {
+     "base_rate": 0.237,
+     "n_gp_cases": 195624,
+     "pers": [
+      0.003,
+      -0.006,
+      0.014
+     ],
+     "idx": [
+      0.12,
+      0.03,
+      0.202
+     ],
+     "all": [
+      0.11,
+      0.009,
+      0.195
+     ]
+    },
+    "3": {
+     "base_rate": 0.241,
+     "n_gp_cases": 195624,
+     "pers": [
+      0.001,
+      -0.009,
+      0.01
+     ],
+     "idx": [
+      0.081,
+      -0.009,
+      0.161
+     ],
+     "all": [
+      0.061,
+      -0.025,
+      0.139
+     ]
+    },
+    "4": {
+     "base_rate": 0.236,
+     "n_gp_cases": 195624,
+     "pers": [
+      0.014,
+      -0.007,
+      0.038
+     ],
+     "idx": [
+      0.042,
+      -0.007,
+      0.093
+     ],
+     "all": [
+      0.04,
+      -0.011,
+      0.105
+     ]
+    }
+   }
+  },
+  "by_index": {
+   "wet": {
+    "1": {
+     "base_rate": 0.242,
+     "n_gp_cases": 195624,
+     "pers": [
+      0.032,
+      0.011,
+      0.048
+     ],
+     "idx": [
+      0.22,
+      0.098,
+      0.295
+     ],
+     "mjo": [
+      0.077,
+      0.014,
+      0.125
+     ],
+     "enso_iod": [
+      0.094,
+      0.026,
+      0.142
+     ],
+     "all": [
+      0.219,
+      0.087,
+      0.3
+     ],
+     "v3": [
+      0.267,
+      0.16,
+      0.338
+     ]
+    },
+    "2": {
+     "base_rate": 0.237,
+     "n_gp_cases": 195624,
+     "pers": [
+      0.003,
+      -0.008,
+      0.015
+     ],
+     "idx": [
+      0.12,
+      0.02,
+      0.206
+     ],
+     "mjo": [
+      0.03,
+      -0.013,
+      0.066
+     ],
+     "enso_iod": [
+      0.093,
+      0.028,
+      0.144
+     ],
+     "all": [
+      0.11,
+      0.019,
+      0.204
+     ]
+    },
+    "3": {
+     "base_rate": 0.241,
+     "n_gp_cases": 195624,
+     "pers": [
+      0.001,
+      -0.008,
+      0.01
+     ],
+     "idx": [
+      0.081,
+      0.007,
+      0.153
+     ],
+     "mjo": [
+      -0.001,
+      -0.045,
+      0.035
+     ],
+     "enso_iod": [
+      0.097,
+      0.049,
+      0.144
+     ],
+     "all": [
+      0.061,
+      -0.033,
+      0.148
+     ]
+    },
+    "4": {
+     "base_rate": 0.236,
+     "n_gp_cases": 195624,
+     "pers": [
+      0.014,
+      -0.009,
+      0.039
+     ],
+     "idx": [
+      0.042,
+      -0.005,
+      0.097
+     ],
+     "mjo": [
+      -0.014,
+      -0.053,
+      0.014
+     ],
+     "enso_iod": [
+      0.058,
+      0.016,
+      0.097
+     ],
+     "all": [
+      0.04,
+      -0.013,
+      0.093
+     ]
+    }
+   },
+   "dry": {
+    "1": {
+     "base_rate": 0.181,
+     "n_gp_cases": 195624,
+     "pers": [
+      0.029,
+      0.005,
+      0.053
+     ],
+     "idx": [
+      0.048,
+      -0.012,
+      0.123
+     ],
+     "mjo": [
+      0.075,
+      -0.015,
+      0.155
+     ],
+     "enso_iod": [
+      -0.048,
+      -0.168,
+      0.052
+     ],
+     "all": [
+      0.05,
+      -0.012,
+      0.124
+     ],
+     "v3": [
+      0.091,
+      -0.003,
+      0.178
+     ]
+    },
+    "2": {
+     "base_rate": 0.181,
+     "n_gp_cases": 195624,
+     "pers": [
+      -0.014,
+      -0.023,
+      -0.005
+     ],
+     "idx": [
+      0.044,
+      -0.01,
+      0.107
+     ],
+     "mjo": [
+      0.079,
+      0.01,
+      0.145
+     ],
+     "enso_iod": [
+      -0.058,
+      -0.186,
+      0.041
+     ],
+     "all": [
+      0.021,
+      -0.056,
+      0.095
+     ]
+    },
+    "3": {
+     "base_rate": 0.186,
+     "n_gp_cases": 195624,
+     "pers": [
+      -0.011,
+      -0.026,
+      0.0
+     ],
+     "idx": [
+      0.023,
+      -0.035,
+      0.088
+     ],
+     "mjo": [
+      0.066,
+      -0.007,
+      0.129
+     ],
+     "enso_iod": [
+      -0.049,
+      -0.141,
+      0.026
+     ],
+     "all": [
+      0.013,
+      -0.054,
+      0.084
+     ]
+    },
+    "4": {
+     "base_rate": 0.172,
+     "n_gp_cases": 195624,
+     "pers": [
+      -0.011,
+      -0.019,
+      -0.004
+     ],
+     "idx": [
+      0.003,
+      -0.065,
+      0.078
+     ],
+     "mjo": [
+      0.066,
+      0.005,
+      0.128
+     ],
+     "enso_iod": [
+      -0.059,
+      -0.123,
+      0.003
+     ],
+     "all": [
+      0.001,
+      -0.068,
+      0.07
+     ]
+    }
+   }
+  }
+ },
+ "v3_gp_skill_2023": {
+  "FAST": {
+   "rain_mae_mm": 2.9922,
+   "gfs_rain_mae_mm": 3.0178,
+   "wet_day_mae_mm": 6.3862,
+   "gfs_wet_day_mae_mm": 7.281,
+   "rain_bias_ratio": 1.0155,
+   "gfs_rain_bias_ratio": 0.8652,
+   "tmax_mae_c": 1.1548,
+   "gfs_tmax_mae_c": 1.5032,
+   "rh_mae_pct": 3.5781,
+   "n_gp_days": 199836
+  },
+  "BALANCED": {
+   "rain_mae_mm": 2.7887,
+   "gfs_rain_mae_mm": 3.0178,
+   "wet_day_mae_mm": 5.916,
+   "gfs_wet_day_mae_mm": 7.281,
+   "rain_bias_ratio": 0.8816,
+   "gfs_rain_bias_ratio": 0.8652,
+   "tmax_mae_c": 1.1365,
+   "gfs_tmax_mae_c": 1.5032,
+   "rh_mae_pct": 3.4995,
+   "n_gp_days": 199836,
+   "range_coverage_5_95": 0.8282,
+   "brier_ge_15mm": 0.0286,
+   "climatology_brier_ge_15mm": 0.0267,
+   "brier_ge_30mm": 0.0005,
+   "climatology_brier_ge_30mm": 0.0004
+  },
+  "ACCURATE": {
+   "rain_mae_mm": 2.8458,
+   "gfs_rain_mae_mm": 3.0178,
+   "wet_day_mae_mm": 5.8273,
+   "gfs_wet_day_mae_mm": 7.281,
+   "rain_bias_ratio": 0.9336,
+   "gfs_rain_bias_ratio": 0.8652,
+   "tmax_mae_c": 1.1365,
+   "gfs_tmax_mae_c": 1.5032,
+   "rh_mae_pct": 3.5268,
+   "n_gp_days": 199836,
+   "range_coverage_5_95": 0.8404,
+   "brier_ge_15mm": 0.0291,
+   "climatology_brier_ge_15mm": 0.0267,
+   "brier_ge_30mm": 0.0006,
+   "climatology_brier_ge_30mm": 0.0004
+  },
+  "ENSEMBLE": {
+   "rain_mae_mm": 2.7523,
+   "gfs_rain_mae_mm": 3.0178,
+   "wet_day_mae_mm": 5.8282,
+   "gfs_wet_day_mae_mm": 7.281,
+   "rain_bias_ratio": 0.8825,
+   "gfs_rain_bias_ratio": 0.8652,
+   "tmax_mae_c": 1.1406,
+   "gfs_tmax_mae_c": 1.5032,
+   "rh_mae_pct": 3.4472,
+   "n_gp_days": 199836,
+   "range_coverage_5_95": 0.8813,
+   "brier_ge_15mm": 0.0276,
+   "climatology_brier_ge_15mm": 0.0267,
+   "brier_ge_30mm": 0.0005,
+   "climatology_brier_ge_30mm": 0.0004
+  }
+ },
+ "cv_43_seasons": null
+}
