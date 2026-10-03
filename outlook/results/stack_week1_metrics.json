@@ -1,0 +1,52 @@
+{
+ "dry_1": {
+  "bss_outlook": 0.1236,
+  "bss_stacked": 0.1254,
+  "ci90_stacked": [
+   0.0135,
+   0.2093
+  ],
+  "n": 256464,
+  "seasons": "2015-2023 (leave-one-season-out)"
+ },
+ "wet_1": {
+  "bss_outlook": 0.0879,
+  "bss_stacked": 0.2043,
+  "ci90_stacked": [
+   0.0982,
+   0.2937
+  ],
+  "n": 256464,
+  "seasons": "2015-2023 (leave-one-season-out)"
+ },
+ "heavy_1": {
+  "bss_outlook": -0.0015,
+  "bss_stacked": 0.0493,
+  "ci90_stacked": [
+   -0.0029,
+   0.0962
+  ],
+  "n": 256464,
+  "seasons": "2015-2023 (leave-one-season-out)"
+ },
+ "onset_1": {
+  "bss_outlook": -0.0323,
+  "bss_stacked": -0.0065,
+  "ci90_stacked": [
+   -0.1034,
+   0.0916
+  ],
+  "n": 72126,
+  "seasons": "2015-2023 (leave-one-season-out)"
+ },
+ "false3w": {
+  "bss_outlook": -0.006,
+  "bss_stacked": 0.0597,
+  "ci90_stacked": [
+   0.0023,
+   0.1106
+  ],
+  "n": 72126,
+  "seasons": "2015-2023 (leave-one-season-out)"
+ }
+}

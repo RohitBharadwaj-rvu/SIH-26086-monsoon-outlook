@@ -13,11 +13,14 @@ by 7 consecutive days totalling < 5 mm within days d+2 .. d+21; a wet start that
 
 Features (all known at issue time): the event's climatological probability for this GP and calendar window (training
 seasons only), recent rain (7 / 30 days), dry days in the last 14, season-to-date anomaly, wet starts so far and days
-since the last one, MJO (OMI PC1, PC2, amplitude; day before issue), ENSO (weekly Nino 3.4, >= 4 days old), IOD
-(previous month's DMI), calendar day, GP location and climatological mean.
+since the last one, MJO (NOAA real-time OMI "ROMI" PC1, PC2, amplitude; day before issue), BSISO (Kikuchi real-time
+PCs; day before issue), ENSO (weekly Nino 3.4, >= 4 days old), IOD (previous month's DMI), calendar day, GP location and
+climatological mean.
 
-Model: HistGradientBoostingClassifier per event x week. Validation: 9 season-blocked folds over 1981-2023 (each season
-predicted by models that never saw it), Brier skill vs the same-fold climatology, 90 % CI by season bootstrap.
+Model: regularised logistic regression per event x week with MJO/BSISO/climatology x season interactions (Logit);
+onset and false onset use a lean 9-feature logistic (Subset). Gradient boosting was tried and rejected: it memorised
+seasons through their ENSO/IOD values. Validation: 9 season-blocked folds over 1981-2023 (each season predicted by
+models that never saw it), Brier skill vs the same-fold climatology, 90 % CI by season bootstrap.
 
   python -m outlook.model            -> outlook/results/{cv_metrics.json, oof_*.npz}, outlook/models/*.joblib
 """
@@ -51,10 +54,11 @@ class Logit(ClassifierMixin, BaseEstimator):
         self.C = C
 
     def _x(self, X):
-        miss = ~np.isfinite(X[:, [7, 10]])                                    # MJO / ENSO missing (pre-1991 / 1981)
+        miss = ~np.isfinite(X[:, [7, 10, 17]])                                # MJO / ENSO / BSISO missing
         X = np.nan_to_num(X, nan=0.0)
         inter = np.stack([X[:, 7] * X[:, 12], X[:, 7] * X[:, 13], X[:, 8] * X[:, 12], X[:, 8] * X[:, 13],
-                          X[:, 0] * X[:, 12], X[:, 0] * X[:, 13]], 1)              # MJO x season, clim x season
+                          X[:, 0] * X[:, 12], X[:, 0] * X[:, 13],
+                          X[:, 17] * X[:, 12], X[:, 17] * X[:, 13], X[:, 18] * X[:, 12], X[:, 18] * X[:, 13]], 1)
         return np.concatenate([X, inter, miss.astype(np.float32)], 1)
 
     def fit(self, X, y):
@@ -73,7 +77,32 @@ class Logit(ClassifierMixin, BaseEstimator):
         return self.lr.classes_
 
 
+ONSET_FEATURES = [0, 1, 2, 3, 4, 5, 6, 12, 13]   # climatology, recent rain, dry days, season anomaly, wet starts, calendar
+
+
+class Subset(ClassifierMixin, BaseEstimator):
+    """Few-feature, strongly regularised logistic for the rare onset / false-onset events (the full set overfits)."""
+    def __init__(self, cols=None, C=0.01):
+        self.cols, self.C = cols, C
+
+    def fit(self, X, y):
+        from sklearn.linear_model import LogisticRegression
+        Z = np.nan_to_num(X[:, self.cols], nan=0.0)
+        self.mu, self.sd = Z.mean(0), Z.std(0) + 1e-6
+        self.lr = LogisticRegression(C=self.C, max_iter=1000).fit((Z - self.mu) / self.sd, y)
+        self.classes_ = self.lr.classes_
+        return self
+
+    def predict_proba(self, X):
+        return self.lr.predict_proba((np.nan_to_num(X[:, self.cols], nan=0.0) - self.mu) / self.sd)
+
+
+CURRENT_TARGET = None
+
+
 def make_model():
+    if CURRENT_TARGET and (CURRENT_TARGET.startswith("onset") or CURRENT_TARGET == "false3w"):
+        return Subset(ONSET_FEATURES, 0.01)
     if MODEL == "gbm":
         return HistGradientBoostingClassifier(max_iter=120, learning_rate=0.04, max_depth=3, min_samples_leaf=25000,
                                               l2_regularization=10.0, random_state=0)
@@ -175,13 +204,14 @@ def features(r, idx, onset_obs, clim_p, clim_mean, lat, lon, i_list):
              np.hypot(idx["omi_pc1"][:, i], idx["omi_pc2"][:, i])[:, None].repeat(G, 1),
              idx["nino34"][:, i, None].repeat(G, 1), idx["dmi"][:, i, None].repeat(G, 1),
              np.full((Y, G), np.sin(2 * np.pi * (i + 121) / 365)), np.full((Y, G), np.cos(2 * np.pi * (i + 121) / 365)),
-             lat[None].repeat(Y, 0), lon[None].repeat(Y, 0), clim_mean[None].repeat(Y, 0)]
+             lat[None].repeat(Y, 0), lon[None].repeat(Y, 0), clim_mean[None].repeat(Y, 0),
+             idx["bsiso_x"][:, i, None].repeat(G, 1), idx["bsiso_y"][:, i, None].repeat(G, 1)]
         F.append(np.stack(f, -1))
     return np.stack(F, 1).astype(np.float32)          # [Y, I, G, F]
 
 
 FEATURE_NAMES = ["clim_logit", "rain7", "rain30", "dry_days14", "season_anom", "wet_starts", "days_since_wet_start",
-                 "mjo_pc1", "mjo_pc2", "mjo_amp", "nino34", "dmi", "doy_sin", "doy_cos", "lat", "lon", "clim_mean"]
+                 "mjo_pc1", "mjo_pc2", "mjo_amp", "nino34", "dmi", "doy_sin", "doy_cos", "lat", "lon", "clim_mean", "bsiso_x", "bsiso_y"]
 
 
 def observed_wet_starts(r):
@@ -221,7 +251,9 @@ def main():
     I_all = list(range(NI))
     I_train = list(range(0, NI, 2))
     metrics, rng = dict(metrics_prev), np.random.default_rng(0)
+    global CURRENT_TARGET
     for tname in targets:
+        CURRENT_TARGET = tname
         t0 = time.time()
         oof = np.full((Y, NI, G), np.nan, np.float32)
         oofc = np.full((Y, NI, G), np.nan, np.float32)
@@ -310,10 +342,20 @@ def clim_prob_mean(T, train_mask, half=15):
 
 ONLY = None
 
+def load_model(path):
+    """joblib.load that also resolves models pickled by `python -m outlook.model` (classes recorded as __main__.*)."""
+    import __main__
+    for k in ("Logit", "Subset"):
+        if not hasattr(__main__, k):
+            setattr(__main__, k, globals()[k])
+    return joblib.load(path)
+
+
 if __name__ == "__main__":
     import sys
+    import outlook.model as M                 # run the importable module so pickled classes are outlook.model.*
     if len(sys.argv) > 1:
-        ONLY = set(sys.argv[1].split(","))
+        M.ONLY = set(sys.argv[1].split(","))
     if len(sys.argv) > 2:
-        MODEL = sys.argv[2]
-    main()
+        M.MODEL = sys.argv[2]
+    M.main()

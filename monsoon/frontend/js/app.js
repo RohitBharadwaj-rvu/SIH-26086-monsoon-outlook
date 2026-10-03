@@ -24,8 +24,8 @@ const T = {
     el_nino: "El Niño", la_nina: "La Niña", neutral: "Neutral", pos_iod: "Positive IOD", neg_iod: "Negative IOD",
     mjo_active: "active", mjo_weak: "weak", phase: "phase", amp: "amplitude", select_gp: "Tap a panchayat for details",
     importance: "What the models rely on", importance_hint: "permutation importance on held-out seasons",
-    within2: "onset within 2 wk", within4: "within 4 wk",
-    hybrid_note: "Week 1 combines the outlook with the downscaling model (2015–2023); weeks 2–4 use climate drivers (1981–2023).",
+    within2: "onset within 2 wk", within4: "within 4 wk", shipped: "Validated skill of what ships", shipped_hint: "one row per event and lead",
+    hybrid_note: "Weeks 1–2 use the GFS / downscaling hybrid where it is validated to help (2015–2023); otherwise the climate-driver outlook (1981–2023).",
   },
   kn: {
     app_title: "ಮುಂಗಾರು ಮುನ್ನೋಟ", app_sub: "ಮಂಡ್ಯ · 234 ಪಂಚಾಯಿತಿ · 1–4 ವಾರ", season: "ಹಂಗಾಮು", issued: "ಪ್ರಕಟಣೆ",
@@ -49,7 +49,7 @@ const T = {
     el_nino: "ಎಲ್ ನಿನೊ", la_nina: "ಲಾ ನಿನಾ", neutral: "ತಟಸ್ಥ", pos_iod: "ಧನಾತ್ಮಕ IOD", neg_iod: "ಋಣಾತ್ಮಕ IOD",
     mjo_active: "ಸಕ್ರಿಯ", mjo_weak: "ದುರ್ಬಲ", phase: "ಹಂತ", amp: "ಪ್ರಾಬಲ್ಯ", select_gp: "ವಿವರಗಳಿಗೆ ಪಂಚಾಯಿತಿ ಒತ್ತಿ",
     importance: "ಮಾದರಿಗಳು ಯಾವುದನ್ನು ಅವಲಂಬಿಸಿವೆ", importance_hint: "ಪರೀಕ್ಷಾ ಹಂಗಾಮುಗಳ ಮೇಲೆ",
-    within2: "2 ವಾರದಲ್ಲಿ ಆರಂಭ", within4: "4 ವಾರದಲ್ಲಿ",
+    within2: "2 ವಾರದಲ್ಲಿ ಆರಂಭ", within4: "4 ವಾರದಲ್ಲಿ", shipped: "ಬಳಕೆಯಲ್ಲಿರುವ ಮಾದರಿಯ ನಿಖರತೆ", shipped_hint: "ಪ್ರತಿ ಘಟನೆ ಮತ್ತು ವಾರ",
     hybrid_note: "ವಾರ 1: ಡೌನ್‌ಸ್ಕೇಲಿಂಗ್ ಮಾದರಿಯೊಂದಿಗೆ ಸಂಯೋಜನೆ (2015–2023); ವಾರ 2–4: ಹವಾಮಾನ ಚಾಲಕಗಳು (1981–2023).",
   },
 };
@@ -310,9 +310,14 @@ function renderModel() {
     const cv = M.cv_43_seasons;
     const mk = (ev, color) => ({ name: t(ev), color, values: [1, 2, 3, 4].map((k) => { const m = cv[`${ev}_${k}`]; return m ? { v: m.bss, lo: m.ci90[0], hi: m.ci90[1] } : null; }) });
     series = [mk("dry", COLORS.dry), mk("wet", COLORS.wet), mk("heavy", COLORS.heavy), mk("onset", COLORS.onset)];
-    if (M.week1_hybrid) {   // week 1: outlook + v3 downscaling hybrid
-      const hy = { dry: "dry_1", wet: "wet_1", heavy: "heavy_1", onset: "onset_1" };
-      series.forEach((s, j) => { const h = M.week1_hybrid[hy[["dry", "wet", "heavy", "onset"][j]]]; if (h) s.values[0] = { v: h.bss_stacked, lo: h.ci90_stacked[0], hi: h.ci90_stacked[1] }; });
+    if (M.final_selection) {   // the shipped version of each target (outlook, or a validated hybrid for weeks 1-2)
+      const F = M.final_selection;
+      series.forEach((s, j) => { const ev = ["dry", "wet", "heavy", "onset"][j];
+        s.values = [1, 2, 3, 4].map((k) => { const f = F[`${ev}_${k}`]; return f ? { v: f.bss, lo: f.ci90[0], hi: f.ci90[1] } : null; }); });
+      const rows = Object.entries(F).map(([k, f]) => `<tr><td>${k.replace(/_(\d)$/, " · wk $1").replace("break3w", "dry spell (3 wk)").replace("false3w", "false onset (3 wk)")}</td>
+        <td>${f.source === "outlook" ? "climate drivers" : f.source === "v3" ? "+ v3 week 1" : "+ GFS d1–16 + v3"}</td><td class="num">${f.bss.toFixed(3)}</td>
+        <td class="num">[${f.ci90[0].toFixed(3)}, ${f.ci90[1].toFixed(3)}]</td><td>${f.seasons}</td></tr>`).join("");
+      $("#sel-table").innerHTML = `<thead><tr><th>Event</th><th>Shipped model</th><th>Brier skill</th><th>90% CI</th><th>Validated on</th></tr></thead><tbody>${rows}</tbody>`;
     }
     src = "1981–2023 · 43 seasons";
   } else {
@@ -323,7 +328,7 @@ function renderModel() {
     src = "2015–2023 · 9 seasons";
   }
   $("#skill-src").textContent = src;
-  $("#skill-chart").innerHTML = skillBars(cats, series, { ymin: -0.1, ymax: 0.35 }) + (M.week1_hybrid ? `<div class="chart-note">${t("hybrid_note")}</div>` : "");
+  $("#skill-chart").innerHTML = skillBars(cats, series, { ymin: -0.1, ymax: 0.35 }) + (M.final_selection ? `<div class="chart-note">${t("hybrid_note")}</div>` : "");
   const sp = M.feasibility_9_seasons.by_index || {};
   const dser = (ev, key, name, color) => ({ name, color, values: ["1", "2", "3", "4"].map((k) => { const v = sp[ev]?.[k]?.[key]; return v ? { v: v[0], lo: v[1], hi: v[2] } : null; }) });
   $("#driver-chart").innerHTML = skillBars(cats, [dser("dry", "mjo", "MJO → dry", "#b7791f"), dser("dry", "enso_iod", "ENSO+IOD → dry", "#e6c58a"),

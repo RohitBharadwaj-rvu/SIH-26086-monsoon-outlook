@@ -1,0 +1,170 @@
+{
+ "dry_1": {
+  "source": "gfs",
+  "bss": 0.1482,
+  "ci90": [
+   0.0325,
+   0.2505
+  ],
+  "outlook_bss_same_rows": 0.1108,
+  "seasons": "7 seasons 2015-2023 (leave-one-season-out)"
+ },
+ "dry_2": {
+  "source": "gfs",
+  "bss": 0.1471,
+  "ci90": [
+   0.0726,
+   0.2231
+  ],
+  "outlook_bss_same_rows": 0.1077,
+  "seasons": "7 seasons 2015-2023 (leave-one-season-out)"
+ },
+ "dry_3": {
+  "source": "outlook",
+  "bss": 0.0354,
+  "ci90": [
+   0.0142,
+   0.0572
+  ],
+  "seasons": "1981-2023 (season-blocked CV)"
+ },
+ "dry_4": {
+  "source": "outlook",
+  "bss": 0.034,
+  "ci90": [
+   0.0118,
+   0.0546
+  ],
+  "seasons": "1981-2023 (season-blocked CV)"
+ },
+ "wet_1": {
+  "source": "gfs",
+  "bss": 0.2643,
+  "ci90": [
+   0.1584,
+   0.3495
+  ],
+  "outlook_bss_same_rows": 0.1012,
+  "seasons": "7 seasons 2015-2023 (leave-one-season-out)"
+ },
+ "wet_2": {
+  "source": "gfs",
+  "bss": 0.0637,
+  "ci90": [
+   0.011,
+   0.1106
+  ],
+  "outlook_bss_same_rows": 0.0176,
+  "seasons": "7 seasons 2015-2023 (leave-one-season-out)"
+ },
+ "wet_3": {
+  "source": "outlook",
+  "bss": -0.0007,
+  "ci90": [
+   -0.0179,
+   0.0197
+  ],
+  "seasons": "1981-2023 (season-blocked CV)"
+ },
+ "wet_4": {
+  "source": "outlook",
+  "bss": -0.0003,
+  "ci90": [
+   -0.0224,
+   0.0187
+  ],
+  "seasons": "1981-2023 (season-blocked CV)"
+ },
+ "heavy_1": {
+  "source": "outlook",
+  "bss": -0.0061,
+  "ci90": [
+   -0.0208,
+   0.0095
+  ],
+  "seasons": "1981-2023 (season-blocked CV)"
+ },
+ "heavy_2": {
+  "source": "outlook",
+  "bss": -0.003,
+  "ci90": [
+   -0.0271,
+   0.0202
+  ],
+  "seasons": "1981-2023 (season-blocked CV)"
+ },
+ "heavy_3": {
+  "source": "outlook",
+  "bss": -0.0082,
+  "ci90": [
+   -0.0284,
+   0.0116
+  ],
+  "seasons": "1981-2023 (season-blocked CV)"
+ },
+ "heavy_4": {
+  "source": "outlook",
+  "bss": 0.0108,
+  "ci90": [
+   -0.0101,
+   0.0339
+  ],
+  "seasons": "1981-2023 (season-blocked CV)"
+ },
+ "onset_1": {
+  "source": "outlook",
+  "bss": -0.016,
+  "ci90": [
+   -0.0317,
+   -0.0002
+  ],
+  "seasons": "1981-2023 (season-blocked CV)"
+ },
+ "onset_2": {
+  "source": "outlook",
+  "bss": 0.0045,
+  "ci90": [
+   -0.003,
+   0.0116
+  ],
+  "seasons": "1981-2023 (season-blocked CV)"
+ },
+ "onset_3": {
+  "source": "outlook",
+  "bss": -0.0016,
+  "ci90": [
+   -0.0092,
+   0.0048
+  ],
+  "seasons": "1981-2023 (season-blocked CV)"
+ },
+ "onset_4": {
+  "source": "outlook",
+  "bss": 0.0276,
+  "ci90": [
+   0.0074,
+   0.052
+  ],
+  "seasons": "1981-2023 (season-blocked CV)"
+ },
+ "break3w": {
+  "source": "gfs",
+  "bss": 0.0852,
+  "ci90": [
+   0.033,
+   0.1366
+  ],
+  "outlook_bss_same_rows": 0.0104,
+  "seasons": "7 seasons 2015-2023 (leave-one-season-out)"
+ },
+ "false3w": {
+  "source": "v3",
+  "bss": 0.0597,
+  "ci90": [
+   0.0023,
+   0.1106
+  ],
+  "outlook_bss_same_rows": -0.006,
+  "seasons": "2015-2023 (leave-one-season-out)"
+ }
+}

@@ -51,10 +51,10 @@ def issues(y):
 
 def load_indices(idx_dir=IDX_DIR):
     omi = {}
-    for line in open(idx_dir / "omi.txt"):
+    for line in open(idx_dir / "romi.txt"):                 # real-time OMI (causal), as used by the models
         p = line.split()
-        if len(p) >= 6:
-            omi[date(int(p[0]), int(p[1]), int(p[2]))] = (float(p[3]), float(p[4]))
+        if len(p) >= 7:
+            omi[date(int(p[0]), int(p[1]), int(p[2]))] = (float(p[4]), float(p[5]))
     pat = re.compile(r"(\d{2})([A-Z]{3})(\d{4})\s+[\d.]+\s*(-?[\d.]+)\s+[\d.]+\s*(-?[\d.]+)\s+[\d.]+\s*(-?[\d.]+)")
     nino = []
     for line in open(idx_dir / "nino34w.txt"):
@@ -162,9 +162,13 @@ def model_card():
         card["pipeline"][1]["status"] = "trained"
         card["pipeline"][1]["name"] = "Sub-seasonal outlook (regularised logistic, one model per event × week)"
         card["pipeline"][1]["params"] = "18 models · MJO × season interactions"
-    st = REPO / "outlook" / "results" / "stack_metrics.json"
-    if st.exists():
-        card["week1_hybrid"] = json.load(open(st))
+    fs = REPO / "outlook" / "results" / "final_selection.json"
+    if fs.exists():
+        card["final_selection"] = json.load(open(fs))
+        card["pipeline"][1]["role"] = ("Weeks 1-4: probabilities of onset, false onset, dry spells, wet weeks and heavy downpours per "
+                                       "panchayat; weeks 1-2 blended with GFS days 1-16 and the v3 week-1 forecast where that is validated to help")
+        card["pipeline"][1]["inputs"] = ["real-time MJO (ROMI) and BSISO", "ENSO (weekly Niño 3.4)", "IOD (DMI)", "panchayat climatology",
+                                         "recent observed rain", "GFS days 1-16 (weeks 1-2)", "v3 week-1 forecast"]
     card["definitions"] = {
         "dry": "all 7 days < 2.5 mm (IMD dry day)", "wet": "weekly total ≥ 1.5 × the panchayat's normal for that week",
         "heavy": "any day ≥ 30 mm", "break3w": "a run of ≥ 7 dry days within the next 3 weeks",
@@ -208,10 +212,21 @@ def _real():
     _REAL["p"] = {e: np.load(R / f"oof_{e}.npz")["p"].astype(np.float32) for e in EVENTS}
     st = np.load(R / "stack_week1.npz")
     _REAL["stack_years"] = list(st["years"])
-    _REAL["stack"] = {e: st[e].astype(np.float32) for e in ("dry_1", "wet_1", "heavy_1", "onset_1", "false3w") if e in st.files}
     _REAL["v3"] = st["v3_display"].astype(np.float32)
+    # per target, the validated source chosen by outlook.select (rule fixed before the final run)
+    sel = json.load(open(R / "final_selection.json")) if (R / "final_selection.json").exists() else {}
+    srcs = {"v3": st, "gfs": np.load(R / "stack.npz") if (R / "stack.npz").exists() else None}
+    _REAL["stack"] = {}
+    for e, v in sel.items():
+        f = srcs.get(v["source"])
+        if f is not None and e in f.files:
+            _REAL["stack"][e] = f[e].astype(np.float32)
+    _REAL["selection"] = sel
     _REAL["onset"] = np.load(R / "onset.npz")["onset"]
     return _REAL
+
+
+CONFIRM = 22      # an onset on day d is confirmed (no 7-day dry spell in d+2..d+21) from issue day d+22
 
 
 def real_season(y, gps, idx_at):
@@ -233,7 +248,7 @@ def real_season(y, gps, idx_at):
                 if np.isfinite(v):
                     ph[e] = v
             od = D["onset"][a, j]
-            seen = bool(np.isfinite(od) and od < i)
+            seen = bool(np.isfinite(od) and od + CONFIRM <= i)          # causal: onset counts once its 21-day check is observed
             if seen:
                 for k in range(1, 5):
                     ph[f"onset_{k}"] = 0.0

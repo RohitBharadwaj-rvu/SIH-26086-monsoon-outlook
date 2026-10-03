@@ -38,6 +38,59 @@ def gp_weights():
     return codes, W, cells
 
 
+INDEX_KEYS = ("omi_pc1", "omi_pc2", "nino34", "dmi", "bsiso_x", "bsiso_y")
+
+
+def index_series(idx_dir: Path):
+    """Parse the raw index files once."""
+    # MJO: NOAA PSL *real-time* OMI (ROMI, causal: no band-pass filter using future days). The plain OMI file is
+    # 20-96-day band-pass filtered with a centred filter and leaks the following weeks into the issue date.
+    omi = {}
+    for line in open(idx_dir / "romi.txt"):
+        p = line.split()
+        if len(p) >= 7:
+            omi[date(int(p[0]), int(p[1]), int(p[2]))] = (float(p[4]), float(p[5]))
+    # BSISO: Kikuchi real-time bimodal-ISO PCs (2002-03 .. 2022-12; missing elsewhere)
+    bs = {}
+    for line in open(idx_dir / "bsiso_rt.txt"):
+        p = line.split()
+        if len(p) >= 5 and p[0].isdigit():
+            bs[date(int(p[0]), int(p[1]), int(p[2]))] = (float(p[3]), float(p[4]))
+    pat = re.compile(r"(\d{2})([A-Z]{3})(\d{4})\s+[\d.]+\s*(-?[\d.]+)\s+[\d.]+\s*(-?[\d.]+)\s+[\d.]+\s*(-?[\d.]+)")
+    nino = []
+    for line in open(idx_dir / "nino34w.txt"):
+        m = pat.search(line)
+        if m:
+            nino.append((date(int(m.group(3)), MON[m.group(2)], int(m.group(1))), float(m.group(6))))
+    nino.sort()
+    dmi = {}
+    for line in open(idx_dir / "dmi.txt"):
+        p = line.split()
+        if len(p) == 13 and p[0].isdigit():
+            for k in range(12):
+                v = float(p[k + 1])
+                if v > -99:
+                    dmi[(int(p[0]), k + 1)] = v
+    return {"omi": omi, "bsiso": bs, "nino": nino, "nino_dates": [d for d, _ in nino], "dmi": dmi}
+
+
+def index_at(S, t: date):
+    """Index values usable for an outlook issued on day t (NaN where not yet published)."""
+    out = dict.fromkeys(INDEX_KEYS, np.nan)
+    o = S["omi"].get(t - timedelta(days=1))
+    if o:
+        out["omi_pc1"], out["omi_pc2"] = o
+    b = S["bsiso"].get(t - timedelta(days=1))
+    if b:
+        out["bsiso_x"], out["bsiso_y"] = b
+    j = np.searchsorted(S["nino_dates"], t - timedelta(days=4), side="right") - 1
+    if j >= 0 and (t - S["nino_dates"][j]).days <= 14:
+        out["nino34"] = S["nino"][j][1]
+    pm = (t.year, t.month - 1) if t.month > 1 else (t.year - 1, 12)
+    out["dmi"] = S["dmi"].get(pm, np.nan)
+    return out
+
+
 def main(chirps_dir: Path, idx_dir: Path):
     OUT.mkdir(parents=True, exist_ok=True)
     codes, W, cells = gp_weights()
@@ -55,42 +108,17 @@ def main(chirps_dir: Path, idx_dir: Path):
           f"{np.nanmean(rain[:, 31:153]):.2f}, NaN {int(np.isnan(rain).sum())}")
 
     # ---- climate indices known at issue time ----
-    omi = {}
-    for line in open(idx_dir / "omi.txt"):
-        p = line.split()
-        if len(p) >= 6:
-            omi[date(int(p[0]), int(p[1]), int(p[2]))] = (float(p[3]), float(p[4]))
-    pat = re.compile(r"(\d{2})([A-Z]{3})(\d{4})\s+[\d.]+\s*(-?[\d.]+)\s+[\d.]+\s*(-?[\d.]+)\s+[\d.]+\s*(-?[\d.]+)")
-    nino = []
-    for line in open(idx_dir / "nino34w.txt"):
-        m = pat.search(line)
-        if m:
-            nino.append((date(int(m.group(3)), MON[m.group(2)], int(m.group(1))), float(m.group(6))))
-    nino.sort()
-    dmi = {}
-    for line in open(idx_dir / "dmi.txt"):
-        p = line.split()
-        if len(p) == 13 and p[0].isdigit():
-            for k in range(12):
-                v = float(p[k + 1])
-                if v > -99:
-                    dmi[(int(p[0]), k + 1)] = v
+    series = index_series(idx_dir)
     shape = (len(YEARS), D)
-    pc1, pc2, n34, dm = (np.full(shape, np.nan, np.float32) for _ in range(4))
-    nd = [d for d, _ in nino]
+    arr = {k: np.full(shape, np.nan, np.float32) for k in INDEX_KEYS}
     for a, y in enumerate(YEARS):
         for i in range(D):
-            t = day(y, i)
-            o = omi.get(t - timedelta(days=1))
-            if o:
-                pc1[a, i], pc2[a, i] = o
-            j = np.searchsorted(nd, t - timedelta(days=4), side="right") - 1
-            if j >= 0 and (t - nd[j]).days <= 14:
-                n34[a, i] = nino[j][1]
-            pm = (t.year, t.month - 1) if t.month > 1 else (t.year - 1, 12)
-            dm[a, i] = dmi.get(pm, np.nan)
-    np.savez_compressed(OUT / "indices.npz", omi_pc1=pc1, omi_pc2=pc2, nino34=n34, dmi=dm, years=np.array(YEARS))
-    print(f"indices: OMI coverage {np.isfinite(pc1).mean():.0%}, Nino3.4 {np.isfinite(n34).mean():.0%}, DMI {np.isfinite(dm).mean():.0%}")
+            for k, v in index_at(series, day(y, i)).items():
+                arr[k][a, i] = v
+    pc1, pc2, n34, dm, bx, by = (arr[k] for k in INDEX_KEYS)
+    np.savez_compressed(OUT / "indices.npz", omi_pc1=pc1, omi_pc2=pc2, nino34=n34, dmi=dm, bsiso_x=bx, bsiso_y=by, years=np.array(YEARS))
+    print(f"indices: real-time MJO coverage {np.isfinite(pc1).mean():.0%}, BSISO {np.isfinite(bx).mean():.0%}, "
+          f"Nino3.4 {np.isfinite(n34).mean():.0%}, DMI {np.isfinite(dm).mean():.0%}")
 
 
 if __name__ == "__main__":

@@ -7,7 +7,8 @@ that never saw the season; the final model for 2023), aggregated with the GP are
 event (dry_1, wet_1, heavy_1) on [logit(outlook p), log1p(v3 weekly total), v3 wettest day, v3 dry days] is validated
 leave-one-season-out over the 9 seasons; issue dates without a v3 run (May) keep the outlook probability.
 
-  python -m outlook.stack_v3    -> outlook/results/stack_week1.npz, outlook/results/stack_metrics.json
+  python -m outlook.stack_v3        -> outlook/results/stack_week1.npz, outlook/results/stack_week1_metrics.json
+  python -m outlook.stack_v3 final  -> outlook/models/stack_v3_<event>.joblib (operational stackers, all 9 seasons)
 """
 from __future__ import annotations
 
@@ -93,8 +94,33 @@ def main():
         print(ev, metrics[ev], flush=True)
     np.savez_compressed(RES / "stack_week1.npz", years=np.array(YEARS), v3=np.nan_to_num(v3, nan=-1).astype(np.float16),
                         v3_display=np.nan_to_num(v3_disp, nan=-1).astype(np.float16), **stacked)
-    json.dump(metrics, open(RES / "stack_metrics.json", "w"), indent=1)
+    json.dump(metrics, open(RES / "stack_week1_metrics.json", "w"), indent=1)
+
+
+def fit_final():
+    """Operational week-1 v3 stackers on all 9 seasons (same features and C as the validated LOSO ones), from stack_week1.npz."""
+    import joblib
+    from outlook.model import MOD
+    st = np.load(RES / "stack_week1.npz")
+    v3 = st["v3"].astype(np.float32); v3[v3 < 0] = np.nan
+    ok_v3 = np.isfinite(v3[..., 0])
+    yrs_all = np.load(REPO / "outlook" / "data" / "gp_daily.npz")["years"]
+    yi = [int(np.where(yrs_all == y)[0][0]) for y in YEARS]
+    for ev in ("dry_1", "wet_1", "heavy_1", "onset_1", "false3w"):
+        z = np.load(RES / f"oof_{ev}.npz")
+        p, y = (z[k].astype(np.float32)[yi] for k in ("p", "y"))
+        X = v3_X(p, v3)
+        m = ok_v3 & np.isfinite(y)
+        joblib.dump({"lr": LogisticRegression(C=1.0, max_iter=500).fit(X[m], y[m])}, MOD / f"stack_v3_{ev}.joblib", compress=3)
+        print("final v3 stacker", ev, int(m.sum()), "rows")
+
+
+def v3_X(p, v3):
+    """p [...] outlook probability, v3 [..., 7] mm/day -> [..., 4] (as in main)."""
+    lp = np.log(np.clip(p, 1e-3, 1 - 1e-3) / (1 - np.clip(p, 1e-3, 1 - 1e-3)))
+    return np.stack([lp, np.log1p(np.nansum(v3, -1)), np.log1p(np.nanmax(v3, -1)), (v3 < 2.5).sum(-1).astype(np.float32)], -1)
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    fit_final() if sys.argv[1:] == ["final"] else main()
