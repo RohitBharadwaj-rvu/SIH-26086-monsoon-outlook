@@ -87,6 +87,49 @@ def main():
         if c and f:
             md.append(f"| {name} | {css(c, 'val'):.4f} | {c['val']['aggregate']['precip_crps']:.3f} | {css(f, 'test'):.4f} | "
                       f"{f['test']['aggregate']['precip_crps']:.3f} |")
+    # 4. full-pipeline rebuild of the sweep winner (H5 + forecast history)
+    md += ["", "## 4. Full-pipeline rebuild of the sweep winner (H = 5 + forecast history, prefix s12)\n",
+           "| seed | OOF CSS 2015–22 (H5+fc) | OOF CSS 2015–22 (shipped H3 obs) | final det 2023 (H5+fc) | final det 2023 (H3 obs) |",
+           "|---|---|---|---|---|"]
+    old_oof = {0: ("s10s0-oofm", "oofm"), 1: ("s10s1-oof", "oof"), 2: ("s10s2-oof", "oof")}
+    for s in range(3):
+        n = glob.glob(str(REPO / "results" / f"s12s{s}-oof" / "out" / "oof" / "oof_metrics.json"))
+        o = glob.glob(str(REPO / "results" / old_oof[s][0] / "out" / old_oof[s][1] / "oof_metrics.json"))
+        fn, fo = res(f"s12_fin_det_s{s}"), res(f"s10f_fin_det_s{s}")
+        md.append(f"| {s} | {json.load(open(n[0]))['all_oof']['css']:.4f} | {json.load(open(o[0]))['all_oof']['css']:.4f} | "
+                  f"{css(fn, 'test'):.4f} | {css(fo, 'test'):.4f} |" if n and o and fn and fo else f"| {s} | _pending_ |")
+    fo_, fn_ = REPO / "results" / "fast_seasons_shipped_h3obs.txt", REPO / "results" / "fast_seasons_s12_h5fc.txt"
+    if fo_.exists() and fn_.exists():
+        import re
+        rd = lambda f: {int(m.group(1)): float(m.group(2)) for m in (re.search(r"(\d{4}): CSS ([0-9.]+)", l) for l in open(f)) if m}
+        o, n = rd(fo_), rd(fn_)
+        d = np.array([n[y] - o[y] for y in sorted(o)])
+        md += ["\nFAST (3-seed average + rain QM fitted on the other seasons), every training season scored out of fold:\n",
+               "| season | " + " | ".join(str(y) for y in sorted(o)) + " | mean Δ ± SE |", "|---|" + "---|" * (len(o) + 1),
+               "| shipped H3 obs | " + " | ".join(f"{o[y]:.4f}" for y in sorted(o)) + " | |",
+               "| H5 + fc | " + " | ".join(f"{n[y]:.4f}" for y in sorted(o)) + f" | {d.mean():+.4f} ± {d.std(ddof=1) / np.sqrt(len(d)):.4f} |"]
+    md += ["\nBALANCED proxy on 2022 (denoiser trained 2015–21, 24 × 8, raw ensemble):\n",
+           "| system | seed | 2022 CSS | 2022 rain CRPS | 2023 CSS (2015–22 denoiser) | 2023 rain CRPS |", "|---|---|---|---|---|---|"]
+    for name, s, cal, fin in (("shipped H3 obs", 0, "s10f_diff_oof_S_cal_s0", "s10f_diff_oof_S_s0"),
+                              ("shipped H3 obs", 1, "s10dcap_S_val_s1", "s10f_diff_oof_S_s1"),
+                              ("H5 + fc", 0, "s12_diff_cal_s0", "s12_diff_s0"), ("H5 + fc", 1, "s12_diff_cal_s1", "s12_diff_s1"),
+                              ("H5 + fc", 2, "s12_diff_cal_s2", "s12_diff_s2")):
+        c, f = res(cal), res(fin)
+        if c and f:
+            md.append(f"| {name} | {s} | {css(c, 'val'):.4f} | {c['val']['aggregate']['precip_crps']:.3f} | {css(f, 'test'):.4f} | "
+                      f"{f['test']['aggregate']['precip_crps']:.3f} |")
+    md += ["\n**Decision:** the replacement rule (beat the shipped system on 2022 in both FAST and BALANCED, rain CRPS",
+           "≤ +1 %) fails on BALANCED for the selected seed (seed 1). Seed for seed the H5 + fc pipeline is level with the",
+           "shipped one, matching the 8-season FAST tie: the history effects seen in the sweep are real but small, and the",
+           "sweep's 2022 margin was inflated by choosing the best of 10 configurations on one season.",
+           "", "## 5. Sprint 11 outcome\n",
+           "| change | evidence (2022 selection) | status |", "|---|---|---|",
+           "| FAST = 3-seed averaged backbone + matching rain QM | CSS 0.2558 → 0.2749 (2023: 0.2435 → 0.2659) | **adopted** |",
+           "| Rain tail cap min(2× block max, 1.2× domain max) | CSS +0.0003–0.0009, CRPS unchanged; removes 800–1,100 mm members; 0 real 2023 pixel-days clipped | **adopted** |",
+           "| Probability-matched rain field | POD ≥ 64.5 mm 0.10 → 0.20 but CSS −0.05 as the mean | **optional output** (`rain_pm`) |",
+           "| Denoiser retrained on the averaged backbone | CSS 0.2803 → 0.2600, CRPS +2.5 % | rejected |",
+           "| H = 5 + forecast history (full pipeline) | FAST 8-season tie; BALANCED 0.2680 vs 0.2803 | rejected |",
+           "| Static Tmax / RH bias correction | season-to-season bias changes sign (Tmax −0.33 … +0.27 °C) | not applicable |"]
     (REPO / "docs" / "results_s11.md").write_text("\n".join(md) + "\n", encoding="utf-8")
     print("\n".join(md))
 

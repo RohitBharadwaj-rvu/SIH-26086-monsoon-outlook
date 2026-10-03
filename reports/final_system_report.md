@@ -15,6 +15,24 @@ ensembles, the ensemble mean). Tie rule: 1 SE of the paired difference.
 * What did not: more capacity, in either stage. Stage-1 S/M/L/MoE are tied over 3 seeds; M/L denoisers fit
   better but sample over-confident ensembles. With 8 training seasons the system is data-limited.
 
+## Sprint 11 update (shipped in `models/final`; details in `results_s11.md`)
+
+| mode | Sprint 10 | Sprint 11 | change |
+|---|---|---|---|
+| FAST | single seed + QM: CSS 0.2435 | **3-seed average + QM: 0.2659** | backbone averaging (3 forward passes, ~0.17 s) |
+| BALANCED (24 × 8) | CSS 0.2820, rain SSR 1.25 | CSS 0.2825, rain SSR 1.12 | rain tail cap |
+| ENSEMBLE (24 × 16) | CSS 0.2895, rain SSR 1.27 | CSS 0.2891, rain SSR 1.12 | rain tail cap |
+
+* All four modes now come from one bundle: FAST averages the three seeds' backbones; the diffusion modes keep the
+  seed-0 backbone and denoiser (a denoiser retrained on the averaged backbone lost 0.020 CSS on 2022).
+* Rain tail cap: individual members reached 1,100 mm/day; each member's rain is now capped at min(2 × the wettest
+  training day in its 5×5 block, 1.2 × the wettest training day anywhere). Chosen leave-one-season-out so that no
+  held-out season, and no 2023 day, exceeds it.
+* New optional output `rain_pm` (probability-matched rain) for heavy-rain maps: doubles detection of ≥ 64.5 mm days.
+* Tested and rejected: longer history and forecast history (8-season tie after the full rebuild), denoiser on the
+  averaged backbone, static temperature bias correction (the bias changes sign between seasons).
+* Sprint 10 tables below are unchanged and describe the Sprint 10 evaluation.
+
 ## 1. The shipped system
 
 * **Backbone (FAST):** spatiotemporal transformer, S size with an MoE FFN (8 experts, top-2, MoE in 50 % of
@@ -242,7 +260,7 @@ Aggregate scores are unaffected (identical CSS to 4 decimals).
 
 ## 9. Compute, data and reproducibility
 
-* Kaggle T4×2 session-hours (wall clock of each job's session): all v3 jobs 83.9 h over 76 jobs; Sprint 10 alone 44.5 h over 38 jobs (4 team accounts, ≤ 2 sessions each).
+* Kaggle T4×2 session-hours (wall clock of each job's session): all v3 jobs 109.6 h over 95 jobs; Sprint 10 alone 44.5 h over 38 jobs (4 team accounts, ≤ 2 sessions each).
 * Dataset: `multitask_temporal_v3_realgfs.zarr` (real GFS 0.25° 00Z 2015–2023, ERA5 / ERA5-Land, CHIRPS; 1096
   monsoon initialisations; splits 2015–22 train, 2023 test; 2022 or 2021 held out for selection).
 * Experiment IDs = job names in `kaggle/queue.json` / `kaggle/registry.json`; run tags in `results/<job>/out/<tag>/`.

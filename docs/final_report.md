@@ -158,3 +158,16 @@ over the S denoiser -> **S denoiser is sufficient**; spend compute on members/st
 * **Scaling:** test-time compute (steps up to ~24, then members) is the lever that works. Parameter count does not
   help in either stage at 8 training seasons (3-seed stage-1 S/M/L/MoE tied; M/L denoisers over-confident).
 * **Next:** average 3 seeds' backbones; spread-calibrate the L denoiser; per-K spread factors; more seasons.
+
+## 12. Sprint 11 — history, forecast history and post-training improvements (`results_s11.md`)
+* **History × forecast history** (shipped backbone, 3 seeds, H = 3/5/7/10/14, with and without the GFS forecast that
+  was valid on each history day): on 2022 longer history helped and forecast history helped most at short H
+  (+0.008 at H = 3). The rule picked H = 5 + forecast history, but the full rebuild did not hold up: FAST tied over all
+  8 training seasons (+0.001 ± 0.0025) and the BALANCED check failed (0.268 vs 0.280 on 2022). Best of 10 on one
+  season overstated the gain. The shipped H = 3 backbone stays.
+* **Adopted:** FAST = average of the three seeds' backbones + matching rain QM (2022 0.256 → 0.275; 2023 0.244 →
+  0.266); a rain tail cap on diffusion members (members reached 1,100 mm/day; cap min(2× block max, 1.2× domain
+  max), no real day clipped); optional probability-matched rain field for heavy-rain maps.
+* **Rejected:** denoiser retrained on the averaged backbone (−0.020 on 2022); static temperature bias correction
+  (bias flips sign between seasons).
+* **Operational note:** the laptop slept 04:21–10:36 and froze the scheduler; keep it awake and plugged in for runs.

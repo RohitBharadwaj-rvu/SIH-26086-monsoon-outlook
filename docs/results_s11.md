@@ -126,3 +126,43 @@ Member rain tails on land (mm/day): single seed: p99 82, p99.9 236, p99.99 778, 
 |---|---|---|---|---|
 | single-seed residuals (shipped) | 0.2803 | 6.238 | 0.2814 | 4.431 |
 | 3-seed averaged residuals | 0.2600 | 6.396 | 0.2774 | 4.398 |
+
+## 4. Full-pipeline rebuild of the sweep winner (H = 5 + forecast history, prefix s12)
+
+| seed | OOF CSS 2015–22 (H5+fc) | OOF CSS 2015–22 (shipped H3 obs) | final det 2023 (H5+fc) | final det 2023 (H3 obs) |
+|---|---|---|---|---|
+| 0 | 0.2364 | 0.2472 | 0.2407 | 0.2361 |
+| 1 | 0.2482 | 0.2432 | 0.2293 | 0.2205 |
+| 2 | 0.2422 | 0.2428 | 0.2367 | 0.2484 |
+
+FAST (3-seed average + rain QM fitted on the other seasons), every training season scored out of fold:
+
+| season | 2015 | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | mean Δ ± SE |
+|---|---|---|---|---|---|---|---|---|---|
+| shipped H3 obs | 0.3146 | 0.2959 | 0.2800 | 0.2248 | 0.2825 | 0.2688 | 0.2649 | 0.2749 | |
+| H5 + fc | 0.3132 | 0.2927 | 0.2782 | 0.2384 | 0.2758 | 0.2637 | 0.2713 | 0.2808 | +0.0010 ± 0.0025 |
+
+BALANCED proxy on 2022 (denoiser trained 2015–21, 24 × 8, raw ensemble):
+
+| system | seed | 2022 CSS | 2022 rain CRPS | 2023 CSS (2015–22 denoiser) | 2023 rain CRPS |
+|---|---|---|---|---|---|
+| shipped H3 obs | 0 | 0.2803 | 6.238 | 0.2814 | 4.431 |
+| shipped H3 obs | 1 | 0.2628 | 6.408 | 0.2448 | 4.502 |
+| H5 + fc | 1 | 0.2680 | 6.313 | 0.2497 | 4.523 |
+| H5 + fc | 2 | 0.2595 | 6.424 | 0.2735 | 4.481 |
+
+**Decision:** the replacement rule (beat the shipped system on 2022 in both FAST and BALANCED, rain CRPS
+≤ +1 %) fails on BALANCED for the selected seed (seed 1). Seed for seed the H5 + fc pipeline is level with the
+shipped one, matching the 8-season FAST tie: the history effects seen in the sweep are real but small, and the
+sweep's 2022 margin was inflated by choosing the best of 10 configurations on one season.
+
+## 5. Sprint 11 outcome
+
+| change | evidence (2022 selection) | status |
+|---|---|---|
+| FAST = 3-seed averaged backbone + matching rain QM | CSS 0.2558 → 0.2749 (2023: 0.2435 → 0.2659) | **adopted** |
+| Rain tail cap min(2× block max, 1.2× domain max) | CSS +0.0003–0.0009, CRPS unchanged; removes 800–1,100 mm members; 0 real 2023 pixel-days clipped | **adopted** |
+| Probability-matched rain field | POD ≥ 64.5 mm 0.10 → 0.20 but CSS −0.05 as the mean | **optional output** (`rain_pm`) |
+| Denoiser retrained on the averaged backbone | CSS 0.2803 → 0.2600, CRPS +2.5 % | rejected |
+| H = 5 + forecast history (full pipeline) | FAST 8-season tie; BALANCED 0.2680 vs 0.2803 | rejected |
+| Static Tmax / RH bias correction | season-to-season bias changes sign (Tmax −0.33 … +0.27 °C) | not applicable |

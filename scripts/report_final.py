@@ -54,6 +54,30 @@ def main():
           "* What did not: more capacity, in either stage. Stage-1 S/M/L/MoE are tied over 3 seeds; M/L denoisers fit",
           "  better but sample over-confident ensembles. With 8 training seasons the system is data-limited.\n"]
 
+    # 0. Sprint 11 update (post-training improvements now in models/final)
+    p23 = jload("s11-post3/out/post23c/post.json")
+    p23a = jload("s11-post/out/post23/post.json")
+    if p23 and p23a:
+        g = lambda rows, name: next((r for r in rows if r["variant"] == name), None)
+        fast1, fast3 = g(p23a["rows"], "FAST single seed + rain QM"), g(p23a["rows"], "FAST 3-seed average + rain QM")
+        b0, b1 = g(p23["rows"], "diff single seed K=8 spread-cal | ens mean"), g(p23["rows"], "diff single seed K=8 spread-cal + tail cap | ens mean")
+        e0, e1 = g(p23["rows"], "diff single seed K=16 spread-cal | ens mean"), g(p23["rows"], "diff single seed K=16 spread-cal + tail cap | ens mean")
+        md += ["## Sprint 11 update (shipped in `models/final`; details in `results_s11.md`)\n",
+               "| mode | Sprint 10 | Sprint 11 | change |", "|---|---|---|---|",
+               f"| FAST | single seed + QM: CSS {fast1['css']:.4f} | **3-seed average + QM: {fast3['css']:.4f}** | backbone averaging (3 forward passes, ~0.17 s) |",
+               f"| BALANCED (24 × 8) | CSS {b0['css']:.4f}, rain SSR {b0['aggregate']['precip_ssr']:.2f} | CSS {b1['css']:.4f}, rain SSR {b1['aggregate']['precip_ssr']:.2f} | rain tail cap |",
+               f"| ENSEMBLE (24 × 16) | CSS {e0['css']:.4f}, rain SSR {e0['aggregate']['precip_ssr']:.2f} | CSS {e1['css']:.4f}, rain SSR {e1['aggregate']['precip_ssr']:.2f} | rain tail cap |",
+               "",
+               "* All four modes now come from one bundle: FAST averages the three seeds' backbones; the diffusion modes keep the",
+               "  seed-0 backbone and denoiser (a denoiser retrained on the averaged backbone lost 0.020 CSS on 2022).",
+               "* Rain tail cap: individual members reached 1,100 mm/day; each member's rain is now capped at min(2 × the wettest",
+               "  training day in its 5×5 block, 1.2 × the wettest training day anywhere). Chosen leave-one-season-out so that no",
+               "  held-out season, and no 2023 day, exceeds it.",
+               "* New optional output `rain_pm` (probability-matched rain) for heavy-rain maps: doubles detection of ≥ 64.5 mm days.",
+               "* Tested and rejected: longer history and forecast history (8-season tie after the full rebuild), denoiser on the",
+               "  averaged backbone, static temperature bias correction (the bias changes sign between seasons).",
+               "* Sprint 10 tables below are unchanged and describe the Sprint 10 evaluation.\n"]
+
     # 1. shipped system
     md += ["## 1. The shipped system\n",
            "* **Backbone (FAST):** spatiotemporal transformer, S size with an MoE FFN (8 experts, top-2, MoE in 50 % of",
