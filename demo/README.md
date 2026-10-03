@@ -25,6 +25,23 @@ python -m uvicorn demo.server:app --port 8000      # from the repo root, then op
 * **Live inference** (`POST /api/v1/infer`) — runs FAST on this machine from the real GFS + ERA5 inputs of the chosen
   date (needs the v3 dataset: set `SIH_DATA`), and reports how closely it matches the GPU-precomputed forecast.
 
+## Skill on the 2023 held-out season (panchayat level, 122 forecasts × 234 GPs × 7 days)
+
+Computed by the server (`/api/v1/model-card`) from `data/serving/precomputed/`:
+
+| forecast | rain MAE (mm) | wet-day MAE (obs > 2.5 mm) | rain bias ratio | Tmax MAE (°C) | 5–95 % range coverage |
+|---|---|---|---|---|---|
+| raw GFS (interpolated) | 3.02 | 7.28 | 0.87 | 1.50 | – |
+| v3 FAST | 2.99 | 6.39 | 1.02 | 1.15 | – (deterministic) |
+| v3 BALANCED | 2.79 | 5.92 | 0.88 | 1.14 | 83 % |
+| v3 ACCURATE | 2.85 | 5.83 | 0.93 | 1.14 | 84 % |
+| v3 ENSEMBLE | **2.75** | **5.83** | 0.88 | **1.14** | **88 %** |
+
+Known weakness: the panchayat-level threshold probabilities (share of members whose panchayat-mean rain exceeds
+15 / 30 mm) do not beat climatology (Brier ≥ 15 mm 0.028 vs 0.027, with climatology taken from 2023 itself). With
+8–16 members they come in coarse steps; a pixel-level exceedance probability averaged over the panchayat is the
+obvious next step.
+
 ## Data flow
 
 | step | code | output |
