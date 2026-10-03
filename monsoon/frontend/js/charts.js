@@ -107,3 +107,21 @@ export function spark(series, { height = 90 } = {}) {
   });
   return g + `</svg>`;
 }
+
+// Horizontal grouped bars: rows = features, groups = models; values scaled to each model's max
+export function importance(features, groups) {
+  const rowH = 22, L = 150, R = 16, T = 8, W = 560, H = T + features.length * rowH + 30;
+  const bw = (rowH - 6) / groups.length;
+  let g = `<svg viewBox="0 0 ${W} ${H}" role="img">`;
+  features.forEach((f, i) => {
+    const y0 = T + i * rowH;
+    g += `<text x="${L - 8}" y="${y0 + rowH / 2 + 4}" text-anchor="end" font-size="11" fill="#3c4d63">${f.label}</text>`;
+    groups.forEach((gr, j) => {
+      const v = Math.max(0, gr.values[f.key] || 0) / (gr.max || 1);
+      g += `<rect x="${L}" y="${y0 + 3 + j * bw}" width="${Math.max(1, v * (W - L - R))}" height="${bw - 1}" rx="2" fill="${gr.color}"><title>${gr.name}: ${(gr.values[f.key] || 0).toExponential(2)}</title></rect>`;
+    });
+  });
+  let lx = L;
+  groups.forEach((gr) => { g += `<rect x="${lx}" y="${H - 14}" width="10" height="8" rx="2" fill="${gr.color}"/><text x="${lx + 14}" y="${H - 7}" font-size="10" fill="#3c4d63">${gr.name}</text>`; lx += 14 + gr.name.length * 6 + 18; });
+  return g + `</svg>`;
+}

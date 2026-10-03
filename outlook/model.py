@@ -34,8 +34,53 @@ from sklearn.ensemble import HistGradientBoostingClassifier
 REPO = Path(__file__).resolve().parents[1]
 DATA, RES, MOD = REPO / "outlook" / "data", REPO / "outlook" / "results", REPO / "outlook" / "models"
 NI = 153                      # issue days: 1 May (0) .. 30 Sep (152)
+ONSET_START = 24              # onset search starts 25 May: earlier 2-day 20 mm events are pre-monsoon showers
 DRY, HEAVY = 2.5, 30.0
 N_FOLDS = 9
+MODEL = "logit"               # "logit" (regularised logistic) or "gbm" (strongly constrained boosting)
+
+
+from sklearn.base import BaseEstimator, ClassifierMixin
+
+
+class Logit(ClassifierMixin, BaseEstimator):
+    """Standardised logistic regression with NaN -> 0 (+ missing flags) and MJO x season interactions.
+    Low capacity on purpose: each year-day appears as 234 near-duplicate panchayat rows, so flexible learners
+    memorise individual seasons (identified by their ENSO/IOD values) instead of learning the signal."""
+    def __init__(self, C=0.05):
+        self.C = C
+
+    def _x(self, X):
+        miss = ~np.isfinite(X[:, [7, 10]])                                    # MJO / ENSO missing (pre-1991 / 1981)
+        X = np.nan_to_num(X, nan=0.0)
+        inter = np.stack([X[:, 7] * X[:, 12], X[:, 7] * X[:, 13], X[:, 8] * X[:, 12], X[:, 8] * X[:, 13],
+                          X[:, 0] * X[:, 12], X[:, 0] * X[:, 13]], 1)              # MJO x season, clim x season
+        return np.concatenate([X, inter, miss.astype(np.float32)], 1)
+
+    def fit(self, X, y):
+        from sklearn.linear_model import LogisticRegression
+        self.lr = LogisticRegression(C=self.C, max_iter=1000)
+        Z = self._x(X)
+        self.mu, self.sd = Z.mean(0), Z.std(0) + 1e-6
+        self.lr.fit((Z - self.mu) / self.sd, y)
+        return self
+
+    def predict_proba(self, X):
+        return self.lr.predict_proba((self._x(X) - self.mu) / self.sd)
+
+    @property
+    def classes_(self):
+        return self.lr.classes_
+
+
+def make_model():
+    if MODEL == "gbm":
+        return HistGradientBoostingClassifier(max_iter=120, learning_rate=0.04, max_depth=3, min_samples_leaf=25000,
+                                              l2_regularization=10.0, random_state=0)
+    return Logit()
+
+
+IMPORTANCE_TARGETS = {"dry_2", "wet_2", "heavy_1", "onset_2", "break3w", "false3w"}
 
 
 def runs_dry(r):
@@ -57,7 +102,7 @@ def onset_and_false(r):
     dry7 = sum7 < 5.0                                                                   # [Y, D-6, G]
     onset = np.full((Y, G), np.nan, np.float32)
     false = np.zeros((Y, D, G), bool)
-    for d in range(D - 1):
+    for d in range(ONSET_START, D - 1):
         lo, hi = d + 2, min(d + 21 - 6, dry7.shape[1] - 1)                              # dry spell starting d+2 .. d+15
         if lo > hi or d > 152:
             continue
@@ -169,9 +214,13 @@ def main():
     obs_ws = observed_wet_starts(r)
     fold = np.arange(Y) % N_FOLDS
     targets = [f"{e}_{k}" for e in ("dry", "wet", "heavy", "onset") for k in range(1, 5)] + ["break3w", "false3w"]
+    if ONLY:
+        targets = [x for x in targets if x in ONLY]
+    prev = RES / "cv_metrics.json"
+    metrics_prev = json.load(open(prev)) if (ONLY and prev.exists()) else {}
     I_all = list(range(NI))
     I_train = list(range(0, NI, 2))
-    metrics, rng = {}, np.random.default_rng(0)
+    metrics, rng = dict(metrics_prev), np.random.default_rng(0)
     for tname in targets:
         t0 = time.time()
         oof = np.full((Y, NI, G), np.nan, np.float32)
@@ -192,8 +241,7 @@ def main():
             gsel = np.arange(G) % 2 == 0
             Xf, yf = Xtr[:, :, gsel].reshape(-1, Xtr.shape[-1]), ytr[:, :, gsel].reshape(-1)
             ok = np.isfinite(yf)
-            mdl = HistGradientBoostingClassifier(max_iter=250, learning_rate=0.05, max_leaf_nodes=31, min_samples_leaf=400,
-                                                 l2_regularization=1.0, random_state=0).fit(Xf[ok], yf[ok])
+            mdl = make_model().fit(Xf[ok], yf[ok])
             te = ~tr
             Xte = features(r[te], {k: v[te] for k, v in idx.items() if k != "years"}, (obs_ws[0][te], obs_ws[1][te]), cp, cm, lat, lon, I_all)
             p = mdl.predict_proba(Xte.reshape(-1, Xte.shape[-1]))[:, 1].reshape(te.sum(), NI, G)
@@ -218,11 +266,38 @@ def main():
                           "base_rate": round(float(y.mean()), 4), "brier": round(float(bs), 5), "brier_clim": round(float(bsc), 5),
                           "n": int(m.sum()), "reliability": rel}
         np.savez_compressed(RES / f"oof_{tname}.npz", p=oof.astype(np.float16), clim=oofc.astype(np.float16), y=Etrue.astype(np.float16))
+        # permutation importance on the last fold's held-out seasons (what the model actually uses), main targets only
+        if tname in IMPORTANCE_TARGETS:
+            from sklearn.inspection import permutation_importance
+            Xh = Xte.reshape(-1, Xte.shape[-1]); yh = E[te].reshape(-1)
+            okh = np.isfinite(yh)
+            sel = np.random.default_rng(1).choice(np.where(okh)[0], min(40000, okh.sum()), replace=False)
+            pi = permutation_importance(mdl, Xh[sel], yh[sel], scoring="neg_brier_score", n_repeats=3, random_state=0)
+            metrics[tname]["importance"] = {FEATURE_NAMES[j]: round(float(pi.importances_mean[j]), 6) for j in range(len(FEATURE_NAMES))}
+        # final model on all 43 seasons (operational use beyond the replay)
+        cp_all = clim_prob(E_all(tname, ev), np.ones(Y, bool))
+        cm_all = np.nanmean(r[:, 31:153], (0, 1))
+        Xa = features(r, {k: v for k, v in idx.items() if k != "years"}, obs_ws, cp_all, cm_all, lat, lon, I_train)
+        ya = E_all(tname, ev)[:, I_train]
+        gsel = np.arange(G) % 2 == 0
+        Xf, yf = Xa[:, :, gsel].reshape(-1, Xa.shape[-1]), ya[:, :, gsel].reshape(-1)
+        ok = np.isfinite(yf)
+        final = make_model().fit(Xf[ok], yf[ok])
+        joblib.dump({"model": final, "features": FEATURE_NAMES, "clim_prob": cp_all.astype(np.float32), "clim_mean": cm_all},
+                    MOD / f"{tname}.joblib", compress=3)
         print(f"{tname:9s} BSS {metrics[tname]['bss']:+.3f} [{metrics[tname]['ci90'][0]:+.3f}, {metrics[tname]['ci90'][1]:+.3f}] "
               f"base {metrics[tname]['base_rate']:.3f} | {time.time() - t0:.0f}s", flush=True)
         json.dump(metrics, open(RES / "cv_metrics.json", "w"), indent=1)
     np.savez_compressed(RES / "onset.npz", onset=onset, years=years)
     print("DONE", flush=True)
+
+
+def E_all(tname, ev):
+    """Event array for fitting on all seasons (wet weeks: threshold from all seasons' climatology)."""
+    if tname.startswith("wet"):
+        T = ev[f"tot_{tname[-1]}"]
+        return (T >= 1.5 * clim_prob_mean(T, np.ones(T.shape[0], bool))[None]).astype(np.float32)
+    return ev[tname]
 
 
 def clim_prob_mean(T, train_mask, half=15):
@@ -233,5 +308,12 @@ def clim_prob_mean(T, train_mask, half=15):
     return conv(num) / np.maximum(conv(den), 1)
 
 
+ONLY = None
+
 if __name__ == "__main__":
+    import sys
+    if len(sys.argv) > 1:
+        ONLY = set(sys.argv[1].split(","))
+    if len(sys.argv) > 2:
+        MODEL = sys.argv[2]
     main()

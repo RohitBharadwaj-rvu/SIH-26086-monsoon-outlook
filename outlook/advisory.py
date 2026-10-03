@@ -14,7 +14,9 @@ triggered it. Kannada texts are short, plain sentences for SMS (review by a nati
 """
 from __future__ import annotations
 
-THRESH = {"onset_soon": 0.45, "false_risk": 0.35, "delayed": 0.30, "break": 0.50, "dry_week": 0.45,
+# Alert only when risk is clearly above its normal frequency (1981-2023 base rates: break 0.54, false onset 0.32,
+# dry week 0.18, wet week 0.24, heavy week 0.06-0.09)
+THRESH = {"onset_soon": 0.45, "false_risk": 0.45, "delayed": 0.30, "break": 0.65, "break_red": 0.80, "dry_week": 0.45,
           "heavy_week": 0.20, "wet_week": 0.45, "el_nino": 0.8, "pos_iod": 0.4}
 
 WEEK_KN = {1: "ಈ ವಾರ", 2: "ಮುಂದಿನ ವಾರ", 3: "3ನೇ ವಾರ", 4: "4ನೇ ವಾರ"}
@@ -67,7 +69,7 @@ def advise(p: dict, onset_seen: bool, month: int, enso: float | None = None, iod
         elif onset4 < THRESH["delayed"]:
             add("delayed_onset", 4, p=pct(onset4))
     if p["break3w"] >= THRESH["break"]:
-        add("break", 2, "red" if p["break3w"] >= 0.7 else "amber", p=pct(p["break3w"]))
+        add("break", 2, "red" if p["break3w"] >= THRESH["break_red"] else "amber", p=pct(p["break3w"]))
     for k in (1, 2, 3, 4):
         if p[f"heavy_{k}"] >= THRESH["heavy_week"]:
             add("heavy", k, "red" if k <= 2 else "amber", p=pct(p[f"heavy_{k}"]), wk_en=WEEK_EN[k], wk_kn=WEEK_KN[k])

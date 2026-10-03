@@ -1,0 +1,20 @@
+43 seasons x 234 GPs | onset found 91% of GP-seasons, median 50 days after 1 May | base rates: dry_1 0.181, heavy_1 0.060, dry_2 0.179, heavy_2 0.075, dry_3 0.183, heavy_3 0.085, dry_4 0.193, heavy_4 0.092, break3w 0.538, onset_1 0.084, onset_2 0.084, onset_3 0.084, onset_4 0.075, false3w 0.315
+dry_1     BSS +0.075 [+0.050, +0.100] base 0.181 | 28s
+dry_2     BSS +0.045 [+0.028, +0.066] base 0.179 | 30s
+dry_3     BSS +0.046 [+0.023, +0.071] base 0.183 | 32s
+dry_4     BSS +0.038 [+0.018, +0.059] base 0.193 | 33s
+wet_1     BSS +0.083 [+0.057, +0.111] base 0.237 | 27s
+wet_2     BSS +0.034 [+0.014, +0.055] base 0.235 | 32s
+wet_3     BSS +0.015 [+0.000, +0.033] base 0.234 | 32s
+wet_4     BSS +0.012 [-0.007, +0.029] base 0.238 | 33s
+heavy_1   BSS +0.001 [-0.013, +0.014] base 0.060 | 32s
+heavy_2   BSS +0.007 [-0.014, +0.033] base 0.075 | 35s
+heavy_3   BSS -0.006 [-0.025, +0.014] base 0.085 | 32s
+heavy_4   BSS -0.001 [-0.018, +0.019] base 0.092 | 34s
+onset_1   BSS -0.047 [-0.098, +0.006] base 0.084 | 22s
+onset_2   BSS -0.007 [-0.023, +0.009] base 0.084 | 21s
+onset_3   BSS -0.008 [-0.031, +0.012] base 0.084 | 18s
+onset_4   BSS -0.002 [-0.021, +0.019] base 0.075 | 20s
+break3w   BSS +0.071 [+0.043, +0.102] base 0.538 | 29s
+false3w   BSS -0.016 [-0.037, +0.009] base 0.315 | 20s
+DONE

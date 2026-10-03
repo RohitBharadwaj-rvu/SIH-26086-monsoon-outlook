@@ -1,4 +1,4 @@
-import { gauge, mjoDiagram, skillBars, reliability, spark } from "./charts.js";
+import { gauge, mjoDiagram, skillBars, reliability, spark, importance } from "./charts.js";
 
 // ------------------------------------------------------------------ i18n
 const T = {
@@ -23,6 +23,9 @@ const T = {
     p_onset: "Onset ≤ 2 wk", reliability_wait: "Reliability curves are produced by the 43-season cross-validation.",
     el_nino: "El Niño", la_nina: "La Niña", neutral: "Neutral", pos_iod: "Positive IOD", neg_iod: "Negative IOD",
     mjo_active: "active", mjo_weak: "weak", phase: "phase", amp: "amplitude", select_gp: "Tap a panchayat for details",
+    importance: "What the models rely on", importance_hint: "permutation importance on held-out seasons",
+    within2: "onset within 2 wk", within4: "within 4 wk",
+    hybrid_note: "Week 1 combines the outlook with the downscaling model (2015–2023); weeks 2–4 use climate drivers (1981–2023).",
   },
   kn: {
     app_title: "ಮುಂಗಾರು ಮುನ್ನೋಟ", app_sub: "ಮಂಡ್ಯ · 234 ಪಂಚಾಯಿತಿ · 1–4 ವಾರ", season: "ಹಂಗಾಮು", issued: "ಪ್ರಕಟಣೆ",
@@ -45,6 +48,9 @@ const T = {
     p_onset: "≤ 2 ವಾರದಲ್ಲಿ ಆರಂಭ", reliability_wait: "43 ಹಂಗಾಮುಗಳ ಪರಿಶೀಲನೆಯಿಂದ ವಿಶ್ವಾಸಾರ್ಹತೆ ರೇಖೆಗಳು ಬರುತ್ತವೆ.",
     el_nino: "ಎಲ್ ನಿನೊ", la_nina: "ಲಾ ನಿನಾ", neutral: "ತಟಸ್ಥ", pos_iod: "ಧನಾತ್ಮಕ IOD", neg_iod: "ಋಣಾತ್ಮಕ IOD",
     mjo_active: "ಸಕ್ರಿಯ", mjo_weak: "ದುರ್ಬಲ", phase: "ಹಂತ", amp: "ಪ್ರಾಬಲ್ಯ", select_gp: "ವಿವರಗಳಿಗೆ ಪಂಚಾಯಿತಿ ಒತ್ತಿ",
+    importance: "ಮಾದರಿಗಳು ಯಾವುದನ್ನು ಅವಲಂಬಿಸಿವೆ", importance_hint: "ಪರೀಕ್ಷಾ ಹಂಗಾಮುಗಳ ಮೇಲೆ",
+    within2: "2 ವಾರದಲ್ಲಿ ಆರಂಭ", within4: "4 ವಾರದಲ್ಲಿ",
+    hybrid_note: "ವಾರ 1: ಡೌನ್‌ಸ್ಕೇಲಿಂಗ್ ಮಾದರಿಯೊಂದಿಗೆ ಸಂಯೋಜನೆ (2015–2023); ವಾರ 2–4: ಹವಾಮಾನ ಚಾಲಕಗಳು (1981–2023).",
   },
 };
 const COLORS = { onset: "#2e9b5f", false3w: "#c2410c", break3w: "#b7791f", dry: "#b7791f", wet: "#2f6fd6", heavy: "#7e3fb2" };
@@ -131,8 +137,7 @@ function renderPanchayat() {
     for (let k = 1; k <= 4; k++) { acc = 1 - (1 - acc) * (1 - p[`onset_${k}`]); cum.push(acc); }
     const best = [1, 2, 3, 4].reduce((a, k) => (p[`onset_${k}`] > p[`onset_${a}`] ? k : a), 1);
     badge.className = "onset-badge pending";
-    badge.innerHTML = cum[3] < 0.3 ? `${t("onset_pending")}<small>${t("no_onset4")}</small>`
-      : `${t("onset_pending")}<small>${t("onset_expected")}: ${fmtDate(addDays(d0, 7 * (best - 1)))}–${fmtDate(addDays(d0, 7 * best - 1))}</small>`;
+    badge.innerHTML = `${t("onset_pending")}<small>${t("within2")} ${pct(cum[1])} · ${t("within4")} ${pct(cum[3])}</small>`;
   }
   $("#weeks-range").textContent = `${fmtDate(d0)} – ${fmtDate(addDays(d0, 27))}`;
   let h = `<div></div>` + [1, 2, 3, 4].map((k) => `<div class="tl-h"><strong>${t("wk")} ${k}</strong>${fmtDate(addDays(d0, 7 * (k - 1)))}</div>`).join("");
@@ -305,6 +310,10 @@ function renderModel() {
     const cv = M.cv_43_seasons;
     const mk = (ev, color) => ({ name: t(ev), color, values: [1, 2, 3, 4].map((k) => { const m = cv[`${ev}_${k}`]; return m ? { v: m.bss, lo: m.ci90[0], hi: m.ci90[1] } : null; }) });
     series = [mk("dry", COLORS.dry), mk("wet", COLORS.wet), mk("heavy", COLORS.heavy), mk("onset", COLORS.onset)];
+    if (M.week1_hybrid) {   // week 1: outlook + v3 downscaling hybrid
+      const hy = { dry: "dry_1", wet: "wet_1", heavy: "heavy_1", onset: "onset_1" };
+      series.forEach((s, j) => { const h = M.week1_hybrid[hy[["dry", "wet", "heavy", "onset"][j]]]; if (h) s.values[0] = { v: h.bss_stacked, lo: h.ci90_stacked[0], hi: h.ci90_stacked[1] }; });
+    }
     src = "1981–2023 · 43 seasons";
   } else {
     const F = M.feasibility_9_seasons.all_predictors;
@@ -314,7 +323,7 @@ function renderModel() {
     src = "2015–2023 · 9 seasons";
   }
   $("#skill-src").textContent = src;
-  $("#skill-chart").innerHTML = skillBars(cats, series, { ymin: -0.1, ymax: 0.4 });
+  $("#skill-chart").innerHTML = skillBars(cats, series, { ymin: -0.1, ymax: 0.35 }) + (M.week1_hybrid ? `<div class="chart-note">${t("hybrid_note")}</div>` : "");
   const sp = M.feasibility_9_seasons.by_index || {};
   const dser = (ev, key, name, color) => ({ name, color, values: ["1", "2", "3", "4"].map((k) => { const v = sp[ev]?.[k]?.[key]; return v ? { v: v[0], lo: v[1], hi: v[2] } : null; }) });
   $("#driver-chart").innerHTML = skillBars(cats, [dser("dry", "mjo", "MJO → dry", "#b7791f"), dser("dry", "enso_iod", "ENSO+IOD → dry", "#e6c58a"),
@@ -332,6 +341,21 @@ function renderModel() {
       .concat(Object.entries(V).map(([m, s]) => [`v3 ${m}`, s.rain_mae_mm, s.wet_day_mae_mm, s.rain_bias_ratio, s.tmax_mae_c, s.range_coverage_5_95, m === "ENSEMBLE"]));
     $("#v3-table").innerHTML = `<thead><tr><th></th><th>Rain MAE</th><th>Wet-day MAE</th><th>Bias</th><th>Tmax MAE</th><th>5–95% cover</th></tr></thead><tbody>` +
       rows.map((r) => `<tr class="${r[6] ? "best" : ""}"><td>${r[0]}</td><td class="num">${r[1].toFixed(2)}</td><td class="num">${r[2].toFixed(2)}</td><td class="num">${r[3].toFixed(2)}</td><td class="num">${r[4].toFixed(2)}</td><td class="num">${r[5] == null ? "–" : pct(r[5])}</td></tr>`).join("") + `</tbody>`;
+  }
+  if (M.cv_43_seasons) {
+    const names = { clim_logit: "Panchayat climatology", rain7: "Rain, last 7 days", rain30: "Rain, last 30 days", dry_days14: "Dry days, last 14",
+      season_anom: "Season-to-date anomaly", wet_starts: "Sowing-rain events so far", days_since_wet_start: "Days since sowing rain",
+      mjo_pc1: "MJO PC1", mjo_pc2: "MJO PC2", mjo_amp: "MJO amplitude", nino34: "ENSO (Niño 3.4)", dmi: "IOD (DMI)",
+      doy_sin: "Season (sin)", doy_cos: "Season (cos)", lat: "Latitude", lon: "Longitude", clim_mean: "Mean seasonal rain" };
+    const tg = [["break3w", t("break3w"), COLORS.break3w], ["dry_2", `${t("dry")} (${t("wk")} 2)`, COLORS.dry], ["wet_2", `${t("wet")} (${t("wk")} 2)`, COLORS.wet]];
+    const groups = tg.filter(([k]) => M.cv_43_seasons[k]?.importance).map(([k, name, color]) => {
+      const v = M.cv_43_seasons[k].importance; return { name, color, values: v, max: Math.max(...Object.values(v), 1e-9) };
+    });
+    if (groups.length) {
+      const keys = Object.keys(names).filter((k) => groups.some((g) => (g.values[k] || 0) > 0));
+      keys.sort((a, b) => groups.reduce((s, g) => s + (g.values[b] || 0) / g.max, 0) - groups.reduce((s, g) => s + (g.values[a] || 0) / g.max, 0));
+      $("#imp-chart").innerHTML = importance(keys.slice(0, 10).map((k) => ({ key: k, label: names[k] })), groups);
+    }
   }
   const facts = [["43", "monsoon seasons of 0.05° rainfall (1981–2023) for training and validation"], ["234", "gram panchayats in 7 blocks, area-weighted from a 0.05° grid"],
     ["18", "outlook models: onset, false onset, dry spell, dry / wet / heavy week × 4 leads"], ["3", "global drivers: MJO, ENSO (Niño 3.4), IOD (DMI)"],

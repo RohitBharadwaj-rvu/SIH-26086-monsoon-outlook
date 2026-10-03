@@ -159,6 +159,17 @@ def model_card():
     cv = REPO / "outlook" / "results" / "cv_metrics.json"
     if cv.exists():
         card["cv_43_seasons"] = json.load(open(cv))
+        card["pipeline"][1]["status"] = "trained"
+        card["pipeline"][1]["name"] = "Sub-seasonal outlook (regularised logistic, one model per event × week)"
+        card["pipeline"][1]["params"] = "18 models · MJO × season interactions"
+    st = REPO / "outlook" / "results" / "stack_metrics.json"
+    if st.exists():
+        card["week1_hybrid"] = json.load(open(st))
+    card["definitions"] = {
+        "dry": "all 7 days < 2.5 mm (IMD dry day)", "wet": "weekly total ≥ 1.5 × the panchayat's normal for that week",
+        "heavy": "any day ≥ 30 mm", "break3w": "a run of ≥ 7 dry days within the next 3 weeks",
+        "onset": "first 2-day rain ≥ 20 mm from 25 May not followed by a 7-day dry spell (< 5 mm) within 20 days",
+        "false3w": "sowing rains (2-day ≥ 20 mm) followed by such a dry spell, within the next 3 weeks"}
     return card
 
 
@@ -171,7 +182,7 @@ def main():
     idx_at = load_indices()
     rng = np.random.default_rng(2026)
     meta = {"region": {"en": "Mandya district, Karnataka", "kn": "ಮಂಡ್ಯ ಜಿಲ್ಲೆ, ಕರ್ನಾಟಕ"}, "seasons": SEASONS,
-            "default": {"season": 2023, "issue": "2023-06-05"}, "events": EVENTS, "labels": LABELS,
+            "default": {"season": 2023, "issue": "2023-06-12"}, "events": EVENTS, "labels": LABELS,
             "templates": TEMPLATES, "thresholds": THRESH,
             "taluks": sorted({g["taluk"] for g in gps}), "gps": gps, "source": a.source}
     json.dump(meta, open(OUT / "meta.json", "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
@@ -184,8 +195,61 @@ def main():
     print("bundle written:", sizes)
 
 
+_REAL = {}
+
+
+def _real():
+    """Load the out-of-fold outlook probabilities, the week-1 hybrid and observations once."""
+    if _REAL:
+        return _REAL
+    R = REPO / "outlook" / "results"
+    gd = np.load(REPO / "outlook" / "data" / "gp_daily.npz")
+    _REAL["rain"], _REAL["years"], _REAL["codes"] = gd["rain"].astype(np.float32), list(gd["years"]), [str(c) for c in gd["codes"]]
+    _REAL["p"] = {e: np.load(R / f"oof_{e}.npz")["p"].astype(np.float32) for e in EVENTS}
+    st = np.load(R / "stack_week1.npz")
+    _REAL["stack_years"] = list(st["years"])
+    _REAL["stack"] = {e: st[e].astype(np.float32) for e in ("dry_1", "wet_1", "heavy_1", "onset_1", "false3w") if e in st.files}
+    _REAL["v3"] = st["v3_display"].astype(np.float32)
+    _REAL["onset"] = np.load(R / "onset.npz")["onset"]
+    return _REAL
+
+
 def real_season(y, gps, idx_at):
-    raise NotImplementedError("filled in once outlook.model results exist")
+    """Out-of-sample outlook for one replay season: every probability comes from models that never saw season y
+    (season-blocked CV for weeks 1-4; leave-one-season-out week-1 hybrid with v3 where a v3 run exists)."""
+    D = _real()
+    a, sy = D["years"].index(y), D["stack_years"].index(y)
+    order = [D["codes"].index(g["code"]) for g in gps]
+    out = {"issues": [], "gp": {g["code"]: {"p": [], "adv": [], "v3w1": [], "obs": []} for g in gps}}
+    for t in issues(y):
+        i = (t - date(y, 5, 1)).days
+        ix = idx_at(t)
+        out["issues"].append(ix)
+        for g_i, g in enumerate(gps):
+            j = order[g_i]
+            ph = {e: float(D["p"][e][a, i, j]) for e in EVENTS}
+            for e, arr in D["stack"].items():                      # week-1 hybrid with v3 (falls back where no v3 run)
+                v = float(arr[sy, i, j])
+                if np.isfinite(v):
+                    ph[e] = v
+            od = D["onset"][a, j]
+            seen = bool(np.isfinite(od) and od < i)
+            if seen:
+                for k in range(1, 5):
+                    ph[f"onset_{k}"] = 0.0
+                ph["false3w"] = 0.0
+            p = [round(min(max(ph[e], 0.0), 1.0), 3) for e in EVENTS]
+            adv = advise(ph, seen, t.month, ix.get("nino34"), ix.get("dmi"))
+            w1 = D["v3"][sy, i, j]
+            r = D["rain"][a, :, j]
+            d = out["gp"][g["code"]]
+            d["p"].append(p); d["adv"].append(adv)
+            d["v3w1"].append([round(float(x), 1) for x in w1] if (w1 >= 0).all() else [])
+            d["obs"].append([round(float(r[i + 7 * k:i + 7 * k + 7].sum()), 1) for k in range(4)])
+        for g_i, g in enumerate(gps):
+            od = D["onset"][a, order[g_i]]
+            out["gp"][g["code"]]["onset_obs"] = (date(y, 5, 1) + timedelta(days=int(od))).isoformat() if np.isfinite(od) else None
+    return out
 
 
 if __name__ == "__main__":
