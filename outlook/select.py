@@ -7,6 +7,7 @@ Choose, per target, which validated forecast the system ships, by a rule fixed b
               gefs      + GEFSv12 11-member days 1-28 (all targets), 20-season LOSO 2000-2019
               gefs2     + calibrated GEFS, event-matched member fractions, offset stacker (outlook.stack_gefs2)
               blend     mean of the gfs and gefs2 hybrids (no fitting), 8 seasons 2015-19 + 2021-23
+              v3ens     + v3 16-member diffusion ensemble, out-of-fold (week-1 heavy/dry/wet), 9-season LOSO
   rule        a hybrid replaces the outlook only if, on its own validation rows, its Brier skill beats the outlook's
               AND the lower end of its 90 % season-bootstrap interval is above zero. If several qualify, the largest
               gain over the outlook on its own rows wins (candidates are validated on different seasons, so their raw
@@ -25,7 +26,8 @@ RES = Path(__file__).resolve().parents[1] / "outlook" / "results"
 def main():
     cv = json.load(open(RES / "cv_metrics.json"))
     cands = {"v3": json.load(open(RES / "stack_week1_metrics.json")), "gfs": json.load(open(RES / "stack_metrics.json"))}
-    for name, f in (("gefs", "stack_gefs_metrics.json"), ("gefs2", "stack_gefs2_metrics.json"), ("blend", "stack_blend_metrics.json")):
+    for name, f in (("gefs", "stack_gefs_metrics.json"), ("gefs2", "stack_gefs2_metrics.json"), ("blend", "stack_blend_metrics.json"),
+                    ("v3ens", "stack_ens_metrics.json")):
         if (RES / f).exists():
             cands[name] = json.load(open(RES / f))
     gain = lambda c: c["bss_stacked"] - c["bss_outlook"]

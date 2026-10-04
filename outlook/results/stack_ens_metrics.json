@@ -1,0 +1,80 @@
+{
+ "heavy_1": {
+  "bss_outlook": -0.0015,
+  "bss_stacked": 0.0187,
+  "ci90_stacked": [
+   -0.0694,
+   0.0856
+  ],
+  "n": 256464,
+  "seasons": "9 seasons 2015-2023 (leave-one-season-out)",
+  "years": [
+   2015,
+   2016,
+   2017,
+   2018,
+   2019,
+   2020,
+   2021,
+   2022,
+   2023
+  ],
+  "inputs": "outlook + v3 16-member diffusion ensemble (out-of-fold)",
+  "features": [
+   "fheavy",
+   "mx"
+  ]
+ },
+ "dry_1": {
+  "bss_outlook": 0.1236,
+  "bss_stacked": 0.1561,
+  "ci90_stacked": [
+   0.0456,
+   0.2522
+  ],
+  "n": 256464,
+  "seasons": "9 seasons 2015-2023 (leave-one-season-out)",
+  "years": [
+   2015,
+   2016,
+   2017,
+   2018,
+   2019,
+   2020,
+   2021,
+   2022,
+   2023
+  ],
+  "inputs": "outlook + v3 16-member diffusion ensemble (out-of-fold)",
+  "features": [
+   "tot",
+   "fdry"
+  ]
+ },
+ "wet_1": {
+  "bss_outlook": 0.0879,
+  "bss_stacked": 0.2252,
+  "ci90_stacked": [
+   0.0878,
+   0.3429
+  ],
+  "n": 256464,
+  "seasons": "9 seasons 2015-2023 (leave-one-season-out)",
+  "years": [
+   2015,
+   2016,
+   2017,
+   2018,
+   2019,
+   2020,
+   2021,
+   2022,
+   2023
+  ],
+  "inputs": "outlook + v3 16-member diffusion ensemble (out-of-fold)",
+  "features": [
+   "tot",
+   "fwet"
+  ]
+ }
+}

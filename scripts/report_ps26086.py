@@ -14,12 +14,13 @@ hgfs = json.load(open(RES / "stack_metrics.json"))
 hgefs = json.load(open(RES / "stack_gefs_metrics.json")) if (RES / "stack_gefs_metrics.json").exists() else {}
 hgefs2 = json.load(open(RES / "stack_gefs2_metrics.json")) if (RES / "stack_gefs2_metrics.json").exists() else {}
 hblend = json.load(open(RES / "stack_blend_metrics.json")) if (RES / "stack_blend_metrics.json").exists() else {}
+hens = json.load(open(RES / "stack_ens_metrics.json")) if (RES / "stack_ens_metrics.json").exists() else {}
 
 NAME = {"dry": "Dry week (all 7 days < 2.5 mm)", "wet": "Wet week (≥ 1.5 × normal)", "heavy": "Heavy rain (a day ≥ 30 mm)",
         "onset": "Monsoon onset in that week", "break3w": "Dry spell ≥ 7 days within 3 weeks", "false3w": "False onset within 3 weeks"}
 SRC = {"outlook": "climate-driver outlook", "v3": "outlook + v3 week 1", "gfs": "outlook + GFS d1–16 + v3 week 1",
        "gefs": "outlook + GEFS 11-member ensemble", "gefs2": "outlook + calibrated GEFS ensemble",
-       "blend": "mean of GFS and calibrated-GEFS hybrids"}
+       "blend": "mean of GFS and calibrated-GEFS hybrids", "v3ens": "outlook + v3 diffusion ensemble"}
 
 
 def label(t):
@@ -43,7 +44,7 @@ for t in cv:
     s = sel[t]
     o = hgefs2.get(t, {}).get("ops_test")
     ops = f"{o['bss_outlook']:+.3f} → {o['bss_stacked']:+.3f}" if o else "–"
-    rows.append(f"| {label(t)} | {cv[t]['base_rate']:.3f} | {cv[t]['bss']:+.3f} {ci(cv[t]['ci90'])} | {hy(hv3, t)} | {hy(hgfs, t)} | "
+    rows.append(f"| {label(t)} | {cv[t]['base_rate']:.3f} | {cv[t]['bss']:+.3f} {ci(cv[t]['ci90'])} | {hy(hv3, t)} | {hy(hens, t)} | {hy(hgfs, t)} | "
                 f"{hy(hgefs, t)} | {hy(hgefs2, t)} | {hy(hblend, t)} | {ops} | **{SRC[s['source']]}** | **{s['bss']:+.3f}** |")
 n_skill = sum(1 for t in sel if sel[t]["ci90"][0] > 0)
 gfs_seasons = next(iter(hgfs.values()))["seasons"]
@@ -91,8 +92,8 @@ Observed truth: CHIRPS v2.0 0.05° daily rain, 1981–2023, area-weighted to eac
 
 ## Skill
 
-| Target | Base rate | Outlook, 43 seasons | + v3 week 1 | + GFS d1–16 + v3 | + GEFS v1 | + GEFS v2 (calibrated) | GFS/GEFS-v2 average | GEFS v2 ops test 2021–23 | Shipped | Shipped BSS |
-|---|---|---|---|---|---|---|---|---|---|---|
+| Target | Base rate | Outlook, 43 seasons | + v3 week 1 | + v3 diffusion ensemble | + GFS d1–16 + v3 | + GEFS v1 | + GEFS v2 (calibrated) | GFS/GEFS-v2 average | GEFS v2 ops test 2021–23 | Shipped | Shipped BSS |
+|---|---|---|---|---|---|---|---|---|---|---|---|
 {chr(10).join(rows)}
 
 **{n_skill} of {len(sel)}** shipped targets have a 90 % CI entirely above zero.
@@ -130,6 +131,15 @@ Observed truth: CHIRPS v2.0 0.05° daily rain, 1981–2023, area-weighted to eac
 * Calibrated member onset fractions move onset weeks 1–2 slightly positive (+0.006, +0.012), but their 90% ranges still include zero, so they are not shipped.
 * This is consistent with the known limits of sub-seasonal rainfall prediction. Beyond week 2, village-scale skill comes mainly from the MJO/BSISO state and the dry/wet tendency, not from day-to-day rain amounts.
 
+### What the v3 diffusion ensemble added
+* **Setup:** each season 2015–2022 got a residual denoiser trained without that season, on top of out-of-fold backbone forecasts; 2023 uses the shipped denoiser, which never saw it.
+  * Every season has 16 members, all out-of-sample (5 Kaggle GPU runs, about 6 GPU-hours).
+* **Wet week 1:** the ensemble improves it the most of any model (+0.088 → +0.225 on the same rows), so the rule ships it there.
+* **Dry week 1:** it improves (+0.124 → +0.156), but less than the GFS/GEFS average.
+* **Heavy rain week 1:** it does **not** gain reliably (+0.019, 90% range [−0.069, +0.086]).
+  * The members' wettest-day intensity carries the signal; the fraction of members with a ≥ 30 mm day adds nothing.
+  * Village-scale downpours are not predictable a week ahead with this sample of 9 seasons.
+
 ## Leakage audits (all fixed before the numbers above)
 | Issue | Effect | Fix |
 |---|---|---|
@@ -158,6 +168,7 @@ python -m outlook.stack_v3 && python -m outlook.stack_v3 final
 python outlook/merge_gfs16.py && python -m outlook.stack_gfs ckpts/gfs16/all 0.005
 python -m outlook.stack_gefs ckpts/gefs                      # GEFS v1 (reforecast + operational, kaggle/gefs)
 python -m outlook.stack_gefs2 ckpts/gefs                     # GEFS v2 (calibrated) + GFS/GEFS average
+python -m outlook.stack_ens ckpts/ens                        # v3 diffusion ensemble, out-of-fold (kaggle runs ens-*)
 python -m outlook.select                                     # final_selection.json
 python -m outlook.issue 2023-06-12 --out issue.json          # operational outlook for one date
 python -m monsoon.build_bundle --source real                 # web app data

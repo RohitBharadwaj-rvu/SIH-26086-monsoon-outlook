@@ -40,13 +40,13 @@
   "seasons": "20 seasons 2000-2019 (leave-one-season-out)"
  },
  "wet_1": {
-  "source": "gfs",
-  "bss": 0.216,
+  "source": "v3ens",
+  "bss": 0.2252,
   "ci90": [
-   0.1205,
-   0.295
+   0.0878,
+   0.3429
   ],
-  "outlook_bss_same_rows": 0.0894,
+  "outlook_bss_same_rows": 0.0879,
   "seasons": "9 seasons 2015-2023 (leave-one-season-out)"
  },
  "wet_2": {

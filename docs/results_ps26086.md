@@ -40,26 +40,26 @@ Observed truth: CHIRPS v2.0 0.05° daily rain, 1981–2023, area-weighted to eac
 
 ## Skill
 
-| Target | Base rate | Outlook, 43 seasons | + v3 week 1 | + GFS d1–16 + v3 | + GEFS v1 | + GEFS v2 (calibrated) | GFS/GEFS-v2 average | GEFS v2 ops test 2021–23 | Shipped | Shipped BSS |
-|---|---|---|---|---|---|---|---|---|---|---|
-| Dry week (all 7 days < 2.5 mm), week 1 | 0.181 | +0.071 [+0.049, +0.094] | +0.125 [+0.013, +0.209] | +0.150 [+0.062, +0.228] | +0.119 [+0.069, +0.164] | +0.117 [+0.055, +0.170] | +0.156 [+0.087, +0.243] | +0.072 → +0.164 | **mean of GFS and calibrated-GEFS hybrids** | **+0.156** |
-| Dry week (all 7 days < 2.5 mm), week 2 | 0.179 | +0.050 [+0.033, +0.069] | – | +0.149 [+0.094, +0.209] | +0.093 [+0.045, +0.142] | +0.085 [+0.038, +0.131] | +0.146 [+0.075, +0.214] | +0.100 → +0.144 | **mean of GFS and calibrated-GEFS hybrids** | **+0.146** |
-| Dry week (all 7 days < 2.5 mm), week 3 | 0.183 | +0.035 [+0.014, +0.057] | – | – | +0.065 [+0.035, +0.094] | +0.077 [+0.050, +0.107] | – | +0.022 → +0.042 | **outlook + calibrated GEFS ensemble** | **+0.077** |
-| Dry week (all 7 days < 2.5 mm), week 4 | 0.193 | +0.034 [+0.012, +0.055] | – | – | +0.040 [+0.016, +0.066] | +0.055 [+0.028, +0.090] | – | +0.072 → +0.106 | **outlook + calibrated GEFS ensemble** | **+0.055** |
-| Wet week (≥ 1.5 × normal), week 1 | 0.237 | +0.066 [+0.035, +0.096] | +0.204 [+0.098, +0.294] | +0.216 [+0.120, +0.295] | +0.156 [+0.115, +0.196] | +0.123 [+0.066, +0.177] | +0.197 [+0.105, +0.259] | +0.107 → +0.169 | **outlook + GFS d1–16 + v3 week 1** | **+0.216** |
-| Wet week (≥ 1.5 × normal), week 2 | 0.235 | +0.026 [+0.004, +0.052] | – | +0.055 [-0.027, +0.119] | +0.042 [-0.001, +0.083] | +0.044 [-0.011, +0.095] | +0.046 [-0.019, +0.105] | +0.054 → +0.089 | **climate-driver outlook** | **+0.026** |
-| Wet week (≥ 1.5 × normal), week 3 | 0.234 | -0.001 [-0.018, +0.020] | – | – | +0.004 [-0.030, +0.035] | +0.002 [-0.042, +0.040] | – | -0.015 → +0.012 | **climate-driver outlook** | **-0.001** |
-| Wet week (≥ 1.5 × normal), week 4 | 0.238 | -0.000 [-0.022, +0.019] | – | – | -0.017 [-0.043, +0.009] | -0.007 [-0.045, +0.024] | – | -0.007 → -0.015 | **climate-driver outlook** | **-0.000** |
-| Heavy rain (a day ≥ 30 mm), week 1 | 0.060 | -0.006 [-0.021, +0.009] | +0.049 [-0.003, +0.096] | +0.022 [-0.036, +0.054] | +0.005 [-0.020, +0.029] | -0.034 [-0.071, +0.001] | +0.029 [-0.008, +0.055] | -0.004 → +0.025 | **climate-driver outlook** | **-0.006** |
-| Heavy rain (a day ≥ 30 mm), week 2 | 0.075 | -0.003 [-0.027, +0.020] | – | -0.036 [-0.095, +0.021] | -0.009 [-0.037, +0.016] | -0.034 [-0.076, +0.004] | -0.032 [-0.105, +0.030] | -0.022 → -0.004 | **climate-driver outlook** | **-0.003** |
-| Heavy rain (a day ≥ 30 mm), week 3 | 0.085 | -0.008 [-0.028, +0.012] | – | – | -0.032 [-0.054, -0.012] | -0.026 [-0.056, +0.005] | – | -0.009 → +0.004 | **climate-driver outlook** | **-0.008** |
-| Heavy rain (a day ≥ 30 mm), week 4 | 0.092 | +0.011 [-0.010, +0.034] | – | – | -0.022 [-0.065, +0.017] | +0.005 [-0.040, +0.051] | – | -0.032 → -0.035 | **climate-driver outlook** | **+0.011** |
-| Monsoon onset in that week, week 1 | 0.084 | -0.016 [-0.032, -0.000] | -0.006 [-0.103, +0.092] | +0.019 [-0.117, +0.132] | +0.022 [-0.035, +0.071] | +0.006 [-0.041, +0.048] | +0.034 [-0.076, +0.101] | +0.025 → +0.053 | **climate-driver outlook** | **-0.016** |
-| Monsoon onset in that week, week 2 | 0.084 | +0.004 [-0.003, +0.012] | – | -0.025 [-0.043, -0.007] | -0.005 [-0.035, +0.019] | +0.012 [-0.018, +0.038] | -0.003 [-0.023, +0.017] | +0.003 → +0.014 | **climate-driver outlook** | **+0.004** |
-| Monsoon onset in that week, week 3 | 0.084 | -0.002 [-0.009, +0.005] | – | – | -0.033 [-0.063, -0.003] | -0.000 [-0.030, +0.028] | – | +0.012 → +0.003 | **climate-driver outlook** | **-0.002** |
-| Monsoon onset in that week, week 4 | 0.075 | +0.028 [+0.007, +0.052] | – | – | +0.012 [-0.048, +0.069] | +0.038 [-0.016, +0.099] | – | -0.020 → -0.065 | **climate-driver outlook** | **+0.028** |
-| Dry spell ≥ 7 days within 3 weeks | 0.538 | +0.092 [+0.059, +0.125] | – | +0.109 [+0.037, +0.187] | +0.124 [+0.077, +0.166] | +0.100 [+0.047, +0.155] | +0.080 [+0.029, +0.137] | +0.052 → +0.069 | **mean of GFS and calibrated-GEFS hybrids** | **+0.080** |
-| False onset within 3 weeks | 0.315 | -0.005 [-0.020, +0.009] | +0.060 [+0.002, +0.111] | -0.022 [-0.083, +0.017] | +0.015 [-0.035, +0.078] | -0.001 [-0.060, +0.070] | -0.000 [-0.031, +0.038] | -0.018 → -0.048 | **outlook + v3 week 1** | **+0.060** |
+| Target | Base rate | Outlook, 43 seasons | + v3 week 1 | + v3 diffusion ensemble | + GFS d1–16 + v3 | + GEFS v1 | + GEFS v2 (calibrated) | GFS/GEFS-v2 average | GEFS v2 ops test 2021–23 | Shipped | Shipped BSS |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Dry week (all 7 days < 2.5 mm), week 1 | 0.181 | +0.071 [+0.049, +0.094] | +0.125 [+0.013, +0.209] | +0.156 [+0.046, +0.252] | +0.150 [+0.062, +0.228] | +0.119 [+0.069, +0.164] | +0.117 [+0.055, +0.170] | +0.156 [+0.087, +0.243] | +0.072 → +0.164 | **mean of GFS and calibrated-GEFS hybrids** | **+0.156** |
+| Dry week (all 7 days < 2.5 mm), week 2 | 0.179 | +0.050 [+0.033, +0.069] | – | – | +0.149 [+0.094, +0.209] | +0.093 [+0.045, +0.142] | +0.085 [+0.038, +0.131] | +0.146 [+0.075, +0.214] | +0.100 → +0.144 | **mean of GFS and calibrated-GEFS hybrids** | **+0.146** |
+| Dry week (all 7 days < 2.5 mm), week 3 | 0.183 | +0.035 [+0.014, +0.057] | – | – | – | +0.065 [+0.035, +0.094] | +0.077 [+0.050, +0.107] | – | +0.022 → +0.042 | **outlook + calibrated GEFS ensemble** | **+0.077** |
+| Dry week (all 7 days < 2.5 mm), week 4 | 0.193 | +0.034 [+0.012, +0.055] | – | – | – | +0.040 [+0.016, +0.066] | +0.055 [+0.028, +0.090] | – | +0.072 → +0.106 | **outlook + calibrated GEFS ensemble** | **+0.055** |
+| Wet week (≥ 1.5 × normal), week 1 | 0.237 | +0.066 [+0.035, +0.096] | +0.204 [+0.098, +0.294] | +0.225 [+0.088, +0.343] | +0.216 [+0.120, +0.295] | +0.156 [+0.115, +0.196] | +0.123 [+0.066, +0.177] | +0.197 [+0.105, +0.259] | +0.107 → +0.169 | **outlook + v3 diffusion ensemble** | **+0.225** |
+| Wet week (≥ 1.5 × normal), week 2 | 0.235 | +0.026 [+0.004, +0.052] | – | – | +0.055 [-0.027, +0.119] | +0.042 [-0.001, +0.083] | +0.044 [-0.011, +0.095] | +0.046 [-0.019, +0.105] | +0.054 → +0.089 | **climate-driver outlook** | **+0.026** |
+| Wet week (≥ 1.5 × normal), week 3 | 0.234 | -0.001 [-0.018, +0.020] | – | – | – | +0.004 [-0.030, +0.035] | +0.002 [-0.042, +0.040] | – | -0.015 → +0.012 | **climate-driver outlook** | **-0.001** |
+| Wet week (≥ 1.5 × normal), week 4 | 0.238 | -0.000 [-0.022, +0.019] | – | – | – | -0.017 [-0.043, +0.009] | -0.007 [-0.045, +0.024] | – | -0.007 → -0.015 | **climate-driver outlook** | **-0.000** |
+| Heavy rain (a day ≥ 30 mm), week 1 | 0.060 | -0.006 [-0.021, +0.009] | +0.049 [-0.003, +0.096] | +0.019 [-0.069, +0.086] | +0.022 [-0.036, +0.054] | +0.005 [-0.020, +0.029] | -0.034 [-0.071, +0.001] | +0.029 [-0.008, +0.055] | -0.004 → +0.025 | **climate-driver outlook** | **-0.006** |
+| Heavy rain (a day ≥ 30 mm), week 2 | 0.075 | -0.003 [-0.027, +0.020] | – | – | -0.036 [-0.095, +0.021] | -0.009 [-0.037, +0.016] | -0.034 [-0.076, +0.004] | -0.032 [-0.105, +0.030] | -0.022 → -0.004 | **climate-driver outlook** | **-0.003** |
+| Heavy rain (a day ≥ 30 mm), week 3 | 0.085 | -0.008 [-0.028, +0.012] | – | – | – | -0.032 [-0.054, -0.012] | -0.026 [-0.056, +0.005] | – | -0.009 → +0.004 | **climate-driver outlook** | **-0.008** |
+| Heavy rain (a day ≥ 30 mm), week 4 | 0.092 | +0.011 [-0.010, +0.034] | – | – | – | -0.022 [-0.065, +0.017] | +0.005 [-0.040, +0.051] | – | -0.032 → -0.035 | **climate-driver outlook** | **+0.011** |
+| Monsoon onset in that week, week 1 | 0.084 | -0.016 [-0.032, -0.000] | -0.006 [-0.103, +0.092] | – | +0.019 [-0.117, +0.132] | +0.022 [-0.035, +0.071] | +0.006 [-0.041, +0.048] | +0.034 [-0.076, +0.101] | +0.025 → +0.053 | **climate-driver outlook** | **-0.016** |
+| Monsoon onset in that week, week 2 | 0.084 | +0.004 [-0.003, +0.012] | – | – | -0.025 [-0.043, -0.007] | -0.005 [-0.035, +0.019] | +0.012 [-0.018, +0.038] | -0.003 [-0.023, +0.017] | +0.003 → +0.014 | **climate-driver outlook** | **+0.004** |
+| Monsoon onset in that week, week 3 | 0.084 | -0.002 [-0.009, +0.005] | – | – | – | -0.033 [-0.063, -0.003] | -0.000 [-0.030, +0.028] | – | +0.012 → +0.003 | **climate-driver outlook** | **-0.002** |
+| Monsoon onset in that week, week 4 | 0.075 | +0.028 [+0.007, +0.052] | – | – | – | +0.012 [-0.048, +0.069] | +0.038 [-0.016, +0.099] | – | -0.020 → -0.065 | **climate-driver outlook** | **+0.028** |
+| Dry spell ≥ 7 days within 3 weeks | 0.538 | +0.092 [+0.059, +0.125] | – | – | +0.109 [+0.037, +0.187] | +0.124 [+0.077, +0.166] | +0.100 [+0.047, +0.155] | +0.080 [+0.029, +0.137] | +0.052 → +0.069 | **mean of GFS and calibrated-GEFS hybrids** | **+0.080** |
+| False onset within 3 weeks | 0.315 | -0.005 [-0.020, +0.009] | +0.060 [+0.002, +0.111] | – | -0.022 [-0.083, +0.017] | +0.015 [-0.035, +0.078] | -0.001 [-0.060, +0.070] | -0.000 [-0.031, +0.038] | -0.018 → -0.048 | **outlook + v3 week 1** | **+0.060** |
 
 **9 of 18** shipped targets have a 90 % CI entirely above zero.
 
@@ -96,6 +96,15 @@ Observed truth: CHIRPS v2.0 0.05° daily rain, 1981–2023, area-weighted to eac
 * Calibrated member onset fractions move onset weeks 1–2 slightly positive (+0.006, +0.012), but their 90% ranges still include zero, so they are not shipped.
 * This is consistent with the known limits of sub-seasonal rainfall prediction. Beyond week 2, village-scale skill comes mainly from the MJO/BSISO state and the dry/wet tendency, not from day-to-day rain amounts.
 
+### What the v3 diffusion ensemble added
+* **Setup:** each season 2015–2022 got a residual denoiser trained without that season, on top of out-of-fold backbone forecasts; 2023 uses the shipped denoiser, which never saw it.
+  * Every season has 16 members, all out-of-sample (5 Kaggle GPU runs, about 6 GPU-hours).
+* **Wet week 1:** the ensemble improves it the most of any model (+0.088 → +0.225 on the same rows), so the rule ships it there.
+* **Dry week 1:** it improves (+0.124 → +0.156), but less than the GFS/GEFS average.
+* **Heavy rain week 1:** it does **not** gain reliably (+0.019, 90% range [−0.069, +0.086]).
+  * The members' wettest-day intensity carries the signal; the fraction of members with a ≥ 30 mm day adds nothing.
+  * Village-scale downpours are not predictable a week ahead with this sample of 9 seasons.
+
 ## Leakage audits (all fixed before the numbers above)
 | Issue | Effect | Fix |
 |---|---|---|
@@ -124,6 +133,7 @@ python -m outlook.stack_v3 && python -m outlook.stack_v3 final
 python outlook/merge_gfs16.py && python -m outlook.stack_gfs ckpts/gfs16/all 0.005
 python -m outlook.stack_gefs ckpts/gefs                      # GEFS v1 (reforecast + operational, kaggle/gefs)
 python -m outlook.stack_gefs2 ckpts/gefs                     # GEFS v2 (calibrated) + GFS/GEFS average
+python -m outlook.stack_ens ckpts/ens                        # v3 diffusion ensemble, out-of-fold (kaggle runs ens-*)
 python -m outlook.select                                     # final_selection.json
 python -m outlook.issue 2023-06-12 --out issue.json          # operational outlook for one date
 python -m monsoon.build_bundle --source real                 # web app data

@@ -216,7 +216,7 @@ def _real():
     # per target, the validated source chosen by outlook.select (rule fixed before the final run)
     sel = json.load(open(R / "final_selection.json")) if (R / "final_selection.json").exists() else {}
     srcs = {"v3": st}
-    for k, f in (("gfs", "stack.npz"), ("gefs", "stack_gefs.npz"), ("gefs2", "stack_gefs2.npz"), ("blend", "stack_blend.npz")):
+    for k, f in (("gfs", "stack.npz"), ("gefs", "stack_gefs.npz"), ("gefs2", "stack_gefs2.npz"), ("blend", "stack_blend.npz"), ("v3ens", "stack_ens.npz")):
         if (R / f).exists():
             srcs[k] = np.load(R / f)
     _REAL["stack"] = {}                                                # target -> (years, probabilities [Y, NI, G])

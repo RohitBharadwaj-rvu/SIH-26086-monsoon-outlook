@@ -1841,5 +1841,105 @@
   "launched_utc": 1791037605.5534346,
   "status": "queued",
   "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-demo-pre23"
+ },
+ {
+  "name": "ens-a1a",
+  "account": "a1",
+  "user": "rohitajitbharadwaj",
+  "slug": "sih26074-v3-ens-a1a",
+  "sprint": "ps26086",
+  "lanes": [
+   [
+    "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 60 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 8 --eval_members 2 --train_years 2016,2017,2018,2019,2020,2021,2022 --det_pred_file **/oof/ydet.npz --seed 0 --tag ensf_2015",
+    "@oof_ens --diff_ckpt **/ensf_2015/best.pt --det_pred_file **/oof/ydet.npz --year 2015 --members 16 --steps 24 --tag ens_2015"
+   ],
+   [
+    "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 60 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 8 --eval_members 2 --train_years 2015,2017,2018,2019,2020,2021,2022 --det_pred_file **/oof/ydet.npz --seed 0 --tag ensf_2016",
+    "@oof_ens --diff_ckpt **/ensf_2016/best.pt --det_pred_file **/oof/ydet.npz --year 2016 --members 16 --steps 24 --tag ens_2016"
+   ]
+  ],
+  "expected_min": 80.0,
+  "launched_utc": 1791088377.2469618,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-ens-a1a"
+ },
+ {
+  "name": "ens-a1b",
+  "account": "a1",
+  "user": "rohitajitbharadwaj",
+  "slug": "sih26074-v3-ens-a1b",
+  "sprint": "ps26086",
+  "lanes": [
+   [
+    "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 60 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 8 --eval_members 2 --train_years 2015,2016,2018,2019,2020,2021,2022 --det_pred_file **/oof/ydet.npz --seed 0 --tag ensf_2017",
+    "@oof_ens --diff_ckpt **/ensf_2017/best.pt --det_pred_file **/oof/ydet.npz --year 2017 --members 16 --steps 24 --tag ens_2017"
+   ],
+   [
+    "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 60 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 8 --eval_members 2 --train_years 2015,2016,2017,2019,2020,2021,2022 --det_pred_file **/oof/ydet.npz --seed 0 --tag ensf_2018",
+    "@oof_ens --diff_ckpt **/ensf_2018/best.pt --det_pred_file **/oof/ydet.npz --year 2018 --members 16 --steps 24 --tag ens_2018"
+   ]
+  ],
+  "expected_min": 80.0,
+  "launched_utc": 1791088387.2196684,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohitajitbharadwaj/sih26074-v3-ens-a1b"
+ },
+ {
+  "name": "ens-a2a",
+  "account": "a2",
+  "user": "ssachithananthan",
+  "slug": "sih26074-v3-ens-a2a",
+  "sprint": "ps26086",
+  "lanes": [
+   [
+    "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 60 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 8 --eval_members 2 --train_years 2015,2016,2017,2018,2020,2021,2022 --det_pred_file **/oof/ydet.npz --seed 1 --tag ensf_2019",
+    "@oof_ens --diff_ckpt **/ensf_2019/best.pt --det_pred_file **/oof/ydet.npz --year 2019 --members 16 --steps 24 --tag ens_2019"
+   ],
+   [
+    "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 60 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 8 --eval_members 2 --train_years 2015,2016,2017,2018,2019,2021,2022 --det_pred_file **/oof/ydet.npz --seed 1 --tag ensf_2020",
+    "@oof_ens --diff_ckpt **/ensf_2020/best.pt --det_pred_file **/oof/ydet.npz --year 2020 --members 16 --steps 24 --tag ens_2020"
+   ]
+  ],
+  "expected_min": 80.0,
+  "launched_utc": 1791088399.0930228,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/ssachithananthan/sih26074-v3-ens-a2a"
+ },
+ {
+  "name": "ens-a2b",
+  "account": "a2",
+  "user": "ssachithananthan",
+  "slug": "sih26074-v3-ens-a2b",
+  "sprint": "ps26086",
+  "lanes": [
+   [
+    "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 60 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 8 --eval_members 2 --train_years 2015,2016,2017,2018,2019,2020,2022 --det_pred_file **/oof/ydet.npz --seed 1 --tag ensf_2021",
+    "@oof_ens --diff_ckpt **/ensf_2021/best.pt --det_pred_file **/oof/ydet.npz --year 2021 --members 16 --steps 24 --tag ens_2021"
+   ],
+   [
+    "--mode diff --size S --epochs 60 --patience 10 --time_budget_min 60 --H 3 --N 40 --eval_sampler dpmpp2m --eval_steps 8 --eval_members 2 --train_years 2015,2016,2017,2018,2019,2020,2021 --det_pred_file **/oof/ydet.npz --seed 1 --tag ensf_2022",
+    "@oof_ens --diff_ckpt **/ensf_2022/best.pt --det_pred_file **/oof/ydet.npz --year 2022 --members 16 --steps 24 --tag ens_2022"
+   ]
+  ],
+  "expected_min": 80.0,
+  "launched_utc": 1791088411.6529791,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/ssachithananthan/sih26074-v3-ens-a2b"
+ },
+ {
+  "name": "ens-a3",
+  "account": "a3",
+  "user": "rohithphegde",
+  "slug": "sih26074-v3-ens-a3",
+  "sprint": "ps26086",
+  "lanes": [
+   [
+    "@oof_ens --diff_ckpt **/s10f_diff_oof_S_s2/best.pt --det_pred_file **/oof/ydet.npz --year 2023 --members 16 --steps 24 --tag ens_2023"
+   ]
+  ],
+  "expected_min": 25.0,
+  "launched_utc": 1791088419.0684566,
+  "status": "queued",
+  "push_msg": "Kernel version 1 successfully pushed.  Please check progress at https://www.kaggle.com/code/rohithphegde/sih26074-v3-ens-a3"
  }
 ]

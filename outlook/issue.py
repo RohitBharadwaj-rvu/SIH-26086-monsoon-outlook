@@ -112,7 +112,7 @@ def load_v3(t: date, path, codes):
     return None
 
 
-def issue(t: date, idx_dir: Path, rain=None, gfs=None, v3=None, gefs=None):
+def issue(t: date, idx_dir: Path, rain=None, gfs=None, v3=None, gefs=None, v3ens=None):
     gd = np.load(DATA / "gp_daily.npz")
     codes = [str(c) for c in gd["codes"]]
     lat, lon = gd["lat"].astype(np.float32), gd["lon"].astype(np.float32)
@@ -146,6 +146,21 @@ def issue(t: date, idx_dir: Path, rain=None, gfs=None, v3=None, gefs=None):
             parts = ([gfs_prob(e, p[e])] if G16 is not None else []) + ([gefs2_prob(e, p[e], GR, i, t.year)] if GR is not None else [])
             p[e] = np.mean(parts, 0)
             src[e] = "blend" if len(parts) == 2 else ("gfs" if G16 is not None else "gefs2")
+        elif s == "v3ens" and v3ens:
+            from outlook.stack_ens import feats as ens_feats_v3
+            from outlook.stack_gefs2 import weekly_normal
+            zz = np.load(v3ens); srcc = [str(c) for c in zz["codes"]]
+            A = np.full((NI, len(codes)) + zz["rain"].shape[1:], np.nan, np.float32)
+            A[i] = zz["rain"].astype(np.float32)[[srcc.index(c) for c in codes]]
+            k = joblib.load(MOD / f"stack_ens_{e}.joblib")
+            normal1 = weekly_normal(gd["rain"].astype(np.float32), [int(y) for y in gd["years"]], [t.year])[..., 0]
+            f = ens_feats_v3(A, normal1)
+            Z = np.stack([f[n][i] for n in k["features"]], -1)
+            p[e] = predict_offset(k["w"], (Z - k["mu"]) / k["sd"], logit(p[e]))
+            src[e] = "v3ens"
+        elif s == "v3ens" and G16 is not None:                     # no ensemble supplied: next qualifying hybrid
+            p[e] = gfs_prob(e, p[e])
+            src[e] = "gfs"
         elif s == "gefs2" and GR is not None:
             p[e] = gefs2_prob(e, p[e], GR, i, t.year)
             src[e] = "gefs2"
@@ -183,10 +198,11 @@ if __name__ == "__main__":
     a.add_argument("--gfs")
     a.add_argument("--v3")
     a.add_argument("--gefs")
+    a.add_argument("--v3ens", help="npz {rain [G, K, 7] mm/day panchayat-mean members, codes [G]} from the v3 diffusion ensemble")
     a.add_argument("--out")
     o = a.parse_args()
     idx_dir = Path(o.idx) if o.idx else REPO / "outlook" / "data" / "idx"
-    res = issue(date.fromisoformat(o.date), idx_dir, o.rain, o.gfs, o.v3, o.gefs)
+    res = issue(date.fromisoformat(o.date), idx_dir, o.rain, o.gfs, o.v3, o.gefs, o.v3ens)
     if o.out:
         open(o.out, "w", encoding="utf-8").write(json.dumps(res, ensure_ascii=False, indent=1))
     n_adv = sum(len(g["advisories"]) for g in res["gp"].values())
