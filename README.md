@@ -125,3 +125,7 @@ All data is public:
 ## Background: the v3 downscaler
 
 This repository grew out of our SIH26074 work on panchayat-scale weather downscaling. The v3 model is a spatiotemporal transformer with a cross-fitted residual-diffusion ensemble. It downscales GFS 0.25° forecasts to a 0.05° grid. In this project it supplies the week-1 ensemble used by the outlook. See `docs/final_report.md` and `reports/final_system_report.md`.
+
+## License
+
+Code is released under the [MIT License](LICENSE). Third-party data (CHIRPS, NOAA GEFS/GFS and the climate indices, ERA5, Copernicus GLO-30) remains under its providers' own terms. Leaflet (`monsoon/frontend/leaflet/`) is BSD-2-Clause.
