@@ -1,0 +1,232 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  :root { --blue:#0070c0; --navy:#0f2a4a; --ink:#16243a; --ink2:#44546a; --ink3:#6b7b90; --line:#e3e9f1; --bg:#f6f9fc;
+          --teal:#0e7c86; --orange:#d9771a; --green:#2e9b5f; --purple:#7a4fb5; --red:#c0392b; --gold:#b7791f; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI", "Inter", Arial, sans-serif; color: var(--ink); background: #fff; }
+  .panel { width: 1840px; height: 800px; position: relative; overflow: hidden; background: #fff; margin-bottom: 40px; }
+  .card { background: #fff; border: 1.5px solid var(--line); border-radius: 18px; box-shadow: 0 6px 18px rgba(15,42,74,.06); }
+  .kicker { font-size: 17px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--blue); }
+  h3 { margin: 0; font-size: 26px; }
+  .muted { color: var(--ink3); }
+  .chip { display: inline-block; padding: 6px 14px; border-radius: 999px; font-size: 17px; font-weight: 700; margin: 0 8px 8px 0; }
+  .grid { display: grid; gap: 18px; }
+  .accent { border-left: 8px solid var(--blue); }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* fill the slide body */
+  #p2 > div:first-child { height: 800px; display: flex; flex-direction: column; }
+  #p2 > div:first-child > .grid:last-child { flex: 1; grid-template-rows: 1fr 1fr; }
+  #p2 > div:first-child > .grid:last-child .card { display: flex; flex-direction: column; justify-content: center; }
+  #p3, #p4 { display: flex; flex-direction: column; }
+  #p3 > div:nth-child(2) { flex: 1; }
+  #p3 > div:nth-child(2) .card div:nth-child(2) { font-size: 23px !important; }
+  #p3 > div:nth-child(2) .card { display: flex; flex-direction: column; justify-content: center; }
+  #p3 > div:nth-child(2) .card div:last-child { font-size: 19px !important; }
+  #p3 > div:nth-child(3) { flex: 1; }
+  #p3 > div:nth-child(3) .card > div:nth-child(2) { height: calc(100% - 40px); }
+  #p4 > div:first-child { flex: 0 0 210px; }
+  #p4 > div:first-child .card { display: flex; flex-direction: column; justify-content: center; }
+  #p4 > div:nth-child(2) { flex: 1; }
+  #p4 > div:nth-child(2) > .card:first-child > div:nth-child(2) { height: calc(100% - 40px); grid-auto-rows: 1fr; }
+  #p4 > div:nth-child(2) > .card:first-child > div:nth-child(2) > div { display: flex; flex-direction: column; justify-content: center; }
+  #p4 table td { padding-top: 12px !important; padding-bottom: 12px !important; font-size: 21px; }
+  #p5 > div:first-child { height: 800px; display: flex; flex-direction: column; }
+  #p5 > div:first-child > .grid:last-child { flex: 1; }
+  #p5 > div:first-child > .grid:last-child .card { display: flex; flex-direction: column; justify-content: center; }
+  #p5 > div:first-child > .grid:last-child .card div:last-child { font-size: 19px !important; }
+  #p5 table { border-spacing: 10px !important; } #p5 table td { padding: 8px 0; }
+  #p5 > div:last-child .card { height: 750px !important; }
+  #p6 > div { height: 800px; }
+  #p6 .card > div:nth-child(2) { height: calc(100% - 40px); grid-auto-rows: 1fr; }
+  #p6 .card > div:nth-child(2) > div { display: flex; flex-direction: column; justify-content: center; font-size: 22px; }
+  #p6 .card > div:nth-child(2) > div div { font-size: 18px !important; }
+  #p2 { background: #f8fafc; }
+</style></head><body>
+
+<!-- ============ PANEL 2: PROPOSED SOLUTION ============ -->
+<div class="panel" id="p2">
+  <div style="position:absolute; left:0; top:0; width:1360px; height:800px;">
+    <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 18px;">
+      <div class="card" style="padding:22px 26px; border-left:8px solid var(--red); background:#fff8f7;">
+        <div class="kicker" style="color:var(--red)">The problem</div>
+        <div style="font-size:23px; line-height:1.38; margin-top:8px;">Farmers sow on the <b>first rains</b>. When a <b>false onset</b> or a <b>monsoon break</b> follows, seed and inputs are lost. District-level, fixed-date advisories cannot tell one panchayat from the next.</div>
+      </div>
+      <div class="card" style="padding:22px 26px; border-left:8px solid var(--green); background:#f4fbf7;">
+        <div class="kicker" style="color:var(--green)">Our solution</div>
+        <div style="font-size:23px; line-height:1.38; margin-top:8px;">A <b>daily 1–4 week probabilistic outlook</b> for <b>every gram panchayat</b>: onset, false onset, dry spells, wet weeks and heavy rain. It is turned into <b>crop advisories in Kannada &amp; English</b>.</div>
+      </div>
+    </div>
+    <div class="kicker" style="margin:26px 0 12px;">What the system delivers</div>
+    <div class="grid" style="grid-template-columns: repeat(3, 1fr);">
+      <div class="card" style="padding:20px 22px; border-top:6px solid var(--blue);"><div style="font-size:44px; font-weight:800; color:var(--blue)">234</div><div style="font-size:21px; font-weight:700">gram panchayats</div><div class="muted" style="font-size:18px; margin-top:4px">Mandya district, one forecast per panchayat polygon</div></div>
+      <div class="card" style="padding:20px 22px; border-top:6px solid var(--teal);"><div style="font-size:44px; font-weight:800; color:var(--teal)">1–4 wk</div><div style="font-size:21px; font-weight:700">daily outlook</div><div class="muted" style="font-size:18px; margin-top:4px">issued every day from 1 May to 30 Sep</div></div>
+      <div class="card" style="padding:20px 22px; border-top:6px solid var(--purple);"><div style="font-size:44px; font-weight:800; color:var(--purple)">18</div><div style="font-size:21px; font-weight:700">calibrated probabilities</div><div class="muted" style="font-size:18px; margin-top:4px">onset · false onset · dry spell · dry / wet / heavy week</div></div>
+      <div class="card" style="padding:20px 22px; border-top:6px solid var(--orange);"><div style="font-size:30px; font-weight:800; color:var(--orange); line-height:1.15">MJO · BSISO<br>ENSO · IOD</div><div style="font-size:21px; font-weight:700; margin-top:4px">+ GEFS, GFS &amp; our v3 AI model</div></div>
+      <div class="card" style="padding:20px 22px; border-top:6px solid var(--green);"><div style="font-size:30px; font-weight:800; color:var(--green); line-height:1.15">ಕನ್ನಡ · English</div><div style="font-size:21px; font-weight:700; margin-top:4px">advisory engine</div><div class="muted" style="font-size:18px; margin-top:4px">web app, SMS &amp; WhatsApp text, officer dispatch queue</div></div>
+      <div class="card" style="padding:20px 22px; border-top:6px solid var(--navy);"><div style="font-size:30px; font-weight:800; color:var(--navy); line-height:1.15">Honest skill</div><div style="font-size:21px; font-weight:700; margin-top:4px">validated on unseen seasons</div><div class="muted" style="font-size:18px; margin-top:4px">the app shows what it can and cannot forecast</div></div>
+    </div>
+  </div>
+  <!-- phone -->
+  <div style="position:absolute; right:40px; top:0; width:380px; height:800px; display:flex; flex-direction:column; align-items:center;">
+    <div style="width:350px; height:740px; border-radius:46px; background:#111827; padding:14px; box-shadow:0 18px 40px rgba(15,42,74,.25);">
+      <div style="width:100%; height:100%; border-radius:34px; overflow:hidden; background:#fff;">
+        <img src="09_mobile_kannada.png" style="width:100%; display:block;">
+      </div>
+    </div>
+    <div class="muted" style="font-size:17px; margin-top:12px; text-align:center">Farmer view in Kannada (live app)</div>
+  </div>
+</div>
+
+<!-- ============ PANEL 3: TECHNICAL APPROACH ============ -->
+<div class="panel" id="p3">
+  <div class="kicker" style="margin-bottom:14px;">End-to-end pipeline</div>
+  <div style="display:flex; align-items:stretch; gap:0;">
+    <!-- step cards with arrows -->
+    <div class="card" style="flex:1; padding:18px 18px; border-top:7px solid var(--orange);">
+      <div style="font-size:16px; font-weight:800; color:var(--orange)">1 · INPUTS</div>
+      <div style="font-size:20px; font-weight:700; margin:6px 0 8px">Observations &amp; climate drivers</div>
+      <div style="font-size:17px; line-height:1.45; color:var(--ink2)">CHIRPS 0.05° rain, 1981–2023, area-weighted to 234 panchayats<br>Real-time MJO (ROMI), BSISO<br>Niño 3.4 (ENSO), DMI (IOD)</div>
+    </div>
+    <div style="width:46px; display:flex; align-items:center; justify-content:center; font-size:36px; color:var(--ink3)">➜</div>
+    <div class="card" style="flex:1; padding:18px 18px; border-top:7px solid var(--blue);">
+      <div style="font-size:16px; font-weight:800; color:var(--blue)">2 · SUB-SEASONAL OUTLOOK</div>
+      <div style="font-size:20px; font-weight:700; margin:6px 0 8px">18 calibrated models</div>
+      <div style="font-size:17px; line-height:1.45; color:var(--ink2)">Regularised logistic regression per event × week<br>MJO / BSISO × season interactions<br>Recent rain, season anomaly, onset state</div>
+    </div>
+    <div style="width:46px; display:flex; align-items:center; justify-content:center; font-size:36px; color:var(--ink3)">➜</div>
+    <div class="card" style="flex:1.15; padding:18px 18px; border-top:7px solid var(--purple);">
+      <div style="font-size:16px; font-weight:800; color:var(--purple)">3 · WEATHER-MODEL HYBRIDS</div>
+      <div style="font-size:20px; font-weight:700; margin:6px 0 8px">Numerical forecasts on top</div>
+      <div style="font-size:17px; line-height:1.45; color:var(--ink2)"><b>GEFS</b> 11-member ensemble, wks 1–4, quantile-mapped to local rain<br><b>GFS</b> 0.25°, days 1–16<br><b>v3</b>: our transformer + diffusion downscaler, 0.25°→0.05°, 16 members</div>
+    </div>
+    <div style="width:46px; display:flex; align-items:center; justify-content:center; font-size:36px; color:var(--ink3)">➜</div>
+    <div class="card" style="flex:1; padding:18px 18px; border-top:7px solid var(--green);">
+      <div style="font-size:16px; font-weight:800; color:var(--green)">4 · VALIDATION GATE</div>
+      <div style="font-size:20px; font-weight:700; margin:6px 0 8px">Ship only what is proven</div>
+      <div style="font-size:17px; line-height:1.45; color:var(--ink2)">A hybrid replaces the outlook only if it beats it on unseen seasons <b>and</b> its 90% CI is above zero. The rule was fixed in advance.</div>
+    </div>
+    <div style="width:46px; display:flex; align-items:center; justify-content:center; font-size:36px; color:var(--ink3)">➜</div>
+    <div class="card" style="flex:1; padding:18px 18px; border-top:7px solid var(--teal);">
+      <div style="font-size:16px; font-weight:800; color:var(--teal)">5 · ADVISORY &amp; DELIVERY</div>
+      <div style="font-size:20px; font-weight:700; margin:6px 0 8px">Expert system → farmers</div>
+      <div style="font-size:17px; line-height:1.45; color:var(--ink2)">Ranked crop advisories (ಕನ್ನಡ / EN)<br>Red / amber / green alerts<br>Web app · SMS · WhatsApp · officer queue</div>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns: 1.25fr 1fr; gap:22px; margin-top:24px;">
+    <div class="card" style="padding:22px 26px;">
+      <div class="kicker">Validation protocol</div>
+      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; margin-top:14px;">
+        <div style="background:var(--bg); border-radius:14px; padding:16px;"><div style="font-size:38px; font-weight:800; color:var(--blue)">43</div><div style="font-size:18px; font-weight:700">monsoons</div><div class="muted" style="font-size:16px">season-blocked cross-validation, 1981–2023</div></div>
+        <div style="background:var(--bg); border-radius:14px; padding:16px;"><div style="font-size:38px; font-weight:800; color:var(--purple)">20 + 3</div><div style="font-size:18px; font-weight:700">GEFS seasons</div><div class="muted" style="font-size:16px">reforecasts 2000–19, then an independent test on real 2021–23 forecasts</div></div>
+        <div style="background:var(--bg); border-radius:14px; padding:16px;"><div style="font-size:38px; font-weight:800; color:var(--green)">0</div><div style="font-size:18px; font-weight:700">look-ahead leaks</div><div class="muted" style="font-size:16px">real-time indices; inputs proven bit-identical when future rain changes</div></div>
+      </div>
+    </div>
+    <div class="card" style="padding:22px 26px;">
+      <div class="kicker">Tech stack</div>
+      <div style="margin-top:14px;">
+        <span class="chip" style="background:#e8f1fb; color:var(--blue)">Python · scikit-learn</span>
+        <span class="chip" style="background:#f1ecfa; color:var(--purple)">PyTorch (v3 transformer + diffusion)</span>
+        <span class="chip" style="background:#fff3e6; color:var(--orange)">NOAA GEFS / GFS on AWS</span>
+        <span class="chip" style="background:#eaf7f0; color:var(--green)">ecCodes · xarray · NumPy</span>
+        <span class="chip" style="background:#e6f4f5; color:var(--teal)">Leaflet static web app</span>
+        <span class="chip" style="background:#eef1f5; color:var(--navy)">Kaggle GPU / CPU pipelines</span>
+        <span class="chip" style="background:#eef1f5; color:var(--navy)">CLI: one command issues a full outlook</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PANEL 4: FEASIBILITY ============ -->
+<div class="panel" id="p4">
+  <div class="grid" style="grid-template-columns: repeat(4, 1fr);">
+    <div class="card" style="padding:22px; text-align:center;"><div style="font-size:52px; font-weight:800; color:var(--blue)">100%</div><div style="font-size:20px; font-weight:700">public data</div><div class="muted" style="font-size:16px">NOAA, CHIRPS, BSISO index; IMD / NCMRWF feeds drop in</div></div>
+    <div class="card" style="padding:22px; text-align:center;"><div style="font-size:52px; font-weight:800; color:var(--green)">&lt;15 s</div><div style="font-size:20px; font-weight:700">laptop CPU per day</div><div class="muted" style="font-size:16px">full outlook + advisories, 234 panchayats</div></div>
+    <div class="card" style="padding:22px; text-align:center;"><div style="font-size:52px; font-weight:800; color:var(--purple)">&lt;10 s</div><div style="font-size:20px; font-weight:700">GPU per day (v3)</div><div class="muted" style="font-size:16px">16-member ensemble; a full season took 15 min on one T4</div></div>
+    <div class="card" style="padding:22px; text-align:center;"><div style="font-size:52px; font-weight:800; color:var(--orange)">Any</div><div style="font-size:20px; font-weight:700">district</div><div class="muted" style="font-size:16px">add panchayat polygons; models retrain from CHIRPS / IMD</div></div>
+  </div>
+  <div style="display:grid; grid-template-columns: 1.15fr 1fr; gap:22px; margin-top:22px;">
+    <div class="card" style="padding:22px 26px;">
+      <div class="kicker">Key challenges and how we solved them</div>
+      <div style="display:grid; gap:12px; margin-top:14px;">
+        <div style="border-left:6px solid var(--red); background:#fff8f7; border-radius:10px; padding:12px 16px;"><div style="font-size:19px; font-weight:800">Hidden look-ahead in climate indices</div><div style="font-size:17px; color:var(--ink2)">Switched to the real-time MJO index; onset counted only once confirmed; leak test on every input.</div></div>
+        <div style="border-left:6px solid var(--orange); background:#fffaf2; border-radius:10px; padding:12px 16px;"><div style="font-size:19px; font-weight:800">Coarse global models miss local rain</div><div style="font-size:17px; color:var(--ink2)">GEFS quantile-mapped to panchayat rain; event rules applied per ensemble member.</div></div>
+        <div style="border-left:6px solid var(--purple); background:#f8f5fd; border-radius:10px; padding:12px 16px;"><div style="font-size:19px; font-weight:800">Over-fitting rare events</div><div style="font-size:17px; color:var(--ink2)">Low-capacity models, fixed selection rule, leave-one-season-out tests and an independent operational test.</div></div>
+        <div style="border-left:6px solid var(--blue); background:#f3f8fd; border-radius:10px; padding:12px 16px;"><div style="font-size:19px; font-weight:800">Low connectivity in villages</div><div style="font-size:17px; color:var(--ink2)">Static, lightweight app; SMS and WhatsApp text in Kannada.</div></div>
+      </div>
+    </div>
+    <div class="card" style="padding:22px 26px;">
+      <div class="kicker">Reliable where it matters</div>
+      <div style="font-size:18px; color:var(--ink2); margin:8px 0 12px">When the system says 70%, it happens about 70% of the time. Calibration gap per forecast, from the app:</div>
+      <table style="width:100%; border-collapse:collapse; font-size:19px;">
+        <tr style="color:var(--ink3); font-size:15px; text-transform:uppercase; letter-spacing:.05em"><td style="padding:6px 0">Forecast</td><td style="text-align:right">Calibration gap</td></tr>
+        <tr><td style="padding:7px 0; border-top:1px solid var(--line)">Dry week, weeks 1–4</td><td class="num" style="text-align:right; border-top:1px solid var(--line); font-weight:800; color:var(--green)">1.2–1.9%</td></tr>
+        <tr><td style="padding:7px 0; border-top:1px solid var(--line)">False-onset risk</td><td class="num" style="text-align:right; border-top:1px solid var(--line); font-weight:800; color:var(--green)">1.4%</td></tr>
+        <tr><td style="padding:7px 0; border-top:1px solid var(--line)">Wet week, week 1</td><td class="num" style="text-align:right; border-top:1px solid var(--line); font-weight:800; color:var(--orange)">4.0%</td></tr>
+        <tr><td style="padding:7px 0; border-top:1px solid var(--line)">Dry spell within 3 weeks</td><td class="num" style="text-align:right; border-top:1px solid var(--line); font-weight:800; color:var(--orange)">5.6%</td></tr>
+      </table>
+      <div style="font-size:16px; color:var(--ink3); margin-top:12px">Limits we show openly: heavy-rain days and onset in weeks 1–3 have no reliable skill, so heavy-rain alerts are capped at amber.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PANEL 5: IMPACT ============ -->
+<div class="panel" id="p5">
+  <div style="position:absolute; left:0; top:0; width:1180px;">
+    <div class="kicker" style="margin-bottom:12px;">Validated forecast skill <span class="muted" style="text-transform:none; letter-spacing:0; font-weight:600">(vs. the long-term average, on seasons the models never saw)</span></div>
+    <div class="card" style="padding:18px 22px;">
+      <table style="width:100%; border-collapse:separate; border-spacing:8px; font-size:22px; text-align:center;">
+        <tr style="font-size:17px; color:var(--ink3); font-weight:700"><td style="text-align:left">Event</td><td>Week 1</td><td>Week 2</td><td>Week 3</td><td>Week 4</td></tr>
+        <tr><td style="text-align:left; font-weight:700">Dry week</td><td style="background:#1f7a4d; color:#fff; border-radius:10px; font-weight:800">+0.16</td><td style="background:#1f7a4d; color:#fff; border-radius:10px; font-weight:800">+0.15</td><td style="background:#5fae7f; color:#fff; border-radius:10px; font-weight:800">+0.08</td><td style="background:#8fc7a3; color:#10391f; border-radius:10px; font-weight:800">+0.06</td></tr>
+        <tr><td style="text-align:left; font-weight:700">Wet week</td><td style="background:#1f7a4d; color:#fff; border-radius:10px; font-weight:800">+0.23</td><td style="background:#d7ecdf; color:#1f4d33; border-radius:10px; font-weight:800">+0.03</td><td style="background:#f1f3f6; color:#9aa6b5; border-radius:10px">–</td><td style="background:#f1f3f6; color:#9aa6b5; border-radius:10px">–</td></tr>
+        <tr><td style="text-align:left; font-weight:700">Dry spell (7+ days) in 3 wks</td><td colspan="3" style="background:#5fae7f; color:#fff; border-radius:10px; font-weight:800">+0.08</td><td></td></tr>
+        <tr><td style="text-align:left; font-weight:700">False onset in 3 wks</td><td colspan="3" style="background:#8fc7a3; color:#10391f; border-radius:10px; font-weight:800">+0.06</td><td></td></tr>
+        <tr><td style="text-align:left; font-weight:700">Heavy rain · onset week</td><td colspan="4" style="background:#fbeceb; color:var(--red); border-radius:10px; font-size:18px; font-weight:700">no reliable skill yet: shown honestly, alerts capped at amber</td></tr>
+      </table>
+    </div>
+    <div class="kicker" style="margin:22px 0 12px;">Who benefits</div>
+    <div class="grid" style="grid-template-columns: repeat(3, 1fr);">
+      <div class="card" style="padding:18px 20px; border-left:7px solid var(--green);"><div style="font-size:21px; font-weight:800; color:var(--green)">Farmers</div><div style="font-size:17px; color:var(--ink2); margin-top:6px">Avoid sowing on false starts; time top-dressing and irrigation around dry spells, 1–4 weeks ahead, in Kannada.</div></div>
+      <div class="card" style="padding:18px 20px; border-left:7px solid var(--blue);"><div style="font-size:21px; font-weight:800; color:var(--blue)">Agriculture officers · KVKs</div><div style="font-size:17px; color:var(--ink2); margin-top:6px">Block risk map and red / amber dispatch queue for targeted advisories.</div></div>
+      <div class="card" style="padding:18px 20px; border-left:7px solid var(--purple);"><div style="font-size:21px; font-weight:800; color:var(--purple)">IMD · NCMRWF · district</div><div style="font-size:17px; color:var(--ink2); margin-top:6px">A transparent, reproducible model with reliability evidence that can be extended to other districts.</div></div>
+    </div>
+  </div>
+  <div style="position:absolute; right:0; top:0; width:620px; height:800px;">
+    <div class="card" style="padding:14px; height:690px; overflow:hidden; display:flex; flex-direction:column;">
+      <div style="font-size:18px; font-weight:800; color:var(--navy); margin:2px 6px 10px">Panchayat risk map · wet-week probability, week 1</div>
+      <div style="flex:1; border-radius:12px; overflow:hidden; background:#eef1f4; display:flex; align-items:center; justify-content:center;">
+        <img src="02_risk_map_crop.png" style="width:100%; height:100%; object-fit:cover;">
+      </div>
+    </div>
+    <div class="muted" style="font-size:17px; margin-top:12px; text-align:center">Live app · 234 panchayat polygons, Mandya</div>
+  </div>
+</div>
+
+<!-- ============ PANEL 6: REFERENCES ============ -->
+<div class="panel" id="p6">
+  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:26px;">
+    <div class="card" style="padding:24px 28px;">
+      <div class="kicker">Scientific basis</div>
+      <div style="display:grid; gap:12px; margin-top:14px; font-size:19px;">
+        <div style="background:var(--bg); border-radius:12px; padding:13px 16px;"><b>Real-time MJO index (ROMI)</b><div class="muted" style="font-size:16px">Kiladis et al. (2014), Mon. Wea. Rev.; NOAA PSL real-time OMI</div></div>
+        <div style="background:var(--bg); border-radius:12px; padding:13px 16px;"><b>Boreal-summer ISO (BSISO) index</b><div class="muted" style="font-size:16px">Kikuchi, Wang &amp; Kajikawa (2012), Clim. Dyn.: real-time bimodal ISO index</div></div>
+        <div style="background:var(--bg); border-radius:12px; padding:13px 16px;"><b>Agronomic onset &amp; false onset</b><div class="muted" style="font-size:16px">Marteau et al. (2009); IMD dry-day threshold 2.5 mm</div></div>
+        <div style="background:var(--bg); border-radius:12px; padding:13px 16px;"><b>GEFSv12 reforecast</b><div class="muted" style="font-size:16px">Hamill et al. (2022), Mon. Wea. Rev.</div></div>
+        <div style="background:var(--bg); border-radius:12px; padding:13px 16px;"><b>Diffusion downscaling (CorrDiff)</b><div class="muted" style="font-size:16px">Mardani et al. (2024): basis of our v3 week-1 model</div></div>
+      </div>
+    </div>
+    <div class="card" style="padding:24px 28px;">
+      <div class="kicker">Open datasets &amp; code</div>
+      <div style="display:grid; gap:12px; margin-top:14px; font-size:19px;">
+        <div style="background:var(--bg); border-radius:12px; padding:13px 16px;"><b>CHIRPS v2.0 daily rain, 0.05°</b><div class="muted" style="font-size:16px">Funk et al. (2015), Sci. Data; UCSB Climate Hazards Center</div></div>
+        <div style="background:var(--bg); border-radius:12px; padding:13px 16px;"><b>NOAA GEFS / GFS forecasts</b><div class="muted" style="font-size:16px">AWS Open Data (noaa-gefs-retrospective, noaa-gfs-bdp-pds); NCAR RDA ds084.1</div></div>
+        <div style="background:var(--bg); border-radius:12px; padding:13px 16px;"><b>ENSO &amp; IOD indices</b><div class="muted" style="font-size:16px">NOAA CPC weekly Niño 3.4; NOAA PSL Dipole Mode Index</div></div>
+        <div style="background:var(--bg); border-radius:12px; padding:13px 16px;"><b>Panchayat boundaries</b><div class="muted" style="font-size:16px">LGD-coded gram panchayat polygons, Mandya district</div></div>
+        <div style="background:#e8f1fb; border-radius:12px; padding:13px 16px;"><b>Our code &amp; full results</b><div style="font-size:16px; color:var(--blue)">github.com/RohitBharadwaj-rvu/SIH-26074-downscaling-v3 · docs/results_ps26086.md</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>

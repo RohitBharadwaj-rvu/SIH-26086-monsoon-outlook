@@ -29,7 +29,7 @@ h2 { font-size: 1rem; font-weight: 700; }
 .ctl select option { color: var(--ink); }
 .lang-toggle { background: #fff; color: var(--navy); border: 0; border-radius: 999px; padding: 7px 14px; font-weight: 700; cursor: pointer; }
 .tabs { position: sticky; top: 58px; z-index: 1150; display: flex; gap: 4px; padding: 8px 12px; background: var(--card); border-bottom: 1px solid var(--line); overflow-x: auto; }
-.tab { flex: 1; min-width: 92px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; background: transparent;
+.tab { flex: 1 0 auto; min-width: 92px; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; background: transparent;
   padding: 9px 10px; border-radius: 10px; color: var(--ink-2); font-weight: 600; cursor: pointer; white-space: nowrap; }
 .tab.active { background: #e7f4f5; color: var(--teal); }
 .tab-ic { font-size: 1rem; }
