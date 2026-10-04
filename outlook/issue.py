@@ -12,6 +12,8 @@ target, the hybrid chosen by outlook.select (operational stackers fitted on all 
   --rain  npz {rain [days since 1 May, G] mm/day, codes [G]}   default: CHIRPS replay (seasons <= 2023), cut at the issue day
   --gfs   npz {lat, lon, pr [16, nlat, nlon] mm/day}           default: the replay archive ckpts/gfs16/all for that init
   --v3    npz {rain [G, 7] mm/day, codes [G]}                   default: the out-of-fold v3 replay (Jun-Sep 2015-2023)
+  --gefs  npz in the kaggle/gefs format (inits, members, pr10, pr35, grids); the latest run <= 6 days old is used
+                                                                 default: ckpts/gefs (reforecast 2000-2019, operational 2021-2023)
 """
 from __future__ import annotations
 
@@ -26,6 +28,7 @@ import numpy as np
 from outlook.advisory import advise
 from outlook.build import index_at, index_series
 from outlook.model import DATA, MOD, NI, RES, features, load_model, observed_wet_starts, onset_and_false
+from outlook.stack_gefs import bil, ens_feats, logit
 from outlook.stack_gfs import stack_X, to_gp
 from outlook.stack_v3 import v3_X
 
@@ -64,6 +67,24 @@ def load_gfs(t: date, path, glat, glon):
     return None
 
 
+def load_gefs(t: date, path, glat, glon):
+    """latest GEFS 35-day run within 6 days of t -> features [G, 18] (file format of kaggle/gefs: gefs35_<year>.npz)."""
+    import glob
+    fs = [path] if path else glob.glob(str(REPO / "ckpts" / "gefs" / "**" / f"gefs35_{t.year}.npz"), recursive=True)
+    if not fs:
+        return None
+    z = np.load(fs[0])
+    inits = [date.fromisoformat(s) for s in z["inits"].astype(str)]
+    c = [n for n, d in enumerate(inits) if 0 <= (t - d).days <= 6]
+    if not c:
+        return None
+    n = c[-1]; age = (t - inits[n]).days
+    a = bil(z["pr10"][n].astype(np.float32), z["lat25"], z["lon25"], glat, glon)          # [M, 10, G]
+    b = bil(z["pr35"][n].astype(np.float32), z["lat50"], z["lon50"], glat, glon)          # [M, 25, G]
+    R = np.maximum(np.concatenate([a, b], 1), 0).transpose(2, 0, 1)                       # [G, M, 35]
+    return ens_feats(R[..., age:age + 28], age)
+
+
 def load_v3(t: date, path, codes):
     if path:
         z = np.load(path)
@@ -78,7 +99,7 @@ def load_v3(t: date, path, codes):
     return None
 
 
-def issue(t: date, idx_dir: Path, rain=None, gfs=None, v3=None):
+def issue(t: date, idx_dir: Path, rain=None, gfs=None, v3=None, gefs=None):
     gd = np.load(DATA / "gp_daily.npz")
     codes = [str(c) for c in gd["codes"]]
     lat, lon = gd["lat"].astype(np.float32), gd["lon"].astype(np.float32)
@@ -91,6 +112,7 @@ def issue(t: date, idx_dir: Path, rain=None, gfs=None, v3=None):
     ws = observed_wet_starts(r)
     G16 = load_gfs(t, gfs, gd["lat"], gd["lon"])
     V3 = load_v3(t, v3, codes)
+    GE = load_gefs(t, gefs, gd["lat"].astype(np.float64), gd["lon"].astype(np.float64))
     sel = json.load(open(RES / "final_selection.json"))
     p, src = {}, {}
     for e in EVENTS:
@@ -105,6 +127,11 @@ def issue(t: date, idx_dir: Path, rain=None, gfs=None, v3=None):
             k = joblib.load(MOD / f"stack_gfs_{e}.joblib")
             p[e] = k["lr"].predict_proba((stack_X(p[e], G16, v3in) - k["mu"]) / k["sd"])[:, 1]
             src[e] = "gfs"
+        elif s == "gefs" and GE is not None:
+            k = joblib.load(MOD / f"stack_gefs_{e}.joblib")
+            X = np.concatenate([logit(p[e])[:, None], GE], 1)
+            p[e] = k["lr"].predict_proba((X - k["mu"]) / k["sd"])[:, 1]
+            src[e] = "gefs"
         elif s == "v3" and V3 is not None:
             k = joblib.load(MOD / f"stack_v3_{e}.joblib")
             p[e] = k["lr"].predict_proba(v3_X(p[e], V3))[:, 1]
@@ -113,7 +140,7 @@ def issue(t: date, idx_dir: Path, rain=None, gfs=None, v3=None):
     seen = np.isfinite(onset[0]) & (onset[0] + CONFIRM <= i)
     fin = lambda v: float(v) if np.isfinite(v) else None
     out = {"issued": t.isoformat(), "indices": {k: (None if fin(v) is None else round(float(v), 3)) for k, v in ix.items()},
-           "gfs": G16 is not None, "v3": V3 is not None, "sources": src, "gp": {}}
+           "gfs": G16 is not None, "v3": V3 is not None, "gefs": GE is not None, "sources": src, "gp": {}}
     for j, c in enumerate(codes):
         ph = {e: float(p[e][j]) for e in EVENTS}
         if seen[j]:
@@ -130,12 +157,13 @@ if __name__ == "__main__":
     a.add_argument("--rain")
     a.add_argument("--gfs")
     a.add_argument("--v3")
+    a.add_argument("--gefs")
     a.add_argument("--out")
     o = a.parse_args()
     idx_dir = Path(o.idx) if o.idx else REPO / "outlook" / "data" / "idx"
-    res = issue(date.fromisoformat(o.date), idx_dir, o.rain, o.gfs, o.v3)
+    res = issue(date.fromisoformat(o.date), idx_dir, o.rain, o.gfs, o.v3, o.gefs)
     if o.out:
         open(o.out, "w", encoding="utf-8").write(json.dumps(res, ensure_ascii=False, indent=1))
     n_adv = sum(len(g["advisories"]) for g in res["gp"].values())
-    print(f"issued {res['issued']} | GFS {res['gfs']} | v3 {res['v3']} | {n_adv} advisories over {len(res['gp'])} GPs")
+    print(f"issued {res['issued']} | GFS {res['gfs']} | GEFS {res['gefs']} | v3 {res['v3']} | {n_adv} advisories over {len(res['gp'])} GPs")
     print("sources:", {k: v for k, v in res["sources"].items() if v != "outlook"})

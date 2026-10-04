@@ -166,9 +166,9 @@ def model_card():
     if fs.exists():
         card["final_selection"] = json.load(open(fs))
         card["pipeline"][1]["role"] = ("Weeks 1-4: probabilities of onset, false onset, dry spells, wet weeks and heavy downpours per "
-                                       "panchayat; weeks 1-2 blended with GFS days 1-16 and the v3 week-1 forecast where that is validated to help")
+                                       "panchayat; blended with the GEFS ensemble, GFS days 1-16 or the v3 week-1 forecast where that is validated to help")
         card["pipeline"][1]["inputs"] = ["real-time MJO (ROMI) and BSISO", "ENSO (weekly Niño 3.4)", "IOD (DMI)", "panchayat climatology",
-                                         "recent observed rain", "GFS days 1-16 (weeks 1-2)", "v3 week-1 forecast"]
+                                         "recent observed rain", "GEFS 11-member ensemble (weeks 1-4)", "GFS days 1-16 (weeks 1-2)", "v3 week-1 forecast"]
     card["definitions"] = {
         "dry": "all 7 days < 2.5 mm (IMD dry day)", "wet": "weekly total ≥ 1.5 × the panchayat's normal for that week",
         "heavy": "any day ≥ 30 mm", "break3w": "a run of ≥ 7 dry days within the next 3 weeks",
@@ -215,12 +215,15 @@ def _real():
     _REAL["v3"] = st["v3_display"].astype(np.float32)
     # per target, the validated source chosen by outlook.select (rule fixed before the final run)
     sel = json.load(open(R / "final_selection.json")) if (R / "final_selection.json").exists() else {}
-    srcs = {"v3": st, "gfs": np.load(R / "stack.npz") if (R / "stack.npz").exists() else None}
-    _REAL["stack"] = {}
+    srcs = {"v3": st}
+    for k, f in (("gfs", "stack.npz"), ("gefs", "stack_gefs.npz")):
+        if (R / f).exists():
+            srcs[k] = np.load(R / f)
+    _REAL["stack"] = {}                                                # target -> (years, probabilities [Y, NI, G])
     for e, v in sel.items():
         f = srcs.get(v["source"])
         if f is not None and e in f.files:
-            _REAL["stack"][e] = f[e].astype(np.float32)
+            _REAL["stack"][e] = ([int(x) for x in f["years"]], f[e].astype(np.float32))
     _REAL["selection"] = sel
     _REAL["onset"] = np.load(R / "onset.npz")["onset"]
     return _REAL
@@ -243,10 +246,11 @@ def real_season(y, gps, idx_at):
         for g_i, g in enumerate(gps):
             j = order[g_i]
             ph = {e: float(D["p"][e][a, i, j]) for e in EVENTS}
-            for e, arr in D["stack"].items():                      # week-1 hybrid with v3 (falls back where no v3 run)
-                v = float(arr[sy, i, j])
-                if np.isfinite(v):
-                    ph[e] = v
+            for e, (yrs, arr) in D["stack"].items():               # selected hybrid (falls back where its inputs are missing)
+                if y in yrs:
+                    v = float(arr[yrs.index(y), i, j])
+                    if np.isfinite(v):
+                        ph[e] = v
             od = D["onset"][a, j]
             seen = bool(np.isfinite(od) and od + CONFIRM <= i)          # causal: onset counts once its 21-day check is observed
             if seen:

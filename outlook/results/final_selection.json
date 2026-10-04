@@ -20,13 +20,14 @@
   "seasons": "9 seasons 2015-2023 (leave-one-season-out)"
  },
  "dry_3": {
-  "source": "outlook",
-  "bss": 0.0354,
+  "source": "gefs",
+  "bss": 0.0652,
   "ci90": [
-   0.0142,
-   0.0572
+   0.035,
+   0.0944
   ],
-  "seasons": "1981-2023 (season-blocked CV)"
+  "outlook_bss_same_rows": 0.0575,
+  "seasons": "20 seasons 2000-2019 (leave-one-season-out)"
  },
  "dry_4": {
   "source": "outlook",

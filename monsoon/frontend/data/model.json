@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-04T04:48",
+ "generated": "2026-10-04T09:32",
  "pipeline": [
   {
    "id": "v3",
@@ -17,13 +17,14 @@
   {
    "id": "outlook",
    "name": "Sub-seasonal outlook (regularised logistic, one model per event × week)",
-   "role": "Weeks 1-4: probabilities of onset, false onset, dry spells, wet weeks and heavy downpours per panchayat; weeks 1-2 blended with GFS days 1-16 and the v3 week-1 forecast where that is validated to help",
+   "role": "Weeks 1-4: probabilities of onset, false onset, dry spells, wet weeks and heavy downpours per panchayat; blended with the GEFS ensemble, GFS days 1-16 or the v3 week-1 forecast where that is validated to help",
    "inputs": [
     "real-time MJO (ROMI) and BSISO",
     "ENSO (weekly Niño 3.4)",
     "IOD (DMI)",
     "panchayat climatology",
     "recent observed rain",
+    "GEFS 11-member ensemble (weeks 1-4)",
     "GFS days 1-16 (weeks 1-2)",
     "v3 week-1 forecast"
    ],
@@ -1768,13 +1769,14 @@
    "seasons": "9 seasons 2015-2023 (leave-one-season-out)"
   },
   "dry_3": {
-   "source": "outlook",
-   "bss": 0.0354,
+   "source": "gefs",
+   "bss": 0.0652,
    "ci90": [
-    0.0142,
-    0.0572
+    0.035,
+    0.0944
    ],
-   "seasons": "1981-2023 (season-blocked CV)"
+   "outlook_bss_same_rows": 0.0575,
+   "seasons": "20 seasons 2000-2019 (leave-one-season-out)"
   },
   "dry_4": {
    "source": "outlook",

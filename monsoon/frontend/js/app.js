@@ -25,7 +25,7 @@ const T = {
     mjo_active: "active", mjo_weak: "weak", phase: "phase", amp: "amplitude", select_gp: "Tap a panchayat for details",
     importance: "What the models rely on", importance_hint: "permutation importance on held-out seasons",
     within2: "onset within 2 wk", within4: "within 4 wk", shipped: "Validated skill of what ships", shipped_hint: "one row per event and lead",
-    hybrid_note: "Weeks 1–2 use the GFS / downscaling hybrid where it is validated to help (2015–2023); otherwise the climate-driver outlook (1981–2023).",
+    hybrid_note: "Each event uses the most skilful validated model: the climate-driver outlook (1981–2023), or a hybrid with the GEFS ensemble (2000–2019), GFS days 1–16 or the v3 downscaling model (2015–2023).",
   },
   kn: {
     app_title: "ಮುಂಗಾರು ಮುನ್ನೋಟ", app_sub: "ಮಂಡ್ಯ · 234 ಪಂಚಾಯಿತಿ · 1–4 ವಾರ", season: "ಹಂಗಾಮು", issued: "ಪ್ರಕಟಣೆ",
@@ -315,7 +315,7 @@ function renderModel() {
       series.forEach((s, j) => { const ev = ["dry", "wet", "heavy", "onset"][j];
         s.values = [1, 2, 3, 4].map((k) => { const f = F[`${ev}_${k}`]; return f ? { v: f.bss, lo: f.ci90[0], hi: f.ci90[1] } : null; }); });
       const rows = Object.entries(F).map(([k, f]) => `<tr><td>${k.replace(/_(\d)$/, " · wk $1").replace("break3w", "dry spell (3 wk)").replace("false3w", "false onset (3 wk)")}</td>
-        <td>${f.source === "outlook" ? "climate drivers" : f.source === "v3" ? "+ v3 week 1" : "+ GFS d1–16 + v3"}</td><td class="num">${f.bss.toFixed(3)}</td>
+        <td>${({ outlook: "climate drivers", v3: "+ v3 week 1", gfs: "+ GFS d1–16 + v3", gefs: "+ GEFS 11-member ensemble" })[f.source]}</td><td class="num">${f.bss.toFixed(3)}</td>
         <td class="num">[${f.ci90[0].toFixed(3)}, ${f.ci90[1].toFixed(3)}]</td><td>${f.seasons}</td></tr>`).join("");
       $("#sel-table").innerHTML = `<thead><tr><th>Event</th><th>Shipped model</th><th>Brier skill</th><th>90% CI</th><th>Validated on</th></tr></thead><tbody>${rows}</tbody>`;
     }
