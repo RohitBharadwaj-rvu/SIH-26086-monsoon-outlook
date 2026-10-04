@@ -76,7 +76,7 @@ Brier skill score vs climatology; 0 = no better than the long-term average.
 * NOAA PSL Real-time OMI (ROMI); Kikuchi et al. BSISO index; NOAA Niño 3.4 weekly; JAMSTEC/NOAA DMI.
 * Funk et al. 2015, CHIRPS; Hamill et al. 2022, GEFSv12 reforecast.
 * Marteau et al. 2009 (agronomic onset definition); IMD dry-day definition (< 2.5 mm).
-* Code and results: github.com/RohitBharadwaj-rvu/SIH-26074-downscaling-v3 (`outlook/`, `monsoon/`, `docs/results_ps26086.md`).
+* Code and results: github.com/RohitBharadwaj-rvu/SIH-26086-monsoon-outlook (`outlook/`, `monsoon/`, `docs/results_ps26086.md`).
 
 ## Visuals to place
 * App screenshots: panchayat card (Kannada), risk map, officer dispatch queue, ML view (can/cannot panel + reliability grid).
