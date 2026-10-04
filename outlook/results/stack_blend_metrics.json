@@ -1,0 +1,232 @@
+{
+ "dry_1": {
+  "bss_outlook": 0.1069,
+  "bss_stacked": 0.1556,
+  "bss_gfs_same_rows": 0.1456,
+  "bss_gefs2_same_rows": 0.1109,
+  "ci90_stacked": [
+   0.0867,
+   0.243
+  ],
+  "n": 282921,
+  "seasons": "8 seasons 2015-2023 (no fitting)",
+  "years": [
+   2015,
+   2016,
+   2017,
+   2018,
+   2019,
+   2021,
+   2022,
+   2023
+  ],
+  "inputs": "mean of GFS and GEFS-v2 hybrids"
+ },
+ "wet_1": {
+  "bss_outlook": 0.0738,
+  "bss_stacked": 0.1965,
+  "bss_gfs_same_rows": 0.2079,
+  "bss_gefs2_same_rows": 0.0992,
+  "ci90_stacked": [
+   0.1055,
+   0.2589
+  ],
+  "n": 282863,
+  "seasons": "8 seasons 2015-2023 (no fitting)",
+  "years": [
+   2015,
+   2016,
+   2017,
+   2018,
+   2019,
+   2021,
+   2022,
+   2023
+  ],
+  "inputs": "mean of GFS and GEFS-v2 hybrids"
+ },
+ "heavy_1": {
+  "bss_outlook": -0.0139,
+  "bss_stacked": 0.0294,
+  "bss_gfs_same_rows": 0.0247,
+  "bss_gefs2_same_rows": 0.0037,
+  "ci90_stacked": [
+   -0.0081,
+   0.0549
+  ],
+  "n": 282885,
+  "seasons": "8 seasons 2015-2023 (no fitting)",
+  "years": [
+   2015,
+   2016,
+   2017,
+   2018,
+   2019,
+   2021,
+   2022,
+   2023
+  ],
+  "inputs": "mean of GFS and GEFS-v2 hybrids"
+ },
+ "onset_1": {
+  "bss_outlook": -0.0282,
+  "bss_stacked": 0.0336,
+  "bss_gfs_same_rows": 0.0008,
+  "bss_gefs2_same_rows": -0.0072,
+  "ci90_stacked": [
+   -0.0757,
+   0.1014
+  ],
+  "n": 124428,
+  "seasons": "8 seasons 2015-2023 (no fitting)",
+  "years": [
+   2015,
+   2016,
+   2017,
+   2018,
+   2019,
+   2021,
+   2022,
+   2023
+  ],
+  "inputs": "mean of GFS and GEFS-v2 hybrids"
+ },
+ "false3w": {
+  "bss_outlook": 0.0059,
+  "bss_stacked": -0.0001,
+  "bss_gfs_same_rows": -0.0181,
+  "bss_gefs2_same_rows": -0.0166,
+  "ci90_stacked": [
+   -0.0313,
+   0.0379
+  ],
+  "n": 124288,
+  "seasons": "8 seasons 2015-2023 (no fitting)",
+  "years": [
+   2015,
+   2016,
+   2017,
+   2018,
+   2019,
+   2021,
+   2022,
+   2023
+  ],
+  "inputs": "mean of GFS and GEFS-v2 hybrids"
+ },
+ "break3w": {
+  "bss_outlook": 0.0257,
+  "bss_stacked": 0.0803,
+  "bss_gfs_same_rows": 0.0849,
+  "bss_gefs2_same_rows": 0.0179,
+  "ci90_stacked": [
+   0.0285,
+   0.1372
+  ],
+  "n": 282132,
+  "seasons": "8 seasons 2015-2023 (no fitting)",
+  "years": [
+   2015,
+   2016,
+   2017,
+   2018,
+   2019,
+   2021,
+   2022,
+   2023
+  ],
+  "inputs": "mean of GFS and GEFS-v2 hybrids"
+ },
+ "dry_2": {
+  "bss_outlook": 0.1015,
+  "bss_stacked": 0.1464,
+  "bss_gfs_same_rows": 0.1451,
+  "bss_gefs2_same_rows": 0.1079,
+  "ci90_stacked": [
+   0.075,
+   0.2144
+  ],
+  "n": 282798,
+  "seasons": "8 seasons 2015-2023 (no fitting)",
+  "years": [
+   2015,
+   2016,
+   2017,
+   2018,
+   2019,
+   2021,
+   2022,
+   2023
+  ],
+  "inputs": "mean of GFS and GEFS-v2 hybrids"
+ },
+ "wet_2": {
+  "bss_outlook": 0.0071,
+  "bss_stacked": 0.0457,
+  "bss_gfs_same_rows": 0.0344,
+  "bss_gefs2_same_rows": 0.0022,
+  "ci90_stacked": [
+   -0.0195,
+   0.1053
+  ],
+  "n": 282755,
+  "seasons": "8 seasons 2015-2023 (no fitting)",
+  "years": [
+   2015,
+   2016,
+   2017,
+   2018,
+   2019,
+   2021,
+   2022,
+   2023
+  ],
+  "inputs": "mean of GFS and GEFS-v2 hybrids"
+ },
+ "heavy_2": {
+  "bss_outlook": -0.0559,
+  "bss_stacked": -0.0315,
+  "bss_gfs_same_rows": -0.0362,
+  "bss_gefs2_same_rows": -0.0593,
+  "ci90_stacked": [
+   -0.105,
+   0.0302
+  ],
+  "n": 282796,
+  "seasons": "8 seasons 2015-2023 (no fitting)",
+  "years": [
+   2015,
+   2016,
+   2017,
+   2018,
+   2019,
+   2021,
+   2022,
+   2023
+  ],
+  "inputs": "mean of GFS and GEFS-v2 hybrids"
+ },
+ "onset_2": {
+  "bss_outlook": -0.0138,
+  "bss_stacked": -0.0033,
+  "bss_gfs_same_rows": -0.0331,
+  "bss_gefs2_same_rows": 0.0034,
+  "ci90_stacked": [
+   -0.0234,
+   0.0168
+  ],
+  "n": 124431,
+  "seasons": "8 seasons 2015-2023 (no fitting)",
+  "years": [
+   2015,
+   2016,
+   2017,
+   2018,
+   2019,
+   2021,
+   2022,
+   2023
+  ],
+  "inputs": "mean of GFS and GEFS-v2 hybrids"
+ }
+}

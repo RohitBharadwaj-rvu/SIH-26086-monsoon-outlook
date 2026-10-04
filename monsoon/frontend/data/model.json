@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-04T09:32",
+ "generated": "2026-10-04T09:45",
  "pipeline": [
   {
    "id": "v3",
@@ -1749,43 +1749,44 @@
  },
  "final_selection": {
   "dry_1": {
-   "source": "gfs",
-   "bss": 0.1499,
+   "source": "blend",
+   "bss": 0.1556,
    "ci90": [
-    0.0617,
-    0.2281
+    0.0867,
+    0.243
    ],
-   "outlook_bss_same_rows": 0.1201,
-   "seasons": "9 seasons 2015-2023 (leave-one-season-out)"
+   "outlook_bss_same_rows": 0.1069,
+   "seasons": "8 seasons 2015-2023 (no fitting)"
   },
   "dry_2": {
-   "source": "gfs",
-   "bss": 0.1492,
+   "source": "blend",
+   "bss": 0.1464,
    "ci90": [
-    0.0936,
-    0.2087
+    0.075,
+    0.2144
    ],
-   "outlook_bss_same_rows": 0.1068,
-   "seasons": "9 seasons 2015-2023 (leave-one-season-out)"
+   "outlook_bss_same_rows": 0.1015,
+   "seasons": "8 seasons 2015-2023 (no fitting)"
   },
   "dry_3": {
-   "source": "gefs",
-   "bss": 0.0652,
+   "source": "gefs2",
+   "bss": 0.0768,
    "ci90": [
-    0.035,
-    0.0944
+    0.0503,
+    0.1066
    ],
    "outlook_bss_same_rows": 0.0575,
    "seasons": "20 seasons 2000-2019 (leave-one-season-out)"
   },
   "dry_4": {
-   "source": "outlook",
-   "bss": 0.034,
+   "source": "gefs2",
+   "bss": 0.0552,
    "ci90": [
-    0.0118,
-    0.0546
+    0.0276,
+    0.09
    ],
-   "seasons": "1981-2023 (season-blocked CV)"
+   "outlook_bss_same_rows": 0.0416,
+   "seasons": "20 seasons 2000-2019 (leave-one-season-out)"
   },
   "wet_1": {
    "source": "gfs",
@@ -1897,14 +1898,14 @@
    "seasons": "1981-2023 (season-blocked CV)"
   },
   "break3w": {
-   "source": "gfs",
-   "bss": 0.1092,
+   "source": "blend",
+   "bss": 0.0803,
    "ci90": [
-    0.0371,
-    0.187
+    0.0285,
+    0.1372
    ],
-   "outlook_bss_same_rows": 0.0565,
-   "seasons": "9 seasons 2015-2023 (leave-one-season-out)"
+   "outlook_bss_same_rows": 0.0257,
+   "seasons": "8 seasons 2015-2023 (no fitting)"
   },
   "false3w": {
    "source": "v3",

@@ -1,0 +1,869 @@
+{
+ "dry_1": {
+  "bss_outlook": 0.0975,
+  "bss_stacked": 0.1173,
+  "ci90_stacked": [
+   0.0553,
+   0.1703
+  ],
+  "n": 716040,
+  "seasons": "20 seasons 2000-2019 (leave-one-season-out)",
+  "years": [
+   2000,
+   2001,
+   2002,
+   2003,
+   2004,
+   2005,
+   2006,
+   2007,
+   2008,
+   2009,
+   2010,
+   2011,
+   2012,
+   2013,
+   2014,
+   2015,
+   2016,
+   2017,
+   2018,
+   2019
+  ],
+  "inputs": "outlook + calibrated GEFS 11-member event fractions",
+  "features": [
+   "tot1",
+   "fdry1",
+   "age"
+  ],
+  "ops_test": {
+   "years": [
+    2021,
+    2022,
+    2023
+   ],
+   "bss_outlook": 0.0725,
+   "bss_stacked": 0.1637,
+   "n": 105768
+  }
+ },
+ "dry_2": {
+  "bss_outlook": 0.0719,
+  "bss_stacked": 0.0845,
+  "ci90_stacked": [
+   0.0381,
+   0.1314
+  ],
+  "n": 716040,
+  "seasons": "20 seasons 2000-2019 (leave-one-season-out)",
+  "years": [
+   2000,
+   2001,
+   2002,
+   2003,
+   2004,
+   2005,
+   2006,
+   2007,
+   2008,
+   2009,
+   2010,
+   2011,
+   2012,
+   2013,
+   2014,
+   2015,
+   2016,
+   2017,
+   2018,
+   2019
+  ],
+  "inputs": "outlook + calibrated GEFS 11-member event fractions",
+  "features": [
+   "tot2",
+   "fdry2",
+   "age"
+  ],
+  "ops_test": {
+   "years": [
+    2021,
+    2022,
+    2023
+   ],
+   "bss_outlook": 0.1002,
+   "bss_stacked": 0.1438,
+   "n": 105768
+  }
+ },
+ "dry_3": {
+  "bss_outlook": 0.0575,
+  "bss_stacked": 0.0768,
+  "ci90_stacked": [
+   0.0503,
+   0.1066
+  ],
+  "n": 716040,
+  "seasons": "20 seasons 2000-2019 (leave-one-season-out)",
+  "years": [
+   2000,
+   2001,
+   2002,
+   2003,
+   2004,
+   2005,
+   2006,
+   2007,
+   2008,
+   2009,
+   2010,
+   2011,
+   2012,
+   2013,
+   2014,
+   2015,
+   2016,
+   2017,
+   2018,
+   2019
+  ],
+  "inputs": "outlook + calibrated GEFS 11-member event fractions",
+  "features": [
+   "tot3",
+   "fdry3",
+   "age"
+  ],
+  "ops_test": {
+   "years": [
+    2021,
+    2022,
+    2023
+   ],
+   "bss_outlook": 0.0222,
+   "bss_stacked": 0.0415,
+   "n": 105768
+  }
+ },
+ "dry_4": {
+  "bss_outlook": 0.0416,
+  "bss_stacked": 0.0552,
+  "ci90_stacked": [
+   0.0276,
+   0.09
+  ],
+  "n": 716040,
+  "seasons": "20 seasons 2000-2019 (leave-one-season-out)",
+  "years": [
+   2000,
+   2001,
+   2002,
+   2003,
+   2004,
+   2005,
+   2006,
+   2007,
+   2008,
+   2009,
+   2010,
+   2011,
+   2012,
+   2013,
+   2014,
+   2015,
+   2016,
+   2017,
+   2018,
+   2019
+  ],
+  "inputs": "outlook + calibrated GEFS 11-member event fractions",
+  "features": [
+   "tot4",
+   "fdry4",
+   "age"
+  ],
+  "ops_test": {
+   "years": [
+    2021,
+    2022,
+    2023
+   ],
+   "bss_outlook": 0.0724,
+   "bss_stacked": 0.1063,
+   "n": 105768
+  }
+ },
+ "wet_1": {
+  "bss_outlook": 0.0713,
+  "bss_stacked": 0.1235,
+  "ci90_stacked": [
+   0.0655,
+   0.1772
+  ],
+  "n": 716040,
+  "seasons": "20 seasons 2000-2019 (leave-one-season-out)",
+  "years": [
+   2000,
+   2001,
+   2002,
+   2003,
+   2004,
+   2005,
+   2006,
+   2007,
+   2008,
+   2009,
+   2010,
+   2011,
+   2012,
+   2013,
+   2014,
+   2015,
+   2016,
+   2017,
+   2018,
+   2019
+  ],
+  "inputs": "outlook + calibrated GEFS 11-member event fractions",
+  "features": [
+   "tot1",
+   "fwet1",
+   "age"
+  ],
+  "ops_test": {
+   "years": [
+    2021,
+    2022,
+    2023
+   ],
+   "bss_outlook": 0.107,
+   "bss_stacked": 0.1687,
+   "n": 105768
+  }
+ },
+ "wet_2": {
+  "bss_outlook": 0.028,
+  "bss_stacked": 0.0436,
+  "ci90_stacked": [
+   -0.0107,
+   0.0949
+  ],
+  "n": 716040,
+  "seasons": "20 seasons 2000-2019 (leave-one-season-out)",
+  "years": [
+   2000,
+   2001,
+   2002,
+   2003,
+   2004,
+   2005,
+   2006,
+   2007,
+   2008,
+   2009,
+   2010,
+   2011,
+   2012,
+   2013,
+   2014,
+   2015,
+   2016,
+   2017,
+   2018,
+   2019
+  ],
+  "inputs": "outlook + calibrated GEFS 11-member event fractions",
+  "features": [
+   "tot2",
+   "fwet2",
+   "age"
+  ],
+  "ops_test": {
+   "years": [
+    2021,
+    2022,
+    2023
+   ],
+   "bss_outlook": 0.0544,
+   "bss_stacked": 0.089,
+   "n": 105768
+  }
+ },
+ "wet_3": {
+  "bss_outlook": -0.0041,
+  "bss_stacked": 0.0023,
+  "ci90_stacked": [
+   -0.0421,
+   0.0402
+  ],
+  "n": 716040,
+  "seasons": "20 seasons 2000-2019 (leave-one-season-out)",
+  "years": [
+   2000,
+   2001,
+   2002,
+   2003,
+   2004,
+   2005,
+   2006,
+   2007,
+   2008,
+   2009,
+   2010,
+   2011,
+   2012,
+   2013,
+   2014,
+   2015,
+   2016,
+   2017,
+   2018,
+   2019
+  ],
+  "inputs": "outlook + calibrated GEFS 11-member event fractions",
+  "features": [
+   "tot3",
+   "fwet3",
+   "age"
+  ],
+  "ops_test": {
+   "years": [
+    2021,
+    2022,
+    2023
+   ],
+   "bss_outlook": -0.0151,
+   "bss_stacked": 0.0123,
+   "n": 105768
+  }
+ },
+ "wet_4": {
+  "bss_outlook": -0.0017,
+  "bss_stacked": -0.0067,
+  "ci90_stacked": [
+   -0.0452,
+   0.0242
+  ],
+  "n": 716040,
+  "seasons": "20 seasons 2000-2019 (leave-one-season-out)",
+  "years": [
+   2000,
+   2001,
+   2002,
+   2003,
+   2004,
+   2005,
+   2006,
+   2007,
+   2008,
+   2009,
+   2010,
+   2011,
+   2012,
+   2013,
+   2014,
+   2015,
+   2016,
+   2017,
+   2018,
+   2019
+  ],
+  "inputs": "outlook + calibrated GEFS 11-member event fractions",
+  "features": [
+   "tot4",
+   "fwet4",
+   "age"
+  ],
+  "ops_test": {
+   "years": [
+    2021,
+    2022,
+    2023
+   ],
+   "bss_outlook": -0.0074,
+   "bss_stacked": -0.0146,
+   "n": 105768
+  }
+ },
+ "heavy_1": {
+  "bss_outlook": -0.0273,
+  "bss_stacked": -0.0339,
+  "ci90_stacked": [
+   -0.0711,
+   0.0013
+  ],
+  "n": 716040,
+  "seasons": "20 seasons 2000-2019 (leave-one-season-out)",
+  "years": [
+   2000,
+   2001,
+   2002,
+   2003,
+   2004,
+   2005,
+   2006,
+   2007,
+   2008,
+   2009,
+   2010,
+   2011,
+   2012,
+   2013,
+   2014,
+   2015,
+   2016,
+   2017,
+   2018,
+   2019
+  ],
+  "inputs": "outlook + calibrated GEFS 11-member event fractions",
+  "features": [
+   "tot1",
+   "fheavy1",
+   "age"
+  ],
+  "ops_test": {
+   "years": [
+    2021,
+    2022,
+    2023
+   ],
+   "bss_outlook": -0.0045,
+   "bss_stacked": 0.0255,
+   "n": 105768
+  }
+ },
+ "heavy_2": {
+  "bss_outlook": -0.0296,
+  "bss_stacked": -0.0335,
+  "ci90_stacked": [
+   -0.0761,
+   0.0037
+  ],
+  "n": 716040,
+  "seasons": "20 seasons 2000-2019 (leave-one-season-out)",
+  "years": [
+   2000,
+   2001,
+   2002,
+   2003,
+   2004,
+   2005,
+   2006,
+   2007,
+   2008,
+   2009,
+   2010,
+   2011,
+   2012,
+   2013,
+   2014,
+   2015,
+   2016,
+   2017,
+   2018,
+   2019
+  ],
+  "inputs": "outlook + calibrated GEFS 11-member event fractions",
+  "features": [
+   "tot2",
+   "fheavy2",
+   "age"
+  ],
+  "ops_test": {
+   "years": [
+    2021,
+    2022,
+    2023
+   ],
+   "bss_outlook": -0.0217,
+   "bss_stacked": -0.0041,
+   "n": 105768
+  }
+ },
+ "heavy_3": {
+  "bss_outlook": -0.0188,
+  "bss_stacked": -0.0262,
+  "ci90_stacked": [
+   -0.0561,
+   0.0048
+  ],
+  "n": 716040,
+  "seasons": "20 seasons 2000-2019 (leave-one-season-out)",
+  "years": [
+   2000,
+   2001,
+   2002,
+   2003,
+   2004,
+   2005,
+   2006,
+   2007,
+   2008,
+   2009,
+   2010,
+   2011,
+   2012,
+   2013,
+   2014,
+   2015,
+   2016,
+   2017,
+   2018,
+   2019
+  ],
+  "inputs": "outlook + calibrated GEFS 11-member event fractions",
+  "features": [
+   "tot3",
+   "fheavy3",
+   "age"
+  ],
+  "ops_test": {
+   "years": [
+    2021,
+    2022,
+    2023
+   ],
+   "bss_outlook": -0.0086,
+   "bss_stacked": 0.0037,
+   "n": 105768
+  }
+ },
+ "heavy_4": {
+  "bss_outlook": 0.021,
+  "bss_stacked": 0.0053,
+  "ci90_stacked": [
+   -0.0404,
+   0.0505
+  ],
+  "n": 716040,
+  "seasons": "20 seasons 2000-2019 (leave-one-season-out)",
+  "years": [
+   2000,
+   2001,
+   2002,
+   2003,
+   2004,
+   2005,
+   2006,
+   2007,
+   2008,
+   2009,
+   2010,
+   2011,
+   2012,
+   2013,
+   2014,
+   2015,
+   2016,
+   2017,
+   2018,
+   2019
+  ],
+  "inputs": "outlook + calibrated GEFS 11-member event fractions",
+  "features": [
+   "tot4",
+   "fheavy4",
+   "age"
+  ],
+  "ops_test": {
+   "years": [
+    2021,
+    2022,
+    2023
+   ],
+   "bss_outlook": -0.0324,
+   "bss_stacked": -0.0352,
+   "n": 105768
+  }
+ },
+ "onset_1": {
+  "bss_outlook": -0.0135,
+  "bss_stacked": 0.0057,
+  "ci90_stacked": [
+   -0.0406,
+   0.0479
+  ],
+  "n": 307122,
+  "seasons": "20 seasons 2000-2019 (leave-one-season-out)",
+  "years": [
+   2000,
+   2001,
+   2002,
+   2003,
+   2004,
+   2005,
+   2006,
+   2007,
+   2008,
+   2009,
+   2010,
+   2011,
+   2012,
+   2013,
+   2014,
+   2015,
+   2016,
+   2017,
+   2018,
+   2019
+  ],
+  "inputs": "outlook + calibrated GEFS 11-member event fractions",
+  "features": [
+   "fon1",
+   "tot1",
+   "age"
+  ],
+  "ops_test": {
+   "years": [
+    2021,
+    2022,
+    2023
+   ],
+   "bss_outlook": 0.0254,
+   "bss_stacked": 0.0533,
+   "n": 61212
+  }
+ },
+ "onset_2": {
+  "bss_outlook": 0.0029,
+  "bss_stacked": 0.0116,
+  "ci90_stacked": [
+   -0.0177,
+   0.038
+  ],
+  "n": 307122,
+  "seasons": "20 seasons 2000-2019 (leave-one-season-out)",
+  "years": [
+   2000,
+   2001,
+   2002,
+   2003,
+   2004,
+   2005,
+   2006,
+   2007,
+   2008,
+   2009,
+   2010,
+   2011,
+   2012,
+   2013,
+   2014,
+   2015,
+   2016,
+   2017,
+   2018,
+   2019
+  ],
+  "inputs": "outlook + calibrated GEFS 11-member event fractions",
+  "features": [
+   "fon2",
+   "tot2",
+   "age"
+  ],
+  "ops_test": {
+   "years": [
+    2021,
+    2022,
+    2023
+   ],
+   "bss_outlook": 0.0034,
+   "bss_stacked": 0.0143,
+   "n": 61212
+  }
+ },
+ "onset_3": {
+  "bss_outlook": 0.0008,
+  "bss_stacked": -0.0004,
+  "ci90_stacked": [
+   -0.0296,
+   0.0275
+  ],
+  "n": 307122,
+  "seasons": "20 seasons 2000-2019 (leave-one-season-out)",
+  "years": [
+   2000,
+   2001,
+   2002,
+   2003,
+   2004,
+   2005,
+   2006,
+   2007,
+   2008,
+   2009,
+   2010,
+   2011,
+   2012,
+   2013,
+   2014,
+   2015,
+   2016,
+   2017,
+   2018,
+   2019
+  ],
+  "inputs": "outlook + calibrated GEFS 11-member event fractions",
+  "features": [
+   "fon3",
+   "tot3",
+   "age"
+  ],
+  "ops_test": {
+   "years": [
+    2021,
+    2022,
+    2023
+   ],
+   "bss_outlook": 0.0117,
+   "bss_stacked": 0.0032,
+   "n": 61212
+  }
+ },
+ "onset_4": {
+  "bss_outlook": 0.0403,
+  "bss_stacked": 0.0381,
+  "ci90_stacked": [
+   -0.0157,
+   0.0986
+  ],
+  "n": 307122,
+  "seasons": "20 seasons 2000-2019 (leave-one-season-out)",
+  "years": [
+   2000,
+   2001,
+   2002,
+   2003,
+   2004,
+   2005,
+   2006,
+   2007,
+   2008,
+   2009,
+   2010,
+   2011,
+   2012,
+   2013,
+   2014,
+   2015,
+   2016,
+   2017,
+   2018,
+   2019
+  ],
+  "inputs": "outlook + calibrated GEFS 11-member event fractions",
+  "features": [
+   "fon4",
+   "tot4",
+   "age"
+  ],
+  "ops_test": {
+   "years": [
+    2021,
+    2022,
+    2023
+   ],
+   "bss_outlook": -0.0202,
+   "bss_stacked": -0.0645,
+   "n": 61212
+  }
+ },
+ "break3w": {
+  "bss_outlook": 0.0888,
+  "bss_stacked": 0.1003,
+  "ci90_stacked": [
+   0.0473,
+   0.1551
+  ],
+  "n": 716040,
+  "seasons": "20 seasons 2000-2019 (leave-one-season-out)",
+  "years": [
+   2000,
+   2001,
+   2002,
+   2003,
+   2004,
+   2005,
+   2006,
+   2007,
+   2008,
+   2009,
+   2010,
+   2011,
+   2012,
+   2013,
+   2014,
+   2015,
+   2016,
+   2017,
+   2018,
+   2019
+  ],
+  "inputs": "outlook + calibrated GEFS 11-member event fractions",
+  "features": [
+   "fbreak",
+   "tot1",
+   "tot2",
+   "tot3",
+   "age"
+  ],
+  "ops_test": {
+   "years": [
+    2021,
+    2022,
+    2023
+   ],
+   "bss_outlook": 0.0516,
+   "bss_stacked": 0.069,
+   "n": 105768
+  }
+ },
+ "false3w": {
+  "bss_outlook": -0.0136,
+  "bss_stacked": -0.0008,
+  "ci90_stacked": [
+   -0.0598,
+   0.0705
+  ],
+  "n": 307122,
+  "seasons": "20 seasons 2000-2019 (leave-one-season-out)",
+  "years": [
+   2000,
+   2001,
+   2002,
+   2003,
+   2004,
+   2005,
+   2006,
+   2007,
+   2008,
+   2009,
+   2010,
+   2011,
+   2012,
+   2013,
+   2014,
+   2015,
+   2016,
+   2017,
+   2018,
+   2019
+  ],
+  "inputs": "outlook + calibrated GEFS 11-member event fractions",
+  "features": [
+   "ffalse",
+   "fon123",
+   "tot1",
+   "age"
+  ],
+  "ops_test": {
+   "years": [
+    2021,
+    2022,
+    2023
+   ],
+   "bss_outlook": -0.018,
+   "bss_stacked": -0.0482,
+   "n": 61212
+  }
+ }
+}

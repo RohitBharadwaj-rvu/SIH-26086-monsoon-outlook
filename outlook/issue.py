@@ -29,6 +29,7 @@ from outlook.advisory import advise
 from outlook.build import index_at, index_series
 from outlook.model import DATA, MOD, NI, RES, features, load_model, observed_wet_starts, onset_and_false
 from outlook.stack_gefs import bil, ens_feats, logit
+from outlook.stack_gefs2 import apply_qm, member_feats, predict_offset
 from outlook.stack_gfs import stack_X, to_gp
 from outlook.stack_v3 import v3_X
 
@@ -68,7 +69,8 @@ def load_gfs(t: date, path, glat, glon):
 
 
 def load_gefs(t: date, path, glat, glon):
-    """latest GEFS 35-day run within 6 days of t -> features [G, 18] (file format of kaggle/gefs: gefs35_<year>.npz)."""
+    """latest GEFS 35-day run within 6 days of t -> (member rain [G, M, 28] from the issue day, run age in days)
+    (file format of kaggle/gefs: gefs35_<year>.npz)."""
     import glob
     fs = [path] if path else glob.glob(str(REPO / "ckpts" / "gefs" / "**" / f"gefs35_{t.year}.npz"), recursive=True)
     if not fs:
@@ -82,7 +84,18 @@ def load_gefs(t: date, path, glat, glon):
     a = bil(z["pr10"][n].astype(np.float32), z["lat25"], z["lon25"], glat, glon)          # [M, 10, G]
     b = bil(z["pr35"][n].astype(np.float32), z["lat50"], z["lon50"], glat, glon)          # [M, 25, G]
     R = np.maximum(np.concatenate([a, b], 1), 0).transpose(2, 0, 1)                       # [G, M, 35]
-    return ens_feats(R[..., age:age + 28], age)
+    return R[..., age:age + 28], age
+
+
+def gefs2_prob(e, p_out, raw, i, year):
+    """calibrated-GEFS v2 hybrid for target e from the outlook probabilities [G] and the raw run."""
+    E, age = raw
+    k = joblib.load(MOD / f"stack_gefs2_{e}.joblib")
+    X = np.full((NI,) + E.shape, np.nan, np.float32); X[i] = E
+    ag = np.full(NI, np.nan, np.float32); ag[i] = age
+    f = member_feats(apply_qm(X, k["qm"]), ag, k["normal"], year)
+    Z = np.stack([f[n][i] for n in k["features"]], -1)
+    return predict_offset(k["w"], (Z - k["mu"]) / k["sd"], logit(p_out))
 
 
 def load_v3(t: date, path, codes):
@@ -112,7 +125,8 @@ def issue(t: date, idx_dir: Path, rain=None, gfs=None, v3=None, gefs=None):
     ws = observed_wet_starts(r)
     G16 = load_gfs(t, gfs, gd["lat"], gd["lon"])
     V3 = load_v3(t, v3, codes)
-    GE = load_gefs(t, gefs, gd["lat"].astype(np.float64), gd["lon"].astype(np.float64))
+    GR = load_gefs(t, gefs, gd["lat"].astype(np.float64), gd["lon"].astype(np.float64))
+    GE = ens_feats(GR[0], GR[1]) if GR is not None else None
     sel = json.load(open(RES / "final_selection.json"))
     p, src = {}, {}
     for e in EVENTS:
@@ -120,12 +134,23 @@ def issue(t: date, idx_dir: Path, rain=None, gfs=None, v3=None, gefs=None):
         X = features(r, idx, ws, m["clim_prob"], m["clim_mean"], lat, lon, [i])[0, 0]      # [G, F]
         p[e] = m["model"].predict_proba(X)[:, 1]
         src[e] = "outlook"
+    v3in = V3 if V3 is not None else np.full((len(codes), 7), np.nan, np.float32)
+
+    def gfs_prob(e, po):
+        k = joblib.load(MOD / f"stack_gfs_{e}.joblib")
+        return k["lr"].predict_proba((stack_X(po, G16, v3in) - k["mu"]) / k["sd"])[:, 1]
+
     for e in EVENTS:                                       # validated hybrids on top of the outlook probabilities
         s = sel.get(e, {}).get("source")
-        if s == "gfs" and G16 is not None:
-            v3in = V3 if V3 is not None else np.full((len(codes), 7), np.nan, np.float32)
-            k = joblib.load(MOD / f"stack_gfs_{e}.joblib")
-            p[e] = k["lr"].predict_proba((stack_X(p[e], G16, v3in) - k["mu"]) / k["sd"])[:, 1]
+        if s == "blend" and (G16 is not None or GR is not None):     # mean of both hybrids; either one alone if the other is missing
+            parts = ([gfs_prob(e, p[e])] if G16 is not None else []) + ([gefs2_prob(e, p[e], GR, i, t.year)] if GR is not None else [])
+            p[e] = np.mean(parts, 0)
+            src[e] = "blend" if len(parts) == 2 else ("gfs" if G16 is not None else "gefs2")
+        elif s == "gefs2" and GR is not None:
+            p[e] = gefs2_prob(e, p[e], GR, i, t.year)
+            src[e] = "gefs2"
+        elif s == "gfs" and G16 is not None:
+            p[e] = gfs_prob(e, p[e])
             src[e] = "gfs"
         elif s == "gefs" and GE is not None:
             k = joblib.load(MOD / f"stack_gefs_{e}.joblib")

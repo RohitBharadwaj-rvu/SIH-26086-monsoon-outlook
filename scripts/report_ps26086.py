@@ -12,11 +12,14 @@ sel = json.load(open(RES / "final_selection.json"))
 hv3 = json.load(open(RES / "stack_week1_metrics.json"))
 hgfs = json.load(open(RES / "stack_metrics.json"))
 hgefs = json.load(open(RES / "stack_gefs_metrics.json")) if (RES / "stack_gefs_metrics.json").exists() else {}
+hgefs2 = json.load(open(RES / "stack_gefs2_metrics.json")) if (RES / "stack_gefs2_metrics.json").exists() else {}
+hblend = json.load(open(RES / "stack_blend_metrics.json")) if (RES / "stack_blend_metrics.json").exists() else {}
 
 NAME = {"dry": "Dry week (all 7 days < 2.5 mm)", "wet": "Wet week (≥ 1.5 × normal)", "heavy": "Heavy rain (a day ≥ 30 mm)",
         "onset": "Monsoon onset in that week", "break3w": "Dry spell ≥ 7 days within 3 weeks", "false3w": "False onset within 3 weeks"}
 SRC = {"outlook": "climate-driver outlook", "v3": "outlook + v3 week 1", "gfs": "outlook + GFS d1–16 + v3 week 1",
-       "gefs": "outlook + GEFS 11-member ensemble"}
+       "gefs": "outlook + GEFS 11-member ensemble", "gefs2": "outlook + calibrated GEFS ensemble",
+       "blend": "mean of GFS and calibrated-GEFS hybrids"}
 
 
 def label(t):
@@ -38,10 +41,10 @@ def hy(h, t):
 rows = []
 for t in cv:
     s = sel[t]
-    o = hgefs.get(t, {}).get("ops_test")
+    o = hgefs2.get(t, {}).get("ops_test")
     ops = f"{o['bss_outlook']:+.3f} → {o['bss_stacked']:+.3f}" if o else "–"
     rows.append(f"| {label(t)} | {cv[t]['base_rate']:.3f} | {cv[t]['bss']:+.3f} {ci(cv[t]['ci90'])} | {hy(hv3, t)} | {hy(hgfs, t)} | "
-                f"{hy(hgefs, t)} | {ops} | **{SRC[s['source']]}** | **{s['bss']:+.3f}** |")
+                f"{hy(hgefs, t)} | {hy(hgefs2, t)} | {hy(hblend, t)} | {ops} | **{SRC[s['source']]}** | **{s['bss']:+.3f}** |")
 n_skill = sum(1 for t in sel if sel[t]["ci90"][0] > 0)
 gfs_seasons = next(iter(hgfs.values()))["seasons"]
 gefs_seasons = next(iter(hgefs.values()))["seasons"] if hgefs else "–"
@@ -82,14 +85,14 @@ Observed truth: CHIRPS v2.0 0.05° daily rain, 1981–2023, area-weighted to eac
   * GEFS: {gefs_seasons}, using the NOAA reforecasts. Every issue day uses the latest Wednesday 35-day run, 0–6 days old. That is conservative, because operational GEFS runs to 35 days every day.
   * GFS: {gfs_seasons}.
   * v3: 9 seasons, 2015–2023.
-* **Independent operational test (GEFS):** the GEFS stacker trained on 2000–2019 reforecasts is applied unchanged to the real operational GEFS forecasts of 2021–2023, which it never saw. The "ops test" column shows outlook → hybrid Brier skill on those seasons. 2020 is excluded because GEFS then ran only 16 days.
+* **Independent operational test (GEFS):** the GEFS stacker trained on 2000–2019 reforecasts is applied unchanged to the real operational GEFS forecasts of 2021–2023, which it never saw. The "ops test" column shows outlook → hybrid (v2) Brier skill on those seasons. 2020 is excluded because GEFS then ran only 16 days.
 * Score: Brier skill score (BSS) vs climatology (0 = no better than the long-term average). 90 % CI from a season bootstrap.
 * **Selection rule (fixed before the final run):** a hybrid replaces the outlook only if, on its own validation rows, its BSS beats the outlook's AND its 90 % CI lower bound is above zero. If several hybrids qualify, the one with the largest gain over the outlook wins. Candidates are validated on different seasons, so raw BSS values are not comparable; this tie-break was fixed before any GEFS result was seen (`outlook/select.py`).
 
 ## Skill
 
-| Target | Base rate | Outlook, 43 seasons | + v3 week 1 | + GFS d1–16 + v3 | + GEFS ensemble | GEFS ops test 2021–23 | Shipped | Shipped BSS |
-|---|---|---|---|---|---|---|---|---|
+| Target | Base rate | Outlook, 43 seasons | + v3 week 1 | + GFS d1–16 + v3 | + GEFS v1 | + GEFS v2 (calibrated) | GFS/GEFS-v2 average | GEFS v2 ops test 2021–23 | Shipped | Shipped BSS |
+|---|---|---|---|---|---|---|---|---|---|---|
 {chr(10).join(rows)}
 
 **{n_skill} of {len(sel)}** shipped targets have a 90 % CI entirely above zero.
@@ -103,15 +106,29 @@ Observed truth: CHIRPS v2.0 0.05° daily rain, 1981–2023, area-weighted to eac
   * Onset week, except a small signal in week 4.
   * For these targets the system ships calibrated climatology-like probabilities.
   * Heavy-rain advisories are therefore capped at amber; red is reserved for events with validated skill.
-* **Validation sample:** the hybrid rows rest on far fewer seasons (≤ 9) than the outlook (43), so their CIs are wider.
+* **Validation sample:** the hybrids rest on fewer seasons than the outlook (8–20 vs 43), so their CIs are wider.
 
 ### What the GEFS ensemble added
-* **Reforecasts (20 seasons, 2000–2019):** the GEFS hybrid improves dry weeks 1–3, wet week 1 and dry-spell risk.
-  * The GFS hybrid gains more on the targets both cover, so under the selection rule GEFS replaces the outlook only for dry week 3.
-  * It does not help heavy rain at weeks 3–4 or onset; on some of these rare events it is worse than the outlook.
-* **Operational test (2021–2023):** the reforecast-trained stacker, applied unchanged, keeps or improves its gains for weeks 1–2 and dry spells.
-  * Dry week 3 does not improve in this test (only 3 seasons), so that selection rests on the 20 reforecast seasons alone.
-* **Interpretation:** these results are consistent with the known limits of sub-seasonal rainfall prediction. Skill beyond week 2 at village scale comes mainly from the MJO/BSISO state and the dry/wet tendency, not from day-to-day rain amounts.
+**v1** is a generic 19-input stacker on raw GEFS.
+* Over 20 reforecast seasons it improves dry weeks 1–3, wet week 1 and dry-spell risk.
+* On rare events it does worse than the outlook, and its dry-week-3 gain did not hold up in the operational test.
+
+**v2** changes three things, all fixed before its results were seen:
+* **Calibration:** GEFS rain is quantile-mapped to observed panchayat rain. Raw GEFS averages rain over ~25 km boxes, so it rarely shows a heavy day.
+* **Event-matched inputs:** each event's own definition (dry week, wet week, heavy day, onset, false start, dry spell) is applied to every one of the 11 member trajectories.
+* **A lean stacker:** the outlook's logit is a fixed offset, so the stacker only learns corrections, using the target's own 2–5 inputs.
+
+**Results:**
+* v2 lifts dry week 3 to +0.077 and dry week 4 to +0.055.
+  * Both 90% ranges are above zero.
+  * Both gains hold up in the operational test on 2021–2023, which the model never saw.
+* Averaging the GFS and calibrated-GEFS hybrids, with no fitting, gives the largest gain over the outlook for dry weeks 1–2 and dry-spell risk on 8 seasons.
+  * The rule therefore ships the average for those three targets.
+  * Its raw BSS on its own seasons can look lower than the GFS hybrid's on different seasons. The comparison that counts is gain over the outlook on the same rows.
+
+**No validated gain:** heavy-rain days and onset in weeks 1–3.
+* Calibrated member onset fractions move onset weeks 1–2 slightly positive (+0.006, +0.012), but their 90% ranges still include zero, so they are not shipped.
+* This is consistent with the known limits of sub-seasonal rainfall prediction. Beyond week 2, village-scale skill comes mainly from the MJO/BSISO state and the dry/wet tendency, not from day-to-day rain amounts.
 
 ## Leakage audits (all fixed before the numbers above)
 | Issue | Effect | Fix |
@@ -139,7 +156,8 @@ python -m outlook.build <chirps_dir> outlook/data/idx      # GP rain + indices
 python -m outlook.model                                      # 18 outlook models, CV metrics, final models
 python -m outlook.stack_v3 && python -m outlook.stack_v3 final
 python outlook/merge_gfs16.py && python -m outlook.stack_gfs ckpts/gfs16/all 0.005
-python -m outlook.stack_gefs ckpts/gefs                      # GEFS reforecast + operational (kaggle/gefs)
+python -m outlook.stack_gefs ckpts/gefs                      # GEFS v1 (reforecast + operational, kaggle/gefs)
+python -m outlook.stack_gefs2 ckpts/gefs                     # GEFS v2 (calibrated) + GFS/GEFS average
 python -m outlook.select                                     # final_selection.json
 python -m outlook.issue 2023-06-12 --out issue.json          # operational outlook for one date
 python -m monsoon.build_bundle --source real                 # web app data

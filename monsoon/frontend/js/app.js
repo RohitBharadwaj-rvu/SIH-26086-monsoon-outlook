@@ -315,7 +315,7 @@ function renderModel() {
       series.forEach((s, j) => { const ev = ["dry", "wet", "heavy", "onset"][j];
         s.values = [1, 2, 3, 4].map((k) => { const f = F[`${ev}_${k}`]; return f ? { v: f.bss, lo: f.ci90[0], hi: f.ci90[1] } : null; }); });
       const rows = Object.entries(F).map(([k, f]) => `<tr><td>${k.replace(/_(\d)$/, " · wk $1").replace("break3w", "dry spell (3 wk)").replace("false3w", "false onset (3 wk)")}</td>
-        <td>${({ outlook: "climate drivers", v3: "+ v3 week 1", gfs: "+ GFS d1–16 + v3", gefs: "+ GEFS 11-member ensemble" })[f.source]}</td><td class="num">${f.bss.toFixed(3)}</td>
+        <td>${({ outlook: "climate drivers", v3: "+ v3 week 1", gfs: "+ GFS d1–16 + v3", gefs: "+ GEFS 11-member ensemble", gefs2: "+ calibrated GEFS ensemble", blend: "GFS + GEFS hybrids averaged" })[f.source]}</td><td class="num">${f.bss.toFixed(3)}</td>
         <td class="num">[${f.ci90[0].toFixed(3)}, ${f.ci90[1].toFixed(3)}]</td><td>${f.seasons}</td></tr>`).join("");
       $("#sel-table").innerHTML = `<thead><tr><th>Event</th><th>Shipped model</th><th>Brier skill</th><th>90% CI</th><th>Validated on</th></tr></thead><tbody>${rows}</tbody>`;
     }

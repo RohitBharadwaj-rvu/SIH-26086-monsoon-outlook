@@ -34,32 +34,32 @@ Observed truth: CHIRPS v2.0 0.05° daily rain, 1981–2023, area-weighted to eac
   * GEFS: 20 seasons 2000-2019 (leave-one-season-out), using the NOAA reforecasts. Every issue day uses the latest Wednesday 35-day run, 0–6 days old. That is conservative, because operational GEFS runs to 35 days every day.
   * GFS: 9 seasons 2015-2023 (leave-one-season-out).
   * v3: 9 seasons, 2015–2023.
-* **Independent operational test (GEFS):** the GEFS stacker trained on 2000–2019 reforecasts is applied unchanged to the real operational GEFS forecasts of 2021–2023, which it never saw. The "ops test" column shows outlook → hybrid Brier skill on those seasons. 2020 is excluded because GEFS then ran only 16 days.
+* **Independent operational test (GEFS):** the GEFS stacker trained on 2000–2019 reforecasts is applied unchanged to the real operational GEFS forecasts of 2021–2023, which it never saw. The "ops test" column shows outlook → hybrid (v2) Brier skill on those seasons. 2020 is excluded because GEFS then ran only 16 days.
 * Score: Brier skill score (BSS) vs climatology (0 = no better than the long-term average). 90 % CI from a season bootstrap.
 * **Selection rule (fixed before the final run):** a hybrid replaces the outlook only if, on its own validation rows, its BSS beats the outlook's AND its 90 % CI lower bound is above zero. If several hybrids qualify, the one with the largest gain over the outlook wins. Candidates are validated on different seasons, so raw BSS values are not comparable; this tie-break was fixed before any GEFS result was seen (`outlook/select.py`).
 
 ## Skill
 
-| Target | Base rate | Outlook, 43 seasons | + v3 week 1 | + GFS d1–16 + v3 | + GEFS ensemble | GEFS ops test 2021–23 | Shipped | Shipped BSS |
-|---|---|---|---|---|---|---|---|---|
-| Dry week (all 7 days < 2.5 mm), week 1 | 0.181 | +0.071 [+0.049, +0.094] | +0.125 [+0.013, +0.209] | +0.150 [+0.062, +0.228] | +0.119 [+0.069, +0.164] | +0.072 → +0.173 | **outlook + GFS d1–16 + v3 week 1** | **+0.150** |
-| Dry week (all 7 days < 2.5 mm), week 2 | 0.179 | +0.050 [+0.033, +0.069] | – | +0.149 [+0.094, +0.209] | +0.093 [+0.045, +0.142] | +0.100 → +0.119 | **outlook + GFS d1–16 + v3 week 1** | **+0.149** |
-| Dry week (all 7 days < 2.5 mm), week 3 | 0.183 | +0.035 [+0.014, +0.057] | – | – | +0.065 [+0.035, +0.094] | +0.022 → +0.011 | **outlook + GEFS 11-member ensemble** | **+0.065** |
-| Dry week (all 7 days < 2.5 mm), week 4 | 0.193 | +0.034 [+0.012, +0.055] | – | – | +0.040 [+0.016, +0.066] | +0.072 → +0.093 | **climate-driver outlook** | **+0.034** |
-| Wet week (≥ 1.5 × normal), week 1 | 0.237 | +0.066 [+0.035, +0.096] | +0.204 [+0.098, +0.294] | +0.216 [+0.120, +0.295] | +0.156 [+0.115, +0.196] | +0.107 → +0.207 | **outlook + GFS d1–16 + v3 week 1** | **+0.216** |
-| Wet week (≥ 1.5 × normal), week 2 | 0.235 | +0.026 [+0.004, +0.052] | – | +0.055 [-0.027, +0.119] | +0.042 [-0.001, +0.083] | +0.054 → +0.087 | **climate-driver outlook** | **+0.026** |
-| Wet week (≥ 1.5 × normal), week 3 | 0.234 | -0.001 [-0.018, +0.020] | – | – | +0.004 [-0.030, +0.035] | -0.015 → -0.004 | **climate-driver outlook** | **-0.001** |
-| Wet week (≥ 1.5 × normal), week 4 | 0.238 | -0.000 [-0.022, +0.019] | – | – | -0.017 [-0.043, +0.009] | -0.007 → -0.007 | **climate-driver outlook** | **-0.000** |
-| Heavy rain (a day ≥ 30 mm), week 1 | 0.060 | -0.006 [-0.021, +0.009] | +0.049 [-0.003, +0.096] | +0.022 [-0.036, +0.054] | +0.005 [-0.020, +0.029] | -0.004 → +0.074 | **climate-driver outlook** | **-0.006** |
-| Heavy rain (a day ≥ 30 mm), week 2 | 0.075 | -0.003 [-0.027, +0.020] | – | -0.036 [-0.095, +0.021] | -0.009 [-0.037, +0.016] | -0.022 → +0.064 | **climate-driver outlook** | **-0.003** |
-| Heavy rain (a day ≥ 30 mm), week 3 | 0.085 | -0.008 [-0.028, +0.012] | – | – | -0.032 [-0.054, -0.012] | -0.009 → +0.039 | **climate-driver outlook** | **-0.008** |
-| Heavy rain (a day ≥ 30 mm), week 4 | 0.092 | +0.011 [-0.010, +0.034] | – | – | -0.022 [-0.065, +0.017] | -0.032 → -0.012 | **climate-driver outlook** | **+0.011** |
-| Monsoon onset in that week, week 1 | 0.084 | -0.016 [-0.032, -0.000] | -0.006 [-0.103, +0.092] | +0.019 [-0.117, +0.132] | +0.022 [-0.035, +0.071] | +0.025 → +0.011 | **climate-driver outlook** | **-0.016** |
-| Monsoon onset in that week, week 2 | 0.084 | +0.004 [-0.003, +0.012] | – | -0.025 [-0.043, -0.007] | -0.005 [-0.035, +0.019] | +0.003 → +0.023 | **climate-driver outlook** | **+0.004** |
-| Monsoon onset in that week, week 3 | 0.084 | -0.002 [-0.009, +0.005] | – | – | -0.033 [-0.063, -0.003] | +0.012 → +0.008 | **climate-driver outlook** | **-0.002** |
-| Monsoon onset in that week, week 4 | 0.075 | +0.028 [+0.007, +0.052] | – | – | +0.012 [-0.048, +0.069] | -0.020 → -0.124 | **climate-driver outlook** | **+0.028** |
-| Dry spell ≥ 7 days within 3 weeks | 0.538 | +0.092 [+0.059, +0.125] | – | +0.109 [+0.037, +0.187] | +0.124 [+0.077, +0.166] | +0.052 → +0.098 | **outlook + GFS d1–16 + v3 week 1** | **+0.109** |
-| False onset within 3 weeks | 0.315 | -0.005 [-0.020, +0.009] | +0.060 [+0.002, +0.111] | -0.022 [-0.083, +0.017] | +0.015 [-0.035, +0.078] | -0.018 → -0.087 | **outlook + v3 week 1** | **+0.060** |
+| Target | Base rate | Outlook, 43 seasons | + v3 week 1 | + GFS d1–16 + v3 | + GEFS v1 | + GEFS v2 (calibrated) | GFS/GEFS-v2 average | GEFS v2 ops test 2021–23 | Shipped | Shipped BSS |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Dry week (all 7 days < 2.5 mm), week 1 | 0.181 | +0.071 [+0.049, +0.094] | +0.125 [+0.013, +0.209] | +0.150 [+0.062, +0.228] | +0.119 [+0.069, +0.164] | +0.117 [+0.055, +0.170] | +0.156 [+0.087, +0.243] | +0.072 → +0.164 | **mean of GFS and calibrated-GEFS hybrids** | **+0.156** |
+| Dry week (all 7 days < 2.5 mm), week 2 | 0.179 | +0.050 [+0.033, +0.069] | – | +0.149 [+0.094, +0.209] | +0.093 [+0.045, +0.142] | +0.085 [+0.038, +0.131] | +0.146 [+0.075, +0.214] | +0.100 → +0.144 | **mean of GFS and calibrated-GEFS hybrids** | **+0.146** |
+| Dry week (all 7 days < 2.5 mm), week 3 | 0.183 | +0.035 [+0.014, +0.057] | – | – | +0.065 [+0.035, +0.094] | +0.077 [+0.050, +0.107] | – | +0.022 → +0.042 | **outlook + calibrated GEFS ensemble** | **+0.077** |
+| Dry week (all 7 days < 2.5 mm), week 4 | 0.193 | +0.034 [+0.012, +0.055] | – | – | +0.040 [+0.016, +0.066] | +0.055 [+0.028, +0.090] | – | +0.072 → +0.106 | **outlook + calibrated GEFS ensemble** | **+0.055** |
+| Wet week (≥ 1.5 × normal), week 1 | 0.237 | +0.066 [+0.035, +0.096] | +0.204 [+0.098, +0.294] | +0.216 [+0.120, +0.295] | +0.156 [+0.115, +0.196] | +0.123 [+0.066, +0.177] | +0.197 [+0.105, +0.259] | +0.107 → +0.169 | **outlook + GFS d1–16 + v3 week 1** | **+0.216** |
+| Wet week (≥ 1.5 × normal), week 2 | 0.235 | +0.026 [+0.004, +0.052] | – | +0.055 [-0.027, +0.119] | +0.042 [-0.001, +0.083] | +0.044 [-0.011, +0.095] | +0.046 [-0.019, +0.105] | +0.054 → +0.089 | **climate-driver outlook** | **+0.026** |
+| Wet week (≥ 1.5 × normal), week 3 | 0.234 | -0.001 [-0.018, +0.020] | – | – | +0.004 [-0.030, +0.035] | +0.002 [-0.042, +0.040] | – | -0.015 → +0.012 | **climate-driver outlook** | **-0.001** |
+| Wet week (≥ 1.5 × normal), week 4 | 0.238 | -0.000 [-0.022, +0.019] | – | – | -0.017 [-0.043, +0.009] | -0.007 [-0.045, +0.024] | – | -0.007 → -0.015 | **climate-driver outlook** | **-0.000** |
+| Heavy rain (a day ≥ 30 mm), week 1 | 0.060 | -0.006 [-0.021, +0.009] | +0.049 [-0.003, +0.096] | +0.022 [-0.036, +0.054] | +0.005 [-0.020, +0.029] | -0.034 [-0.071, +0.001] | +0.029 [-0.008, +0.055] | -0.004 → +0.025 | **climate-driver outlook** | **-0.006** |
+| Heavy rain (a day ≥ 30 mm), week 2 | 0.075 | -0.003 [-0.027, +0.020] | – | -0.036 [-0.095, +0.021] | -0.009 [-0.037, +0.016] | -0.034 [-0.076, +0.004] | -0.032 [-0.105, +0.030] | -0.022 → -0.004 | **climate-driver outlook** | **-0.003** |
+| Heavy rain (a day ≥ 30 mm), week 3 | 0.085 | -0.008 [-0.028, +0.012] | – | – | -0.032 [-0.054, -0.012] | -0.026 [-0.056, +0.005] | – | -0.009 → +0.004 | **climate-driver outlook** | **-0.008** |
+| Heavy rain (a day ≥ 30 mm), week 4 | 0.092 | +0.011 [-0.010, +0.034] | – | – | -0.022 [-0.065, +0.017] | +0.005 [-0.040, +0.051] | – | -0.032 → -0.035 | **climate-driver outlook** | **+0.011** |
+| Monsoon onset in that week, week 1 | 0.084 | -0.016 [-0.032, -0.000] | -0.006 [-0.103, +0.092] | +0.019 [-0.117, +0.132] | +0.022 [-0.035, +0.071] | +0.006 [-0.041, +0.048] | +0.034 [-0.076, +0.101] | +0.025 → +0.053 | **climate-driver outlook** | **-0.016** |
+| Monsoon onset in that week, week 2 | 0.084 | +0.004 [-0.003, +0.012] | – | -0.025 [-0.043, -0.007] | -0.005 [-0.035, +0.019] | +0.012 [-0.018, +0.038] | -0.003 [-0.023, +0.017] | +0.003 → +0.014 | **climate-driver outlook** | **+0.004** |
+| Monsoon onset in that week, week 3 | 0.084 | -0.002 [-0.009, +0.005] | – | – | -0.033 [-0.063, -0.003] | -0.000 [-0.030, +0.028] | – | +0.012 → +0.003 | **climate-driver outlook** | **-0.002** |
+| Monsoon onset in that week, week 4 | 0.075 | +0.028 [+0.007, +0.052] | – | – | +0.012 [-0.048, +0.069] | +0.038 [-0.016, +0.099] | – | -0.020 → -0.065 | **climate-driver outlook** | **+0.028** |
+| Dry spell ≥ 7 days within 3 weeks | 0.538 | +0.092 [+0.059, +0.125] | – | +0.109 [+0.037, +0.187] | +0.124 [+0.077, +0.166] | +0.100 [+0.047, +0.155] | +0.080 [+0.029, +0.137] | +0.052 → +0.069 | **mean of GFS and calibrated-GEFS hybrids** | **+0.080** |
+| False onset within 3 weeks | 0.315 | -0.005 [-0.020, +0.009] | +0.060 [+0.002, +0.111] | -0.022 [-0.083, +0.017] | +0.015 [-0.035, +0.078] | -0.001 [-0.060, +0.070] | -0.000 [-0.031, +0.038] | -0.018 → -0.048 | **outlook + v3 week 1** | **+0.060** |
 
 **9 of 18** shipped targets have a 90 % CI entirely above zero.
 
@@ -72,15 +72,29 @@ Observed truth: CHIRPS v2.0 0.05° daily rain, 1981–2023, area-weighted to eac
   * Onset week, except a small signal in week 4.
   * For these targets the system ships calibrated climatology-like probabilities.
   * Heavy-rain advisories are therefore capped at amber; red is reserved for events with validated skill.
-* **Validation sample:** the hybrid rows rest on far fewer seasons (≤ 9) than the outlook (43), so their CIs are wider.
+* **Validation sample:** the hybrids rest on fewer seasons than the outlook (8–20 vs 43), so their CIs are wider.
 
 ### What the GEFS ensemble added
-* **Reforecasts (20 seasons, 2000–2019):** the GEFS hybrid improves dry weeks 1–3, wet week 1 and dry-spell risk.
-  * The GFS hybrid gains more on the targets both cover, so under the selection rule GEFS replaces the outlook only for dry week 3.
-  * It does not help heavy rain at weeks 3–4 or onset; on some of these rare events it is worse than the outlook.
-* **Operational test (2021–2023):** the reforecast-trained stacker, applied unchanged, keeps or improves its gains for weeks 1–2 and dry spells.
-  * Dry week 3 does not improve in this test (only 3 seasons), so that selection rests on the 20 reforecast seasons alone.
-* **Interpretation:** these results are consistent with the known limits of sub-seasonal rainfall prediction. Skill beyond week 2 at village scale comes mainly from the MJO/BSISO state and the dry/wet tendency, not from day-to-day rain amounts.
+**v1** is a generic 19-input stacker on raw GEFS.
+* Over 20 reforecast seasons it improves dry weeks 1–3, wet week 1 and dry-spell risk.
+* On rare events it does worse than the outlook, and its dry-week-3 gain did not hold up in the operational test.
+
+**v2** changes three things, all fixed before its results were seen:
+* **Calibration:** GEFS rain is quantile-mapped to observed panchayat rain. Raw GEFS averages rain over ~25 km boxes, so it rarely shows a heavy day.
+* **Event-matched inputs:** each event's own definition (dry week, wet week, heavy day, onset, false start, dry spell) is applied to every one of the 11 member trajectories.
+* **A lean stacker:** the outlook's logit is a fixed offset, so the stacker only learns corrections, using the target's own 2–5 inputs.
+
+**Results:**
+* v2 lifts dry week 3 to +0.077 and dry week 4 to +0.055.
+  * Both 90% ranges are above zero.
+  * Both gains hold up in the operational test on 2021–2023, which the model never saw.
+* Averaging the GFS and calibrated-GEFS hybrids, with no fitting, gives the largest gain over the outlook for dry weeks 1–2 and dry-spell risk on 8 seasons.
+  * The rule therefore ships the average for those three targets.
+  * Its raw BSS on its own seasons can look lower than the GFS hybrid's on different seasons. The comparison that counts is gain over the outlook on the same rows.
+
+**No validated gain:** heavy-rain days and onset in weeks 1–3.
+* Calibrated member onset fractions move onset weeks 1–2 slightly positive (+0.006, +0.012), but their 90% ranges still include zero, so they are not shipped.
+* This is consistent with the known limits of sub-seasonal rainfall prediction. Beyond week 2, village-scale skill comes mainly from the MJO/BSISO state and the dry/wet tendency, not from day-to-day rain amounts.
 
 ## Leakage audits (all fixed before the numbers above)
 | Issue | Effect | Fix |
@@ -108,7 +122,8 @@ python -m outlook.build <chirps_dir> outlook/data/idx      # GP rain + indices
 python -m outlook.model                                      # 18 outlook models, CV metrics, final models
 python -m outlook.stack_v3 && python -m outlook.stack_v3 final
 python outlook/merge_gfs16.py && python -m outlook.stack_gfs ckpts/gfs16/all 0.005
-python -m outlook.stack_gefs ckpts/gefs                      # GEFS reforecast + operational (kaggle/gefs)
+python -m outlook.stack_gefs ckpts/gefs                      # GEFS v1 (reforecast + operational, kaggle/gefs)
+python -m outlook.stack_gefs2 ckpts/gefs                     # GEFS v2 (calibrated) + GFS/GEFS average
 python -m outlook.select                                     # final_selection.json
 python -m outlook.issue 2023-06-12 --out issue.json          # operational outlook for one date
 python -m monsoon.build_bundle --source real                 # web app data
