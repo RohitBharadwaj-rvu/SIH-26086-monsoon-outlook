@@ -36,7 +36,7 @@ LABELS = {
 }
 SEASONS = list(range(2015, 2024))
 MON = {m: i + 1 for i, m in enumerate("JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC".split())}
-IDX_DIR = Path(r"C:/Users/rohit/AppData/Local/Temp/claude/C--Users-rohit-claude/1cb502c9-03b5-4b89-bde6-f17bfe369352/scratchpad/idx")
+IDX_DIR = REPO / "outlook" / "data" / "idx"          # public index files (NOAA PSL ROMI, CPC Nino 3.4, PSL DMI, BSISO)
 
 
 def issues(y):

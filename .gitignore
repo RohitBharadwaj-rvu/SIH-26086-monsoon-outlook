@@ -12,3 +12,6 @@ models/*
 !models/final/
 !models/final/*.pt
 demo/data/serving/nandini_feedback.db
+kaggle/*/runs/
+results/ens-*/
+outlook.json

@@ -1,0 +1,20 @@
+# PS 26086 monsoon outlook (outlook/, monsoon/, scripts/report_ps26086.py) — Python 3.11+
+numpy>=1.26
+scipy>=1.11
+scikit-learn>=1.4
+joblib>=1.3
+
+# optional: v3 deep downscaling model (sihv3/) and its web demo (demo/)
+# torch>=2.2
+# xarray>=2024.1
+# zarr>=3.0
+# pyyaml>=6.0
+# fastapi>=0.110
+# uvicorn>=0.29
+# pydantic>=2.6
+# shapely>=2.0
+
+# optional: forecast downloads (kaggle/gfs16, kaggle/gefs), deck screenshots
+# requests>=2.31
+# eccodes>=1.7
+# playwright>=1.44
