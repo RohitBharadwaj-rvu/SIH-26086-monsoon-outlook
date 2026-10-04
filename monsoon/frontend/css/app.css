@@ -166,3 +166,21 @@ main { max-width: 1180px; margin: 0 auto; padding: 14px 16px 60px; }
   .gauges { grid-template-columns: 1fr; }
   .verify { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* can / cannot panel */
+.cc-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (min-width: 900px) { .cc-grid { grid-template-columns: 1fr 1fr 1fr; } }
+.cc-col h3 { font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; margin: 0 0 8px; }
+.cc-col.can h3 { color: #1f7a4d; } .cc-col.cannot h3 { color: #b42318; } .cc-col.limits h3 { color: var(--ink-3); }
+.cc-col ul { list-style: none; margin: 0; padding: 0; }
+.cc-col li { padding: 7px 0; border-bottom: 1px solid #f0f3f7; font-size: .86rem; display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.cc-col.limits li { display: block; color: var(--ink-2, #3c4d63); line-height: 1.4; }
+.cc-tag { font-size: .7rem; font-weight: 700; border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+.cc-tag.strong { background: #dcf3e6; color: #1f7a4d; } .cc-tag.moderate { background: #eaf5df; color: #4d7c0f; }
+.cc-tag.weak { background: #fdf3d8; color: #8a6100; } .cc-tag.none { background: #fde7e5; color: #b42318; }
+/* reliability small multiples */
+.rel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+.rel-item { border: 1px solid var(--line); border-radius: 10px; padding: 8px 8px 4px; }
+.rel-item h4 { margin: 0; font-size: .82rem; }
+.rel-item .sub { font-size: .72rem; color: var(--ink-3); margin: 2px 0 2px; }
+.rel-item .gap { font-weight: 700; }

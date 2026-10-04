@@ -105,6 +105,30 @@ Observed truth: CHIRPS v2.0 0.05° daily rain, 1981–2023, area-weighted to eac
   * The members' wettest-day intensity carries the signal; the fraction of members with a ≥ 30 mm day adds nothing.
   * Village-scale downpours are not predictable a week ahead with this sample of 9 seasons.
 
+## Reliability of what ships
+The data comes from `outlook.reliability`, on each forecast's own validation rows. The calibration gap is the row-weighted mean distance between forecast probability and observed frequency, over 10 bins.
+
+| Target | Model used | Calibration gap | Rows | Note |
+|---|---|---|---|---|
+| Dry week (all 7 days < 2.5 mm), week 1 | mean of GFS and calibrated-GEFS hybrids | 1.2% | 282,921 | well calibrated |
+| Dry week (all 7 days < 2.5 mm), week 2 | mean of GFS and calibrated-GEFS hybrids | 1.4% | 282,798 | well calibrated |
+| Dry week (all 7 days < 2.5 mm), week 3 | outlook + calibrated GEFS ensemble | 1.3% | 715,360 | well calibrated |
+| Dry week (all 7 days < 2.5 mm), week 4 | outlook + calibrated GEFS ensemble | 1.9% | 715,373 | well calibrated |
+| Wet week (≥ 1.5 × normal), week 1 | outlook + v3 diffusion ensemble | 4.0% | 256,401 | overconfident above 0.75 |
+| Wet week (≥ 1.5 × normal), week 2 | climate-driver outlook | 1.8% | 1,539,486 | overconfident above 0.54 |
+| Wet week (≥ 1.5 × normal), week 3 | climate-driver outlook | 3.4% | 1,539,486 | overconfident above 0.44 |
+| Wet week (≥ 1.5 × normal), week 4 | climate-driver outlook | 2.4% | 1,539,486 | overconfident above 0.53 |
+| Heavy rain (a day ≥ 30 mm), week 1 | climate-driver outlook | 1.5% | 1,539,486 | overconfident above 0.24 |
+| Heavy rain (a day ≥ 30 mm), week 2 | climate-driver outlook | 1.5% | 1,539,486 | overconfident above 0.54 |
+| Heavy rain (a day ≥ 30 mm), week 3 | climate-driver outlook | 1.2% | 1,539,486 | overconfident above 0.44 |
+| Heavy rain (a day ≥ 30 mm), week 4 | climate-driver outlook | 1.0% | 1,539,486 | well calibrated |
+| Monsoon onset in that week, week 1 | climate-driver outlook | 1.9% | 764,066 | overconfident above 0.34 |
+| Monsoon onset in that week, week 2 | climate-driver outlook | 2.0% | 764,066 | overconfident above 0.23 |
+| Monsoon onset in that week, week 3 | climate-driver outlook | 1.3% | 764,066 | well calibrated |
+| Monsoon onset in that week, week 4 | climate-driver outlook | 0.7% | 764,066 | overconfident above 0.34 |
+| Dry spell ≥ 7 days within 3 weeks | mean of GFS and calibrated-GEFS hybrids | 5.6% | 282,132 | underconfident near 0.25, overconfident near 0.65 |
+| False onset within 3 weeks | outlook + v3 week 1 | 1.4% | 72,087 | well calibrated |
+
 ## Leakage audits (all fixed before the numbers above)
 | Issue | Effect | Fix |
 |---|---|---|

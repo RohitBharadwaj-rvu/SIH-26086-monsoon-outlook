@@ -47,6 +47,23 @@ for t in cv:
     rows.append(f"| {label(t)} | {cv[t]['base_rate']:.3f} | {cv[t]['bss']:+.3f} {ci(cv[t]['ci90'])} | {hy(hv3, t)} | {hy(hens, t)} | {hy(hgfs, t)} | "
                 f"{hy(hgefs, t)} | {hy(hgefs2, t)} | {hy(hblend, t)} | {ops} | **{SRC[s['source']]}** | **{s['bss']:+.3f}** |")
 n_skill = sum(1 for t in sel if sel[t]["ci90"][0] > 0)
+relf = RES / "reliability_shipped.json"
+rel = json.load(open(relf)) if relf.exists() else {}
+
+
+def rel_note(r):
+    over = [b_ for b_ in r["bins"] if b_[0] - b_[1] > 0.08 and b_[2] > 5000]
+    under = [b_ for b_ in r["bins"] if b_[1] - b_[0] > 0.08 and b_[2] > 5000]
+    if over and under:
+        return f"underconfident near {under[0][0]:.2f}, overconfident near {over[0][0]:.2f}"
+    if over:
+        return f"overconfident above {min(b_[0] for b_ in over):.2f}"
+    if under:
+        return f"underconfident near {under[0][0]:.2f}"
+    return "well calibrated"
+
+
+rel_rows = "\n".join(f"| {label(t)} | {SRC[r['source']]} | {r['ece'] * 100:.1f}% | {r['n']:,} | {rel_note(r)} |" for t, r in rel.items())
 gfs_seasons = next(iter(hgfs.values()))["seasons"]
 gefs_seasons = next(iter(hgefs.values()))["seasons"] if hgefs else "–"
 
@@ -139,6 +156,13 @@ Observed truth: CHIRPS v2.0 0.05° daily rain, 1981–2023, area-weighted to eac
 * **Heavy rain week 1:** it does **not** gain reliably (+0.019, 90% range [−0.069, +0.086]).
   * The members' wettest-day intensity carries the signal; the fraction of members with a ≥ 30 mm day adds nothing.
   * Village-scale downpours are not predictable a week ahead with this sample of 9 seasons.
+
+## Reliability of what ships
+The data comes from `outlook.reliability`, on each forecast's own validation rows. The calibration gap is the row-weighted mean distance between forecast probability and observed frequency, over 10 bins.
+
+| Target | Model used | Calibration gap | Rows | Note |
+|---|---|---|---|---|
+{rel_rows}
 
 ## Leakage audits (all fixed before the numbers above)
 | Issue | Effect | Fix |

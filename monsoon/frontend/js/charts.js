@@ -83,8 +83,9 @@ export function reliability(bins, color = "#0e7c86") {
   g += `<line x1="${X(0)}" y1="${Y(0)}" x2="${X(1)}" y2="${Y(1)}" stroke="#94a3b8" stroke-dasharray="4 3"/>`;
   const pts = bins.filter((b) => b[2] > 0);
   const maxn = Math.max(...pts.map((b) => b[2]));
+  pts.forEach((b) => { if (b.length >= 5) g += `<line x1="${X(b[0])}" x2="${X(b[0])}" y1="${Y(b[3])}" y2="${Y(b[4])}" stroke="${color}" stroke-opacity=".45" stroke-width="5" stroke-linecap="round"/>`; });
   g += `<polyline points="${pts.map((b) => `${X(b[0])},${Y(b[1])}`).join(" ")}" fill="none" stroke="${color}" stroke-width="2"/>`;
-  pts.forEach((b) => (g += `<circle cx="${X(b[0])}" cy="${Y(b[1])}" r="${3 + 5 * Math.sqrt(b[2] / maxn)}" fill="${color}" fill-opacity=".75" stroke="#fff"><title>forecast ${b[0].toFixed(2)} → observed ${b[1].toFixed(2)} (n=${b[2]})</title></circle>`));
+  pts.forEach((b) => (g += `<circle cx="${X(b[0])}" cy="${Y(b[1])}" r="${3 + 5 * Math.sqrt(b[2] / maxn)}" fill="${color}" fill-opacity=".75" stroke="#fff"><title>forecast ${b[0].toFixed(2)} → observed ${b[1].toFixed(2)}${b.length >= 5 ? ` (season range ${b[3].toFixed(2)}–${b[4].toFixed(2)})` : ""} · ${b[2]} panchayat-days</title></circle>`));
   g += `<text x="${L + iw / 2}" y="${H - 4}" text-anchor="middle" font-size="10.5" fill="#3c4d63">forecast probability</text>`;
   g += `<text x="12" y="${T + ih / 2}" text-anchor="middle" font-size="10.5" fill="#3c4d63" transform="rotate(-90 12 ${T + ih / 2})">observed frequency</text>`;
   return g + `</svg>`;

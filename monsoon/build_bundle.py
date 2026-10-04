@@ -169,6 +169,9 @@ def model_card():
                                        "panchayat; blended with the GEFS ensemble, GFS days 1-16 or the v3 week-1 forecast where that is validated to help")
         card["pipeline"][1]["inputs"] = ["real-time MJO (ROMI) and BSISO", "ENSO (weekly Niño 3.4)", "IOD (DMI)", "panchayat climatology",
                                          "recent observed rain", "GEFS 11-member ensemble (weeks 1-4)", "GFS days 1-16 (weeks 1-2)", "v3 week-1 forecast"]
+    rel = REPO / "outlook" / "results" / "reliability_shipped.json"
+    if rel.exists():
+        card["reliability_shipped"] = json.load(open(rel))
     card["definitions"] = {
         "dry": "all 7 days < 2.5 mm (IMD dry day)", "wet": "weekly total ≥ 1.5 × the panchayat's normal for that week",
         "heavy": "any day ≥ 30 mm", "break3w": "a run of ≥ 7 dry days within the next 3 weeks",

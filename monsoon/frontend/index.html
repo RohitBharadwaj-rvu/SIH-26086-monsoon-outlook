@@ -136,6 +136,10 @@
         <p data-i18n="ml_sub">A hybrid system: a deep downscaling model for the first week, a sub-seasonal model driven by global climate signals for weeks 1–4, and an agronomic expert system that turns probabilities into advice.</p>
         <div id="pipeline" class="pipeline"></div>
       </div>
+      <div class="card">
+        <div class="card-h"><h2 data-i18n="cc_title">What this system can and cannot forecast</h2><span class="hint" data-i18n="cc_hint">validated on seasons the models never saw</span></div>
+        <div id="can-cannot" class="cc-grid"></div>
+      </div>
       <div class="grid2">
         <div class="card">
           <div class="card-h"><h2 data-i18n="skill_lead">Skill by lead week</h2><span class="hint" id="skill-src"></span></div>
@@ -148,16 +152,15 @@
           <div class="chart-note" data-i18n="drivers_note">The MJO drives breaks (dry spells) at every lead; ENSO and IOD set how wet the season runs.</div>
         </div>
       </div>
-      <div class="grid2">
-        <div class="card">
-          <div class="card-h"><h2 data-i18n="reliability">Reliability</h2><span class="hint" id="rel-event"></span></div>
-          <div id="rel-chart" class="chart"></div>
-        </div>
-        <div class="card">
-          <div class="card-h"><h2 data-i18n="v3_card">Week 1: downscaling model</h2><span class="hint" data-i18n="v3_hint">2023 held-out season, per panchayat</span></div>
-          <div class="table-wrap"><table id="v3-table" class="tbl"></table></div>
-          <div class="chart-note" data-i18n="v3_note">Error of the downscaled forecast against observed rain and temperature, next to the raw 0.25° GFS forecast it starts from.</div>
-        </div>
+      <div class="card">
+        <div class="card-h"><h2 data-i18n="rel_title">Reliability: does a 70% forecast happen 70% of the time?</h2><span class="hint" data-i18n="rel_hint">every forecast that ships, on its validation seasons</span></div>
+        <div id="rel-grid" class="rel-grid"></div>
+        <div class="chart-note" data-i18n="rel_note">Points on the dashed diagonal are perfectly calibrated. Shaded bars: range of the observed frequency across seasons (90% season bootstrap). Calibration gap = average distance from the diagonal, weighted by how often each probability is issued.</div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h2 data-i18n="v3_card">Week 1: downscaling model</h2><span class="hint" data-i18n="v3_hint">2023 held-out season, per panchayat</span></div>
+        <div class="table-wrap"><table id="v3-table" class="tbl"></table></div>
+        <div class="chart-note" data-i18n="v3_note">Error of the downscaled forecast against observed rain and temperature, next to the raw 0.25° GFS forecast it starts from.</div>
       </div>
       <div class="card">
         <div class="card-h"><h2 data-i18n="shipped">Validated skill of what ships</h2><span class="hint" data-i18n="shipped_hint">one row per event and lead</span></div>

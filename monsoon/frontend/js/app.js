@@ -25,6 +25,17 @@ const T = {
     mjo_active: "active", mjo_weak: "weak", phase: "phase", amp: "amplitude", select_gp: "Tap a panchayat for details",
     importance: "What the models rely on", importance_hint: "permutation importance on held-out seasons",
     within2: "onset within 2 wk", within4: "within 4 wk", shipped: "Validated skill of what ships", shipped_hint: "one row per event and lead",
+    cc_title: "What this system can and cannot forecast", cc_hint: "validated on seasons the models never saw",
+    cc_can: "Can forecast", cc_cannot: "Cannot forecast reliably", cc_limits: "Read with care",
+    strong: "strong", moderate: "moderate", weak: "weak", no_skill: "no skill",
+    lim1: "Heavy-rain days show no skill beyond the long-term average at any lead, so heavy-rain alerts never go above amber.",
+    lim2: "Onset timing is weak: only onset falling in week 4 beats climatology, and only slightly. Treat onset messages as guidance and confirm with the first sowing rains.",
+    lim3: "Weeks 1–2 use weather models (GFS, GEFS, v3); weeks 3–4 rely on climate signals (MJO, BSISO, ENSO, IOD) and are only modestly better than climatology.",
+    lim4: "Probabilities, not certainties: a 30% chance should happen about 3 times in 10 similar situations (see reliability below).",
+    lim5: "Validated for Mandya district (234 panchayats) against CHIRPS satellite-gauge rainfall, not IMD station records.",
+    rel_title: "Reliability: does a 70% forecast happen 70% of the time?", rel_hint: "every forecast that ships, on its validation seasons",
+    rel_note: "Points on the dashed diagonal are perfectly calibrated. Shaded bars: range of the observed frequency across seasons (90% season bootstrap). Calibration gap = average distance from the diagonal, weighted by how often each probability is issued.",
+    cal_gap: "calibration gap",
     hybrid_note: "Each event uses the most skilful validated model: the climate-driver outlook (1981–2023), or a hybrid with the GEFS ensemble (2000–2019), GFS days 1–16 or the v3 downscaling model (2015–2023).",
   },
   kn: {
@@ -49,7 +60,17 @@ const T = {
     el_nino: "ಎಲ್ ನಿನೊ", la_nina: "ಲಾ ನಿನಾ", neutral: "ತಟಸ್ಥ", pos_iod: "ಧನಾತ್ಮಕ IOD", neg_iod: "ಋಣಾತ್ಮಕ IOD",
     mjo_active: "ಸಕ್ರಿಯ", mjo_weak: "ದುರ್ಬಲ", phase: "ಹಂತ", amp: "ಪ್ರಾಬಲ್ಯ", select_gp: "ವಿವರಗಳಿಗೆ ಪಂಚಾಯಿತಿ ಒತ್ತಿ",
     importance: "ಮಾದರಿಗಳು ಯಾವುದನ್ನು ಅವಲಂಬಿಸಿವೆ", importance_hint: "ಪರೀಕ್ಷಾ ಹಂಗಾಮುಗಳ ಮೇಲೆ",
-    within2: "2 ವಾರದಲ್ಲಿ ಆರಂಭ", within4: "4 ವಾರದಲ್ಲಿ", shipped: "ಬಳಕೆಯಲ್ಲಿರುವ ಮಾದರಿಯ ನಿಖರತೆ", shipped_hint: "ಪ್ರತಿ ಘಟನೆ ಮತ್ತು ವಾರ",
+    within2: "2 ವಾರದಲ್ಲಿ ಆರಂಭ", within4: "4 ವಾರದಲ್ಲಿ",
+    cc_title: "ಈ ವ್ಯವಸ್ಥೆ ಏನನ್ನು ಮುನ್ಸೂಚಿಸಬಲ್ಲದು, ಏನನ್ನು ಮುನ್ಸೂಚಿಸಲಾರದು", cc_hint: "ಮಾದರಿಗಳು ನೋಡದ ಹಂಗಾಮುಗಳಲ್ಲಿ ಪರಿಶೀಲಿಸಲಾಗಿದೆ",
+    cc_can: "ಮುನ್ಸೂಚಿಸಬಲ್ಲದು", cc_cannot: "ವಿಶ್ವಾಸಾರ್ಹವಾಗಿ ಮುನ್ಸೂಚಿಸಲಾರದು", cc_limits: "ಎಚ್ಚರಿಕೆಯಿಂದ ಓದಿ",
+    strong: "ಬಲವಾದ", moderate: "ಮಧ್ಯಮ", weak: "ದುರ್ಬಲ", no_skill: "ನಿಖರತೆ ಇಲ್ಲ",
+    lim1: "ಭಾರೀ ಮಳೆಯ ದಿನಗಳನ್ನು ದೀರ್ಘಾವಧಿ ಸರಾಸರಿಗಿಂತ ಉತ್ತಮವಾಗಿ ಮುನ್ಸೂಚಿಸಲು ಆಗುವುದಿಲ್ಲ; ಆದ್ದರಿಂದ ಭಾರೀ ಮಳೆ ಎಚ್ಚರಿಕೆ ಹಳದಿ ಮಟ್ಟವನ್ನು ಮೀರುವುದಿಲ್ಲ.",
+    lim2: "ಮುಂಗಾರು ಆರಂಭದ ಸಮಯದ ಮುನ್ಸೂಚನೆ ದುರ್ಬಲ: 4ನೇ ವಾರದಲ್ಲಿ ಆರಂಭದ ಮುನ್ಸೂಚನೆ ಮಾತ್ರ ಸರಾಸರಿಗಿಂತ ಸ್ವಲ್ಪ ಉತ್ತಮ. ಮೊದಲ ಬಿತ್ತನೆ ಮಳೆಯಿಂದ ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ.",
+    lim3: "ವಾರ 1–2 ಹವಾಮಾನ ಮಾದರಿಗಳನ್ನು (GFS, GEFS, v3) ಬಳಸುತ್ತದೆ; ವಾರ 3–4 ಜಾಗತಿಕ ಹವಾಮಾನ ಸಂಕೇತಗಳನ್ನು ಅವಲಂಬಿಸಿದ್ದು ಸರಾಸರಿಗಿಂತ ಸ್ವಲ್ಪ ಮಾತ್ರ ಉತ್ತಮ.",
+    lim4: "ಇವು ಸಂಭವನೀಯತೆಗಳು, ಖಚಿತತೆಗಳಲ್ಲ: 30% ಸಾಧ್ಯತೆ ಎಂದರೆ ಇಂತಹ 10 ಸಂದರ್ಭಗಳಲ್ಲಿ ಸುಮಾರು 3 ಬಾರಿ ಸಂಭವಿಸಬೇಕು.",
+    lim5: "ಮಂಡ್ಯ ಜಿಲ್ಲೆಯ 234 ಪಂಚಾಯಿತಿಗಳಿಗೆ CHIRPS ಉಪಗ್ರಹ-ಮಳೆಮಾಪಕ ದತ್ತಾಂಶದ ವಿರುದ್ಧ ಪರಿಶೀಲಿಸಲಾಗಿದೆ.",
+    rel_title: "ವಿಶ್ವಾಸಾರ್ಹತೆ: 70% ಮುನ್ಸೂಚನೆ 70% ಬಾರಿ ನಿಜವಾಗುತ್ತದೆಯೇ?", rel_hint: "ಬಳಕೆಯಲ್ಲಿರುವ ಪ್ರತಿಯೊಂದು ಮುನ್ಸೂಚನೆ",
+    cal_gap: "ಹೊಂದಾಣಿಕೆ ಅಂತರ", shipped: "ಬಳಕೆಯಲ್ಲಿರುವ ಮಾದರಿಯ ನಿಖರತೆ", shipped_hint: "ಪ್ರತಿ ಘಟನೆ ಮತ್ತು ವಾರ",
     hybrid_note: "ವಾರ 1: ಡೌನ್‌ಸ್ಕೇಲಿಂಗ್ ಮಾದರಿಯೊಂದಿಗೆ ಸಂಯೋಜನೆ (2015–2023); ವಾರ 2–4: ಹವಾಮಾನ ಚಾಲಕಗಳು (1981–2023).",
   },
 };
@@ -300,8 +321,39 @@ function exportCSV() {
 }
 
 // ------------------------------------------------------------------ model (ML) view
+const SRC_LABEL = { outlook: "climate drivers", v3: "+ v3 week 1", gfs: "+ GFS d1–16 + v3", gefs: "+ GEFS 11-member ensemble",
+  gefs2: "+ calibrated GEFS ensemble", blend: "GFS + GEFS hybrids averaged", v3ens: "+ v3 diffusion ensemble" };
+const FAMILIES = ["dry", "wet", "heavy", "onset", "break3w", "false3w"];
+const evLabel = (k) => (k === "break3w" || k === "false3w") ? t(k) : `${t(k.split("_")[0])} · ${t("wk")} ${k.split("_")[1]}`;
+const strength = (f) => f.ci90[0] <= 0 ? "none" : f.bss >= 0.10 ? "strong" : f.bss >= 0.05 ? "moderate" : "weak";
+const famOf = (k) => (k === "break3w" || k === "false3w") ? k : k.split("_")[0];
+
+function renderCanCannot(F) {
+  const keys = Object.keys(F).sort((a, b) => FAMILIES.indexOf(famOf(a)) - FAMILIES.indexOf(famOf(b)) || a.localeCompare(b));
+  const can = keys.filter((k) => strength(F[k]) !== "none");
+  const tag = (k) => `<span class="cc-tag ${strength(F[k])}" title="Brier skill ${F[k].bss.toFixed(3)} [${F[k].ci90[0].toFixed(3)}, ${F[k].ci90[1].toFixed(3)}] · ${SRC_LABEL[F[k].source]}">${t(strength(F[k]) === "none" ? "no_skill" : strength(F[k]))} · ${F[k].bss.toFixed(2)}</span>`;
+  const cannot = {};                                     // family -> weeks without validated skill
+  keys.filter((k) => strength(F[k]) === "none").forEach((k) => { (cannot[famOf(k)] ||= []).push(k.includes("_") ? k.split("_")[1] : ""); });
+  const cannotLi = Object.entries(cannot).map(([fam, wks]) => `<li><span>${(fam === "break3w" || fam === "false3w") ? t(fam) : `${t(fam)} · ${t("wk")} ${wks.join(", ")}`}</span><span class="cc-tag none">${t("no_skill")}</span></li>`).join("");
+  $("#can-cannot").innerHTML = `
+    <div class="cc-col can"><h3>✓ ${t("cc_can")}</h3><ul>${can.map((k) => `<li><span>${evLabel(k)}</span>${tag(k)}</li>`).join("")}</ul></div>
+    <div class="cc-col cannot"><h3>✕ ${t("cc_cannot")}</h3><ul>${cannotLi}</ul></div>
+    <div class="cc-col limits"><h3>${t("cc_limits")}</h3><ul>${["lim1", "lim2", "lim3", "lim4", "lim5"].map((k) => `<li>${t(k)}</li>`).join("")}</ul></div>`;
+}
+
+function renderReliabilityGrid(R) {
+  const keys = Object.keys(R).sort((a, b) => (strength(R[a]) === "none") - (strength(R[b]) === "none")
+    || FAMILIES.indexOf(famOf(a)) - FAMILIES.indexOf(famOf(b)) || a.localeCompare(b));
+  $("#rel-grid").innerHTML = keys.map((k) => { const r = R[k];
+    return `<div class="rel-item"><h4>${evLabel(k)} <span class="cc-tag ${strength(r)}">${t(strength(r) === "none" ? "no_skill" : strength(r))}</span></h4>
+      <div class="sub">${SRC_LABEL[r.source]} · ${t("cal_gap")} <span class="gap">${(r.ece * 100).toFixed(1)}%</span></div>
+      ${reliability(r.bins, COLORS[famOf(k)] || "#0e7c86")}</div>`; }).join("");
+}
+
 function renderModel() {
   const M = S.model;
+  if (M.final_selection) renderCanCannot(M.final_selection);
+  if (M.reliability_shipped) renderReliabilityGrid(M.reliability_shipped);
   $("#pipeline").innerHTML = M.pipeline.map((s, i) => `<div class="stage"><span class="n">${i + 1}</span><h3>${s.name}</h3><div class="role">${s.role}</div>
       <ul>${s.inputs.map((x) => `<li>${x}</li>`).join("")}</ul><div class="meta">${s.params}${s.training ? ` · ${s.training}` : ""}</div></div>`).join("");
   const cats = [1, 2, 3, 4].map((k) => `${t("wk")} ${k}`);
@@ -315,7 +367,7 @@ function renderModel() {
       series.forEach((s, j) => { const ev = ["dry", "wet", "heavy", "onset"][j];
         s.values = [1, 2, 3, 4].map((k) => { const f = F[`${ev}_${k}`]; return f ? { v: f.bss, lo: f.ci90[0], hi: f.ci90[1] } : null; }); });
       const rows = Object.entries(F).map(([k, f]) => `<tr><td>${k.replace(/_(\d)$/, " · wk $1").replace("break3w", "dry spell (3 wk)").replace("false3w", "false onset (3 wk)")}</td>
-        <td>${({ outlook: "climate drivers", v3: "+ v3 week 1", gfs: "+ GFS d1–16 + v3", gefs: "+ GEFS 11-member ensemble", gefs2: "+ calibrated GEFS ensemble", blend: "GFS + GEFS hybrids averaged", v3ens: "+ v3 diffusion ensemble" })[f.source]}</td><td class="num">${f.bss.toFixed(3)}</td>
+        <td>${SRC_LABEL[f.source]}</td><td class="num">${f.bss.toFixed(3)}</td>
         <td class="num">[${f.ci90[0].toFixed(3)}, ${f.ci90[1].toFixed(3)}]</td><td>${f.seasons}</td></tr>`).join("");
       $("#sel-table").innerHTML = `<thead><tr><th>Event</th><th>Shipped model</th><th>Brier skill</th><th>90% CI</th><th>Validated on</th></tr></thead><tbody>${rows}</tbody>`;
     }
@@ -333,12 +385,7 @@ function renderModel() {
   const dser = (ev, key, name, color) => ({ name, color, values: ["1", "2", "3", "4"].map((k) => { const v = sp[ev]?.[k]?.[key]; return v ? { v: v[0], lo: v[1], hi: v[2] } : null; }) });
   $("#driver-chart").innerHTML = skillBars(cats, [dser("dry", "mjo", "MJO → dry", "#b7791f"), dser("dry", "enso_iod", "ENSO+IOD → dry", "#e6c58a"),
     dser("wet", "mjo", "MJO → wet", "#2f6fd6"), dser("wet", "enso_iod", "ENSO+IOD → wet", "#9cbcf0")], { ymin: -0.1, ymax: 0.2, height: 230 });
-  if (M.cv_43_seasons && M.cv_43_seasons.break3w) {
-    $("#rel-event").textContent = t("break3w");
-    $("#rel-chart").innerHTML = reliability(M.cv_43_seasons.break3w.reliability, COLORS.break3w);
-  } else {
-    $("#rel-chart").innerHTML = `<p class="hint">${t("reliability_wait")}</p>`;
-  }
+  if (!M.reliability_shipped) $("#rel-grid").innerHTML = `<p class="hint">${t("reliability_wait")}</p>`;
   const V = M.v3_gp_skill_2023;
   if (V) {
     const any = Object.values(V)[0];
