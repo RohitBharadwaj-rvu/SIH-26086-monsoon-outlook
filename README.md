@@ -49,6 +49,9 @@ python -m outlook.issue 2023-06-12 --out outlook.json
 
 This writes 18 probabilities and ranked advisories for all 234 panchayats, in under 15 s on a laptop CPU.
 
+* **With forecast inputs:** pass that day's forecasts with `--gfs`, `--gefs` and `--v3ens` (formats in `outlook/issue.py`), and it applies the validated weather-model hybrids.
+* **Without them:** it uses the climate-driver outlook. The forecast archives are not committed (`ckpts/`), since they are too large.
+
 ---
 
 ## How it works
