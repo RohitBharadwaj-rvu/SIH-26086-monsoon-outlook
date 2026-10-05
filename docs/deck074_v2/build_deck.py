@@ -194,6 +194,13 @@ text(s, 21, 148, 290, 30, [[("TECH STACK", True)]], size=22)
 stack = ["PyTorch", "Python, NumPy", "Xarray, Zarr, NetCDF", "ecCodes (GRIB)", "FastAPI, Uvicorn", "Pydantic",
          "Shapely", "Leaflet.js", "HTML5, CSS, JS", "Service Worker (PWA)", "SQLite", "Kaggle T4 GPUs"]
 text(s, 30, 176, 285, 400, stack, size=22, bullet=True, spacing=0.92)
+text(s, 21, 480, 290, 30, [[("CODE & MODEL WEIGHTS", True)]], size=22)
+gh = text(s, 30, 509, 285, 70, [[("github.com/rohzhegde26/", False)], [("SIH-26074-Fast-and-Curious", False)]],
+          size=19, color="0e4f8a", spacing=0.92)
+for para in gh.text_frame.paragraphs:
+    for r in para.runs:
+        r.hyperlink.address = "https://github.com/rohzhegde26/SIH-26074-Fast-and-Curious"
+        r.font.underline = True
 text(s, 21, 585, 290, 60, [[("PERFORMANCE &", True)], [("TESTING", True)]], size=22, spacing=0.92)
 text(s, 30, 640, 285, 110, ["0.17 s FAST forecast (T4)", "8.3 s for 16 members", "< 1 GB GPU memory",
                             "234 GPs × 7 days × 6 vars"], size=22, bullet=True, spacing=0.92)
