@@ -124,7 +124,7 @@ All data is public:
 
 ## Background: the v3 downscaler
 
-This repository grew out of our SIH26074 work on panchayat-scale weather downscaling. The v3 model is a spatiotemporal transformer with a cross-fitted residual-diffusion ensemble. It downscales GFS 0.25° forecasts to a 0.05° grid. In this project it supplies the week-1 ensemble used by the outlook. See `docs/final_report.md` and `reports/final_system_report.md`.
+This repository grew out of our SIH26074 work on panchayat-scale weather downscaling. The v3 model is a spatiotemporal transformer with a cross-fitted residual-diffusion ensemble. It downscales GFS 0.25° forecasts to a 0.05° grid. In this project it supplies the week-1 ensemble used by the outlook. Its full SIH26074 submission (web demo, weights, reports) is at **[rohzhegde26/SIH-26074-Fast-and-Curious](https://github.com/rohzhegde26/SIH-26074-Fast-and-Curious)**.
 
 ## License
 
